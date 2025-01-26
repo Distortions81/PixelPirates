@@ -421,5 +421,5 @@ func playSong(song songData, audioContext *audio.Context) {
 	fmt.Printf("Playing %v\n", song.name)
 	PlayWave(finalWave, audioContext, sampleRate)
 
-	fmt.Println("Done playing.")
+	fmt.Println("Done playing.\n")
 }
