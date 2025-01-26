@@ -23,16 +23,18 @@ func main() {
 }
 
 var (
-	boatSP *ebiten.Image
+	boatSP, sunSP *ebiten.Image
 )
 
 func newGame() *Game {
 	boatSP = spriteList["boat"].image
+	sunSP = spriteList["sun"].image
 	return &Game{
 		gameMode: GAME_TITLE,
 		colors: colorData{
-			water: hexToRGB("009688"),
-			sky:   hexToRGB("5b6ee1"),
+			water:   hexToRGB("009688"),
+			horizon: hexToRGB("4fc3f7"),
+			sky:     hexToRGB("5b6ee1"),
 		},
 	}
 }

@@ -1,9 +1,14 @@
 package main
 
-import "github.com/hajimehoshi/ebiten/v2"
+import (
+	"os"
+
+	"github.com/hajimehoshi/ebiten/v2"
+)
 
 var spriteNames []string = []string{
 	"boat",
+	"sun",
 }
 
 func loadSprites() {
@@ -13,8 +18,10 @@ func loadSprites() {
 		image, err := loadSprite(name+".png", false)
 		if err == nil {
 			spriteList[name] = spriteItem{Name: name, Size: point(image.Bounds().Max), image: image}
+			doLog(true, "loading sprite '"+name+"'")
 		} else {
 			doLog(true, "loading sprite '"+name+"' failed.")
+			os.Exit(1)
 		}
 	}
 }

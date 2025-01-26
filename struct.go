@@ -10,7 +10,7 @@ type Game struct {
 }
 
 type colorData struct {
-	sky, water color.RGBA
+	sky, water, horizon color.RGBA
 }
 
 type point struct {
