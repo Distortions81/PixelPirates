@@ -18,22 +18,45 @@ var songList []*songData = []*songData{
 }
 
 type songData struct {
-	name string
-	ins  []insData
-	bpm  int
+	name                    string
+	ins                     []insData
+	bpm                     int
+	reverb, delay, feedback float64
 }
 
 type insData struct {
-	name, data    string
-	volume, blend float64
+	name, data                      string
+	volume, square                  float64
+	attack, decay, sustain, release float64
+}
+
+var songDefaults = songData{
+	bpm:      120,
+	reverb:   0.8,
+	feedback: 0.9,
+	delay:    0.20,
+}
+
+var insDefaults = insData{
+	volume:  0.5,
+	square:  1,
+	attack:  0.05,
+	decay:   0.1,
+	sustain: 0.5,
+	release: 0.5,
 }
 
 var EbonyGale = songData{
-	name: "Aboard the Ebony Gale",
-	bpm:  70,
+	name:     "Aboard the Ebony Gale",
+	bpm:      70,
+	reverb:   songDefaults.reverb,
+	feedback: songDefaults.feedback,
+	delay:    songDefaults.delay,
 	ins: []insData{
 		{name: "lead",
-			volume: 0.5, blend: 1,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `Eb4 1, Gb4 1, Ab4 2,
 Bb4 1, Ab4 1, Gb4 2,
 Fb4 1, Gb4 1, Ab4 2,
@@ -45,7 +68,9 @@ Cb5 1, Bb4 1, Ab4 2,
 Gb4 4`},
 
 		{name: "harmony",
-			volume: 0.5, blend: 1,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 		Eb4/Gb4/Bb4 4,
 Cb4/Eb4/Gb4 4,
@@ -68,7 +93,9 @@ Db4/Gb4/Bb4 4,
 Eb4/Gb4/Bb4 4`},
 
 		{name: "bass",
-			volume: 1, blend: 0.5,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 		Eb2 4,
 Cb2 4,
@@ -94,7 +121,9 @@ Eb2 4`,
 			// We'll use Eb1 as a 'kick' on beats 1 & 3,
 			// and Bb1 as a 'snare' on beats 2 & 4 (very short notes).
 			name:   "percussion",
-			volume: 0.5, blend: 0.7,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
 Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
@@ -109,12 +138,17 @@ Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75
 		}}}
 
 var MidnightDepthsPercussion = songData{
-	name: "Midnight Depths",
-	bpm:  70,
+	name:     "Midnight Depths",
+	bpm:      70,
+	reverb:   songDefaults.reverb,
+	feedback: songDefaults.feedback,
+	delay:    songDefaults.delay,
 	ins: []insData{
 		{
 			name:   "lead",
-			volume: 0.5, blend: 1,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb4 2, NN 2,
 Gb4 1, Ab4 1, Bb4 2,
@@ -134,7 +168,9 @@ Db5 1, Bb4 1, Ab4 2
 		},
 		{
 			name:   "harmony",
-			volume: 0.5, blend: 1,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb4/Gb4/Bb4 4,
 Eb4/Gb4/Bb4 4,
@@ -159,7 +195,9 @@ Eb4/Gb4/Bb4 4
 		},
 		{
 			name:   "bass",
-			volume: 1, blend: 0.5,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb2 4,
 Eb2 4,
@@ -184,7 +222,9 @@ Eb2 4
 		},
 		{
 			name:   "descant",
-			volume: 1, blend: 0,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 NN 8, // (rests for first 8 measures)
 
@@ -195,7 +235,9 @@ Ab5 0.5, Gb5 0.5, Eb5 1, NN 2.5
 		},
 		{
 			name:   "pad",
-			volume: 1, blend: 0.5,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb4/Gb4/Bb4 0.5, NN 0.5, Eb4/Gb4/Bb4 0.5, NN 2.5,
 Cb4/Eb4/Gb4 1, NN 3,
@@ -218,7 +260,9 @@ Eb4/Gb4/Bb4 0.5, NN 3.5
 			// We'll use Eb1 as a 'kick' on beats 1 & 3,
 			// and Bb1 as a 'snare' on beats 2 & 4 (very short notes).
 			name:   "percussion",
-			volume: 2, blend: 0.7,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
 Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
@@ -235,13 +279,17 @@ Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75
 }
 
 var SilverMaelstrom = songData{
-	name: "Silver Maelstrom",
-	bpm:  100,
+	name:     "Silver Maelstrom",
+	bpm:      100,
+	reverb:   songDefaults.reverb,
+	feedback: songDefaults.feedback,
+	delay:    songDefaults.delay,
 	ins: []insData{
 		{
 			name:   "lead",
-			volume: 1.0,
-			blend:  0.5, // balanced sine/square
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb4 1, Gb4 1, Ab4 2, 
 Bb4 2, Ab4 2, 
@@ -256,8 +304,9 @@ Gb4 2, Eb4 2
 		},
 		{
 			name:   "harmony",
-			volume: 0.8,
-			blend:  0.2, // mostly sine
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb4/Gb4/Bb4 4,
 Cb4/Eb4/Gb4 4,
@@ -282,8 +331,9 @@ Eb4/Gb4/Bb4 4
 		},
 		{
 			name:   "bass",
-			volume: 1.1,
-			blend:  0.3, // mellow but slightly square
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb2 4,
 Cb2 4,
@@ -308,8 +358,9 @@ Eb2 4
 		},
 		{
 			name:   "descant",
-			volume: 0.7,
-			blend:  0.6, // a bit edgier than pure sine
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 NN 8, // silent first 8 measures for drama
 
@@ -320,8 +371,9 @@ Ab5 0.5, Gb5 0.5, Eb5 1, NN 2.5
 		},
 		{
 			name:   "pad",
-			volume: 0.5,
-			blend:  0.1, // almost pure sine, very soft
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb4/Gb4/Bb4 0.5, NN 3.5,
 Cb4/Eb4/Gb4 0.5, NN 3.5,
@@ -347,8 +399,9 @@ Eb4/Gb4/Bb4 0.5, NN 3.5
 		{
 			// Fake percussion: Kick on Eb1, Snare on Bb1
 			name:   "percussion",
-			volume: 1.3, // louder
-			blend:  1.0, // pure square = more punch
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
 Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
@@ -360,13 +413,17 @@ Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75
 }
 
 var CursedMeridian = songData{
-	name: "Cursed Meridian",
-	bpm:  80,
+	name:     "Cursed Meridian",
+	bpm:      80,
+	reverb:   songDefaults.reverb,
+	feedback: songDefaults.feedback,
+	delay:    songDefaults.delay,
 	ins: []insData{
 		{
 			name:   "lead",
-			volume: 1.0,
-			blend:  0.4,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb4 2, Gb4 2,
 Ab4 1, Bb4 1, Db5 2,
@@ -381,8 +438,9 @@ Eb4 4
 		},
 		{
 			name:   "harmony",
-			volume: 0.9,
-			blend:  0.3,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb4/Gb4/Bb4 4,
 Cb4/Eb4/Gb4 4,
@@ -407,8 +465,9 @@ Eb4/Gb4/Bb4 4
 		},
 		{
 			name:   "bass",
-			volume: 1.1,
-			blend:  0.2,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb2 4,
 Eb2 4,
@@ -433,8 +492,9 @@ Eb2 4
 		},
 		{
 			name:   "descant",
-			volume: 0.8,
-			blend:  0.5,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 NN 8,
 
@@ -445,8 +505,9 @@ Ab5 0.5, Gb5 0.5, Eb5 1, NN 2.5
 		},
 		{
 			name:   "pad",
-			volume: 0.6,
-			blend:  0.0, // pure sine wave for a haunting vibe
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb4/Gb4/Bb4 2, NN 2,
 Cb4/Eb4/Gb4 2, NN 2,
@@ -461,8 +522,9 @@ Eb4/Gb4/Bb4 2, NN 2
 		},
 		{
 			name:   "percussion",
-			volume: 1.4,
-			blend:  1.0,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
 Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
@@ -474,13 +536,17 @@ Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75
 }
 
 var SpectralKeel = songData{
-	name: "Spectral Keel",
-	bpm:  95,
+	name:     "Spectral Keel",
+	bpm:      95,
+	reverb:   songDefaults.reverb,
+	feedback: songDefaults.feedback,
+	delay:    songDefaults.delay,
 	ins: []insData{
 		{
 			name:   "lead",
-			volume: 1.0,
-			blend:  0.5,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb4 1, Gb4 1, Ab4 2,
 Bb4 1, Ab4 1, Gb4 2,
@@ -495,8 +561,9 @@ Gb4 4
 		},
 		{
 			name:   "harmony",
-			volume: 0.75,
-			blend:  0.2,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb4/Gb4/Bb4 4,
 Cb4/Eb4/Gb4 4,
@@ -521,8 +588,9 @@ Eb4/Gb4/Bb4 4
 		},
 		{
 			name:   "bass",
-			volume: 1.2,
-			blend:  0.4,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb2 4,
 Cb2 4,
@@ -547,8 +615,9 @@ Eb2 4
 		},
 		{
 			name:   "descant",
-			volume: 0.6,
-			blend:  0.6,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 NN 8,
 Gb5 0.5, Ab5 0.5, Bb5 1, NN 2.5,
@@ -558,8 +627,9 @@ Ab5 0.5, Gb5 0.5, Eb5 1, NN 2.5
 		},
 		{
 			name:   "pad",
-			volume: 0.5,
-			blend:  0.0, // pure sine
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb4/Gb4/Bb4 0.5, NN 3.5,
 Db4/Fb4/Ab4 0.5, NN 3.5,
@@ -574,8 +644,9 @@ Eb4/Gb4/Bb4 0.5, NN 3.5
 		},
 		{
 			name:   "percussion",
-			volume: 1.4,
-			blend:  1.0,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
 Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
@@ -587,13 +658,17 @@ Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75
 }
 
 var IronWake = songData{
-	name: "Iron Wake",
-	bpm:  105,
+	name:     "Iron Wake",
+	bpm:      105,
+	reverb:   songDefaults.reverb,
+	feedback: songDefaults.feedback,
+	delay:    songDefaults.delay,
 	ins: []insData{
 		{
 			name:   "lead",
-			volume: 1.0,
-			blend:  0.5,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb4 1, Fb4 1, Gb4 2,
 Ab4 1, Gb4 1, Fb4 2,
@@ -608,8 +683,9 @@ Gb4 4
 		},
 		{
 			name:   "harmony",
-			volume: 0.8,
-			blend:  0.3,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb4/Gb4/Bb4 4,
 Cb4/Eb4/Gb4 4,
@@ -634,8 +710,9 @@ Eb4/Gb4/Bb4 4
 		},
 		{
 			name:   "bass",
-			volume: 1.2,
-			blend:  0.3,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb2 4,
 Eb2 4,
@@ -660,8 +737,9 @@ Eb2 4
 		},
 		{
 			name:   "descant",
-			volume: 0.7,
-			blend:  0.5,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 NN 8,
 
@@ -672,8 +750,9 @@ Ab5 0.5, Gb5 0.5, Eb5 1, NN 2.5
 		},
 		{
 			name:   "pad",
-			volume: 0.5,
-			blend:  0.1,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb4/Gb4/Bb4 1, NN 1,
 Cb4/Eb4/Gb4 1, NN 1,
@@ -698,8 +777,9 @@ Eb4/Gb4/Bb4 1, NN 1
 		},
 		{
 			name:   "percussion",
-			volume: 1.3,
-			blend:  1.0,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
 Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
@@ -711,13 +791,17 @@ Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75
 }
 
 var TwilightReef = songData{
-	name: "Twilight Reef",
-	bpm:  90,
+	name:     "Twilight Reef",
+	bpm:      90,
+	reverb:   songDefaults.reverb,
+	feedback: songDefaults.feedback,
+	delay:    songDefaults.delay,
 	ins: []insData{
 		{
 			name:   "lead",
-			volume: 1.0,
-			blend:  0.5,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb4 2, NN 2,
 Gb4 2, Ab4 2,
@@ -732,8 +816,9 @@ Ab4 2, Gb4 2
 		},
 		{
 			name:   "harmony",
-			volume: 0.8,
-			blend:  0.2,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb4/Gb4/Bb4 4,
 Eb4/Gb4/Bb4 4,
@@ -758,8 +843,9 @@ Eb4/Gb4/Bb4 4
 		},
 		{
 			name:   "bass",
-			volume: 1.1,
-			blend:  0.25,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb2 4,
 Cb2 4,
@@ -784,8 +870,9 @@ Eb2 4
 		},
 		{
 			name:   "descant",
-			volume: 0.7,
-			blend:  0.6,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 NN 8,
 
@@ -796,8 +883,9 @@ Ab5 0.5, Gb5 0.5, Eb5 1, NN 2.5
 		},
 		{
 			name:   "pad",
-			volume: 0.4,
-			blend:  0.0,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb4/Gb4/Bb4 0.5, NN 3.5,
 Cb4/Eb4/Gb4 0.5, NN 3.5,
@@ -812,8 +900,9 @@ Eb4/Gb4/Bb4 0.5, NN 3.5
 		},
 		{
 			name:   "percussion",
-			volume: 1.5,
-			blend:  1.0,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
 Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
@@ -825,13 +914,17 @@ Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75
 }
 
 var SunkenArmada = songData{
-	name: "Sunken Armada",
-	bpm:  85,
+	name:     "Sunken Armada",
+	bpm:      85,
+	reverb:   songDefaults.reverb,
+	feedback: songDefaults.feedback,
+	delay:    songDefaults.delay,
 	ins: []insData{
 		{
 			name:   "lead",
-			volume: 1.0,
-			blend:  0.4,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb4 2, Gb4 2,
 Ab4 1, Bb4 1, Db5 2,
@@ -846,8 +939,9 @@ Eb4 2, NN 2
 		},
 		{
 			name:   "harmony",
-			volume: 0.8,
-			blend:  0.2,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb4/Gb4/Bb4 4,
 Cb4/Eb4/Gb4 4,
@@ -872,8 +966,9 @@ Eb4/Gb4/Bb4 4
 		},
 		{
 			name:   "bass",
-			volume: 1.1,
-			blend:  0.3,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb2 4,
 Cb2 4,
@@ -898,8 +993,9 @@ Eb2 4
 		},
 		{
 			name:   "descant",
-			volume: 0.7,
-			blend:  0.5,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 NN 8,
 Gb5 1, Ab5 1, Bb5 2,
@@ -909,8 +1005,9 @@ Ab5 0.5, Gb5 0.5, Eb5 1, NN 2.5
 		},
 		{
 			name:   "pad",
-			volume: 0.5,
-			blend:  0.0, // mostly sine, giving dark hum
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb4/Gb4/Bb4 1, NN 3,
 Cb4/Eb4/Gb4 1, NN 3,
@@ -925,8 +1022,9 @@ Eb4/Gb4/Bb4 1, NN 3
 		},
 		{
 			name:   "percussion",
-			volume: 1.4,
-			blend:  1.0, // pure square for punch
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
 Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
@@ -938,13 +1036,17 @@ Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75
 }
 
 var MaroonedTwilight = songData{
-	name: "Marooned Twilight",
-	bpm:  75,
+	name:     "Marooned Twilight",
+	bpm:      75,
+	reverb:   songDefaults.reverb,
+	feedback: songDefaults.feedback,
+	delay:    songDefaults.delay,
 	ins: []insData{
 		{
 			name:   "lead",
-			volume: 1.0,
-			blend:  0.3,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb4 2, NN 2,
 Gb4 2, Ab4 2,
@@ -959,8 +1061,9 @@ Ab4 2, Gb4 2
 		},
 		{
 			name:   "harmony",
-			volume: 0.75,
-			blend:  0.2,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb4/Gb4/Bb4 4,
 Eb4/Gb4/Bb4 4,
@@ -985,8 +1088,9 @@ Eb4/Gb4/Bb4 4
 		},
 		{
 			name:   "bass",
-			volume: 1.1,
-			blend:  0.25,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb2 4,
 Eb2 4,
@@ -1011,8 +1115,9 @@ Eb2 4
 		},
 		{
 			name:   "descant",
-			volume: 0.7,
-			blend:  0.6,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 NN 8,
 Gb5 1, Ab5 1, Bb5 2,
@@ -1022,8 +1127,9 @@ Ab5 0.5, Gb5 0.5, Eb5 1, NN 2.5
 		},
 		{
 			name:   "pad",
-			volume: 0.5,
-			blend:  0.0,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb4/Gb4/Bb4 0.5, NN 3.5,
 Db4/Fb4/Ab4 0.5, NN 3.5,
@@ -1038,8 +1144,9 @@ Eb4/Gb4/Bb4 0.5, NN 3.5
 		},
 		{
 			name:   "percussion",
-			volume: 1.3,
-			blend:  1.0,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
 Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
@@ -1051,13 +1158,17 @@ Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75
 }
 
 var BloodyCorsair = songData{
-	name: "Bloody Corsair",
-	bpm:  110,
+	name:     "Bloody Corsair",
+	bpm:      110,
+	reverb:   songDefaults.reverb,
+	feedback: songDefaults.feedback,
+	delay:    songDefaults.delay,
 	ins: []insData{
 		{
 			name:   "lead",
-			volume: 1.0,
-			blend:  0.5,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb4 1, Gb4 1, Ab4 2,
 Bb4 1, Ab4 1, Gb4 2,
@@ -1072,8 +1183,9 @@ Gb4 4
 		},
 		{
 			name:   "harmony",
-			volume: 0.85,
-			blend:  0.3,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb4/Gb4/Bb4 4,
 Cb4/Eb4/Gb4 4,
@@ -1098,8 +1210,9 @@ Eb4/Gb4/Bb4 4
 		},
 		{
 			name:   "bass",
-			volume: 1.2,
-			blend:  0.4,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb2 4,
 Cb2 4,
@@ -1124,8 +1237,9 @@ Eb2 4
 		},
 		{
 			name:   "descant",
-			volume: 0.7,
-			blend:  0.6,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 NN 8,
 Gb5 0.5, Ab5 0.5, Bb5 1, NN 2.5,
@@ -1135,8 +1249,9 @@ Ab5 0.5, Gb5 0.5, Eb5 1, NN 2.5
 		},
 		{
 			name:   "pad",
-			volume: 0.4,
-			blend:  0.1,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb4/Gb4/Bb4 1, NN 1,
 Cb4/Eb4/Gb4 1, NN 1,
@@ -1161,8 +1276,9 @@ Eb4/Gb4/Bb4 1, NN 1
 		},
 		{
 			name:   "percussion",
-			volume: 1.4,
-			blend:  1.0,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
 Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
@@ -1174,13 +1290,17 @@ Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75
 }
 
 var LostTidepool = songData{
-	name: "Lost Tidepool",
-	bpm:  78,
+	name:     "Lost Tidepool",
+	bpm:      78,
+	reverb:   songDefaults.reverb,
+	feedback: songDefaults.feedback,
+	delay:    songDefaults.delay,
 	ins: []insData{
 		{
 			name:   "lead",
-			volume: 1.0,
-			blend:  0.4,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb4 2, Gb4 2,
 Ab4 2, Fb4 2,
@@ -1195,8 +1315,9 @@ Gb4 1, Eb4 1, NN 2
 		},
 		{
 			name:   "harmony",
-			volume: 0.75,
-			blend:  0.2,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb4/Gb4/Bb4 4,
 Db4/Fb4/Ab4 4,
@@ -1221,8 +1342,9 @@ Eb4/Gb4/Bb4 4
 		},
 		{
 			name:   "bass",
-			volume: 1.2,
-			blend:  0.3,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb2 4,
 Cb2 4,
@@ -1247,8 +1369,9 @@ Eb2 4
 		},
 		{
 			name:   "descant",
-			volume: 0.7,
-			blend:  0.6,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 NN 8,
 Gb5 1, Ab5 1, Bb5 2,
@@ -1258,8 +1381,9 @@ Ab5 0.5, Gb5 0.5, Eb5 1, NN 2.5
 		},
 		{
 			name:   "pad",
-			volume: 0.5,
-			blend:  0.1,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb4/Gb4/Bb4 0.75, NN 3.25,
 Db4/Fb4/Ab4 0.75, NN 3.25,
@@ -1274,8 +1398,9 @@ Eb4/Gb4/Bb4 0.75, NN 3.25
 		},
 		{
 			name:   "percussion",
-			volume: 1.4,
-			blend:  1.0,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
 Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
@@ -1287,13 +1412,17 @@ Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75
 }
 
 var BlackReef = songData{
-	name: "Black Reef",
-	bpm:  92,
+	name:     "Black Reef",
+	bpm:      92,
+	reverb:   songDefaults.reverb,
+	feedback: songDefaults.feedback,
+	delay:    songDefaults.delay,
 	ins: []insData{
 		{
 			name:   "lead",
-			volume: 1.0,
-			blend:  0.5,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb4 1, Gb4 1, Ab4 1, Bb4 1,
 Db5 2, Bb4 2,
@@ -1308,8 +1437,9 @@ Bb4 1, Ab4 1, Gb4 2
 		},
 		{
 			name:   "harmony",
-			volume: 0.8,
-			blend:  0.2,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb4/Gb4/Bb4 4,
 Db4/Fb4/Ab4 4,
@@ -1334,8 +1464,9 @@ Eb4/Gb4/Bb4 4
 		},
 		{
 			name:   "bass",
-			volume: 1.2,
-			blend:  0.3,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb2 4,
 Cb2 4,
@@ -1360,8 +1491,9 @@ Eb2 4
 		},
 		{
 			name:   "descant",
-			volume: 0.7,
-			blend:  0.6,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 NN 8,
 Gb5 0.5, Ab5 0.5, Bb5 1, NN 2.5,
@@ -1371,8 +1503,9 @@ Ab5 0.5, Gb5 0.5, Eb5 1, NN 2.5
 		},
 		{
 			name:   "pad",
-			volume: 0.5,
-			blend:  0.0,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb4/Gb4/Bb4 0.5, NN 3.5,
 Db4/Fb4/Ab4 0.5, NN 3.5,
@@ -1387,8 +1520,9 @@ Eb4/Gb4/Bb4 0.5, NN 3.5
 		},
 		{
 			name:   "percussion",
-			volume: 1.4,
-			blend:  1.0,
+			volume: insDefaults.volume, square: insDefaults.square,
+			attack: insDefaults.attack, decay: insDefaults.decay,
+			sustain: insDefaults.sustain, release: insDefaults.release,
 			data: `
 Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
 Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
