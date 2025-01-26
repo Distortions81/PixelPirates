@@ -452,11 +452,14 @@ func playMusic() {
 	sampleRate := 44100
 	audioContext := audio.NewContext(sampleRate)
 
+	time.Sleep(time.Second)
 	for {
 		for _, song := range songList {
-			fmt.Printf("Playing %v...\n", song.name)
+			startTime := time.Now()
 			output := playSong(*song, sampleRate)
+			fmt.Printf("Render: %v, Playing %v...\n", time.Since(startTime).Round(time.Millisecond), song.name)
 			PlayWave(output, audioContext, sampleRate)
+			time.Sleep(time.Second)
 		}
 	}
 }
