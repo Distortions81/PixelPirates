@@ -9,17 +9,59 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/audio"
 )
 
-// GenerateWaveFromTextWithParams creates a single wave for one instrument.
-// We pass waveBlend & volume from insData to shape the tone and loudness.
-func GenerateWaveFromTextWithParams(text string, bpm, sampleRate int, waveBlend, volume float64) []float32 {
-	beatDuration := time.Minute / time.Duration(bpm)
-	var finalWave []float32
+// Main function to set up Ebiten and audio
+func playMusic() {
+	sampleRate := 48000
+	audioContext := audio.NewContext(sampleRate)
 
-	if volume == 0 {
-		volume = 1
+	time.Sleep(time.Second)
+	for {
+		for _, song := range songList {
+			startTime := time.Now()
+			fmt.Printf("Rendering: '%v'", song.name)
+			output := playSong(*song, sampleRate)
+
+			if song.reverb > 0 {
+				fmt.Printf(" (Took: %v)\nAdding reverb: ", time.Since(startTime).Round(time.Millisecond))
+				output = ApplyReverb(output, sampleRate, song.delay, song.feedback, song.reverb)
+			}
+			fmt.Printf(" (Took: %v)\nNow Playing: %v.\n\n", time.Since(startTime).Round(time.Millisecond), song.name)
+
+			PlayWave(output, audioContext, sampleRate)
+			//SaveMono16BitWav("songs/"+song.name+".wav", sampleRate, output)
+			time.Sleep(time.Second)
+
+		}
+		fmt.Println("\nRestarting playlist...")
+	}
+}
+
+func playSong(song songData, sampleRate int) []float64 {
+	var waves [][]float64
+
+	for _, instrument := range song.ins {
+		// We'll assume we stored volume & waveBlend in instrument.volume, instrument.waveBlend
+		insWave := GenerateWaveFromTextWithParams(
+			sampleRate,
+			&song,
+			&instrument,
+		)
+		waves = append(waves, insWave)
 	}
 
-	for _, noteStr := range strings.Split(text, ",") {
+	// Mix all instrument waves
+	mixed := MixWaves(waves...) // your no-clipping version
+
+	return mixed
+}
+
+// GenerateWaveFromTextWithParams creates a single wave for one instrument.
+// We pass waveBlend & volume from insData to shape the tone and loudness.
+func GenerateWaveFromTextWithParams(sampleRate int, song *songData, ins *insData) []float64 {
+	beatDuration := time.Minute / time.Duration(song.bpm)
+	var finalWave []float64
+
+	for _, noteStr := range strings.Split(ins.data, ",") {
 		note, duration := ParseNote(noteStr)
 		if note == "" {
 			continue
@@ -29,11 +71,11 @@ func GenerateWaveFromTextWithParams(text string, bpm, sampleRate int, waveBlend,
 		// Check for chord
 		chordNotes := strings.Split(note, "/")
 		if len(chordNotes) > 1 {
-			chordWave := PlayChordOfflineWithParams(chordNotes, noteDuration, sampleRate, waveBlend, volume)
+			chordWave := PlayChordOfflineWithParams(chordNotes, noteDuration, sampleRate, ins)
 			finalWave = append(finalWave, chordWave...)
 		} else {
 			freq := CalculateFrequency(note)
-			noteWave := PlayNoteOfflineWithParams(freq, noteDuration, sampleRate, waveBlend, volume)
+			noteWave := PlayNoteOfflineWithParams(freq, noteDuration, sampleRate, ins.square, ins.volume)
 			finalWave = append(finalWave, noteWave...)
 		}
 	}
@@ -42,10 +84,10 @@ func GenerateWaveFromTextWithParams(text string, bpm, sampleRate int, waveBlend,
 }
 
 // PlayNoteOfflineWithParams: generates wave data for a single note, applying volume & wave blend.
-func PlayNoteOfflineWithParams(freq float64, duration time.Duration, sampleRate int, waveBlend, volume float64) []float32 {
+func PlayNoteOfflineWithParams(freq float64, duration time.Duration, sampleRate int, waveBlend, volume float64) []float64 {
 	// Handle rest
 	if freq == 0 {
-		return make([]float32, int(float64(sampleRate)*duration.Seconds()))
+		return make([]float64, int(float64(sampleRate)*duration.Seconds()))
 	}
 
 	wave := GenerateCustomWave(freq, duration, sampleRate, waveBlend)
@@ -53,16 +95,16 @@ func PlayNoteOfflineWithParams(freq float64, duration time.Duration, sampleRate 
 
 	// Apply per-instrument volume
 	for i := range wave {
-		wave[i] *= float32(volume)
+		wave[i] *= float64(volume)
 	}
 
 	return wave
 }
 
 // GenerateCustomWave blends square & sine waves based on waveBlend (0.0 to 1.0).
-func GenerateCustomWave(freq float64, duration time.Duration, sampleRate int, waveBlend float64) []float32 {
+func GenerateCustomWave(freq float64, duration time.Duration, sampleRate int, waveBlend float64) []float64 {
 	samples := int(float64(sampleRate) * duration.Seconds())
-	wave := make([]float32, samples)
+	wave := make([]float64, samples)
 	for i := 0; i < samples; i++ {
 		t := float64(i) / float64(sampleRate)
 		if freq == 0 {
@@ -75,56 +117,56 @@ func GenerateCustomWave(freq float64, duration time.Duration, sampleRate int, wa
 			}
 			// waveBlend: 0.0 = pure sine, 1.0 = pure square
 			mix := waveBlend*sqrVal + (1.0-waveBlend)*sinVal
-			wave[i] = float32(mix)
+			wave[i] = float64(mix)
 		}
 	}
 	return wave
 }
 
 // PlayChordOfflineWithParams: generates wave data for a chord, applying volume & wave blend.
-func PlayChordOfflineWithParams(chord []string, duration time.Duration, sampleRate int, waveBlend, volume float64) []float32 {
+func PlayChordOfflineWithParams(chord []string, duration time.Duration, sampleRate int, ins *insData) []float64 {
 	// Generate wave for each note in the chord
-	var waves [][]float32
+	var waves [][]float64
 	for _, note := range chord {
 		freq := CalculateFrequency(note)
-		noteWave := GenerateCustomWave(freq, duration, sampleRate, waveBlend)
-		noteWave = ApplyADSR(noteWave, sampleRate, 0.05, 0.1, 0.5, 0.5)
+		noteWave := GenerateCustomWave(freq, duration, sampleRate, ins.square)
+		noteWave = ApplyADSR(noteWave, sampleRate, ins.attack, ins.decay, ins.sustain, ins.release)
 		// Apply volume
 		for i := range noteWave {
-			noteWave[i] *= float32(volume)
+			noteWave[i] *= float64(ins.volume)
 		}
 		waves = append(waves, noteWave)
 	}
 
 	// Sum waves
-	chordWave := make([]float32, len(waves[0]))
+	chordWave := make([]float64, len(waves[0]))
 	for i := range chordWave {
-		var sum float32
+		var sum float64
 		for _, w := range waves {
 			sum += w[i]
 		}
 		// average to prevent single chord from ballooning amplitude
-		chordWave[i] = sum / float32(len(waves))
+		chordWave[i] = sum / float64(len(waves))
 	}
 
 	return chordWave
 }
 
 // PlayNoteOffline generates wave data (without playing) for a single note.
-func PlayNoteOffline(freq float64, duration time.Duration, sampleRate int) []float32 {
+func PlayNoteOffline(freq float64, duration time.Duration, sampleRate int, ins *insData) []float64 {
 	if freq == 0 {
 		// rest
-		return make([]float32, int(float64(sampleRate)*duration.Seconds()))
+		return make([]float64, int(float64(sampleRate)*duration.Seconds()))
 	}
 	wave := GenerateSmoothWave(freq, duration, sampleRate)
-	wave = ApplyADSR(wave, sampleRate, 0.05, 0.1, 0.5, 0.5)
+	wave = ApplyADSR(wave, sampleRate, ins.attack, ins.decay, ins.sustain, ins.release)
 	return wave
 }
 
 // PlayChordOffline generates wave data (without playing) for a chord.
-func PlayChordOffline(chord []string, duration time.Duration, sampleRate int) []float32 {
+func PlayChordOffline(chord []string, duration time.Duration, sampleRate int) []float64 {
 	// Generate wave for each note in the chord
-	var waves [][]float32
+	var waves [][]float64
 	for _, note := range chord {
 		freq := CalculateFrequency(note)
 		noteWave := GenerateSmoothWave(freq, duration, sampleRate)
@@ -133,13 +175,13 @@ func PlayChordOffline(chord []string, duration time.Duration, sampleRate int) []
 	}
 
 	// Sum waves
-	chordWave := make([]float32, len(waves[0]))
+	chordWave := make([]float64, len(waves[0]))
 	for i := range chordWave {
-		var sum float32
+		var sum float64
 		for _, w := range waves {
 			sum += w[i]
 		}
-		sum /= float32(len(waves)) // average
+		sum /= float64(len(waves)) // average
 		chordWave[i] = sum
 	}
 	return chordWave
@@ -148,7 +190,7 @@ func PlayChordOffline(chord []string, duration time.Duration, sampleRate int) []
 // MixWaves sums multiple mono wave slices (all same sample rate)
 // 1) Averages by number of wave inputs
 // 2) Scales further only if needed to prevent clipping
-func MixWaves(waves ...[]float32) []float32 {
+func MixWaves(waves ...[]float64) []float64 {
 	// 1. Determine the maximum length among all input waves
 	var maxLen int
 	for _, w := range waves {
@@ -158,7 +200,7 @@ func MixWaves(waves ...[]float32) []float32 {
 	}
 
 	// 2. Sum the waves
-	mixed := make([]float32, maxLen)
+	mixed := make([]float64, maxLen)
 	for _, w := range waves {
 		for i := 0; i < len(w); i++ {
 			mixed[i] += w[i]
@@ -166,7 +208,7 @@ func MixWaves(waves ...[]float32) []float32 {
 	}
 
 	// 3. Average by number of waves
-	numWaves := float32(len(waves))
+	numWaves := float64(len(waves))
 	if numWaves > 1.0 {
 		for i := 0; i < maxLen; i++ {
 			mixed[i] /= numWaves + 1
@@ -174,7 +216,7 @@ func MixWaves(waves ...[]float32) []float32 {
 	}
 
 	// 4. Find the peak amplitude (absolute value)
-	var maxAmp float32
+	var maxAmp float64
 	for _, sample := range mixed {
 		absVal := sample
 		if absVal < 0 {
@@ -196,11 +238,11 @@ func MixWaves(waves ...[]float32) []float32 {
 	return mixed
 }
 
-func PlayWave(wave []float32, audioContext *audio.Context, sampleRate int) {
+func PlayWave(wave []float64, audioContext *audio.Context, sampleRate int) {
 	// 1) Trim trailing silence
 	wave = trimTrailingSilence(wave, 0.0001) // remove samples < 0.0001 near the end
 
-	// 2) Convert float32 samples to raw bytes (16-bit PCM)
+	// 2) Convert float64 samples to raw bytes (16-bit PCM)
 	soundData := make([]byte, len(wave)*2)
 	for i, sample := range wave {
 		val := int16(sample * 32767)
@@ -219,7 +261,7 @@ func PlayWave(wave []float32, audioContext *audio.Context, sampleRate int) {
 
 // trimTrailingSilence cuts off samples at the end of `wave` that are
 // below the specified `threshold`. This helps remove long silent tails.
-func trimTrailingSilence(wave []float32, threshold float32) []float32 {
+func trimTrailingSilence(wave []float64, threshold float64) []float64 {
 	end := len(wave) - 1
 	for end >= 0 {
 		if wave[end] > threshold || wave[end] < -threshold {
@@ -229,19 +271,19 @@ func trimTrailingSilence(wave []float32, threshold float32) []float32 {
 	}
 	// If 'end' is -1, it means the entire wave is silence
 	if end < 0 {
-		return []float32{} // or wave[:0] to keep same slice reference
+		return []float64{} // or wave[:0] to keep same slice reference
 	}
 	return wave[:end+1]
 }
 
 // AddLeMakeSilenceader inserts a specified pause (in seconds) of silence
 // at the start of the wave.
-func MakeSilence(sampleRate int, pauseSeconds float64) []float32 {
+func MakeSilence(sampleRate int, pauseSeconds float64) []float64 {
 	// Calculate how many samples correspond to the pause
 	numSilenceSamples := int(float64(sampleRate) * pauseSeconds)
 
 	// Create a slice of zeros (silence)
-	silence := make([]float32, numSilenceSamples)
+	silence := make([]float64, numSilenceSamples)
 
 	return silence
 }
@@ -276,9 +318,9 @@ func CalculateFrequency(note string) float64 {
 }
 
 // ApplyADSR applies an ADSR envelope to the wave to smooth the note transitions.
-func ApplyADSR(wave []float32, sampleRate int, attack, decay, sustain, release float64) []float32 {
+func ApplyADSR(wave []float64, sampleRate int, attack, decay, sustain, release float64) []float64 {
 	length := len(wave)
-	adsrWave := make([]float32, length)
+	adsrWave := make([]float64, length)
 
 	// Calculate the number of samples for each phase
 	attackSamples := int(float64(sampleRate) * attack)
@@ -293,31 +335,31 @@ func ApplyADSR(wave []float32, sampleRate int, attack, decay, sustain, release f
 
 	// Apply the Attack phase
 	for i := 0; i < attackSamples && i < length; i++ {
-		adsrWave[i] = wave[i] * float32(float64(i)/float64(attackSamples))
+		adsrWave[i] = wave[i] * float64(float64(i)/float64(attackSamples))
 	}
 
 	// Apply the Decay phase
 	for i := attackSamples; i < attackSamples+decaySamples && i < length; i++ {
-		adsrWave[i] = wave[i] * float32(1-(1-sustain)*(float64(i-attackSamples)/float64(decaySamples)))
+		adsrWave[i] = wave[i] * float64(1-(1-sustain)*(float64(i-attackSamples)/float64(decaySamples)))
 	}
 
 	// Apply the Sustain phase
 	for i := attackSamples + decaySamples; i < attackSamples+decaySamples+sustainSamples && i < length; i++ {
-		adsrWave[i] = wave[i] * float32(sustain)
+		adsrWave[i] = wave[i] * float64(sustain)
 	}
 
 	// Apply the Release phase
 	for i := attackSamples + decaySamples + sustainSamples; i < length; i++ {
 		// Prevent any out-of-bounds access by capping index properly
-		adsrWave[i] = wave[i] * float32(sustain*(1-float64(i-(attackSamples+decaySamples+sustainSamples))/float64(releaseSamples)))
+		adsrWave[i] = wave[i] * float64(sustain*(1-float64(i-(attackSamples+decaySamples+sustainSamples))/float64(releaseSamples)))
 	}
 
 	return adsrWave
 }
 
-func GenerateSmoothWave(freq float64, duration time.Duration, sampleRate int) []float32 {
+func GenerateSmoothWave(freq float64, duration time.Duration, sampleRate int) []float64 {
 	samples := int(float64(sampleRate) * duration.Seconds())
-	wave := make([]float32, samples)
+	wave := make([]float64, samples)
 	for i := 0; i < samples; i++ {
 		t := float64(i) / float64(sampleRate)
 
@@ -330,7 +372,7 @@ func GenerateSmoothWave(freq float64, duration time.Duration, sampleRate int) []
 				squareWave = -1.0
 			}
 			sineWave := math.Sin(2 * math.Pi * freq * t)
-			wave[i] = float32(0.3*squareWave + 0.5*sineWave) // 50% square, 50% sine
+			wave[i] = float64(0.3*squareWave + 0.5*sineWave) // 50% square, 50% sine
 		}
 	}
 	return wave
@@ -369,7 +411,7 @@ func PlayNote(freq float64, duration time.Duration, sampleRate int, audioContext
 
 func PlayChord(chord []string, duration time.Duration, sampleRate int, audioContext *audio.Context) {
 	// Generate frequencies for the chord notes
-	var waves [][]float32
+	var waves [][]float64
 	for _, note := range chord {
 		freq := CalculateFrequency(note)
 		wave := GenerateSmoothWave(freq, duration, sampleRate)
@@ -377,13 +419,13 @@ func PlayChord(chord []string, duration time.Duration, sampleRate int, audioCont
 	}
 
 	// Combine the waves by adding their samples together
-	chordWave := make([]float32, len(waves[0]))
+	chordWave := make([]float64, len(waves[0]))
 	for i := 0; i < len(chordWave); i++ {
-		var sampleSum float32
+		var sampleSum float64
 		for _, wave := range waves {
 			sampleSum += wave[i]
 		}
-		chordWave[i] = sampleSum / float32(len(waves)) // Average for multiple notes
+		chordWave[i] = sampleSum / float64(len(waves)) // Average for multiple notes
 	}
 
 	// Apply ADSR envelope
@@ -445,45 +487,4 @@ func PlayTextAsNotes(text string, bpm int, sampleRate int, audioContext *audio.C
 			PlayNote(freq, time.Duration(beatDuration.Seconds()*duration*float64(time.Second)), sampleRate, audioContext)
 		}
 	}
-}
-
-// Main function to set up Ebiten and audio
-func playMusic() {
-	sampleRate := 44100
-	audioContext := audio.NewContext(sampleRate)
-
-	time.Sleep(time.Second)
-	for {
-		for _, song := range songList {
-			startTime := time.Now()
-			output := playSong(*song, sampleRate)
-			fmt.Printf("Render: %v, Playing %v...\n", time.Since(startTime).Round(time.Millisecond), song.name)
-			PlayWave(output, audioContext, sampleRate)
-			//SaveMono16BitWav("songs/"+song.name+".wav", sampleRate, output)
-			time.Sleep(time.Second)
-
-		}
-		fmt.Println("\nRestarting playlist...")
-	}
-}
-
-func playSong(song songData, sampleRate int) []float32 {
-	var waves [][]float32
-
-	for _, instrument := range song.ins {
-		// We'll assume we stored volume & waveBlend in instrument.volume, instrument.waveBlend
-		insWave := GenerateWaveFromTextWithParams(
-			instrument.data,
-			song.bpm,
-			sampleRate,
-			instrument.blend,
-			instrument.volume,
-		)
-		waves = append(waves, insWave)
-	}
-
-	// Mix all instrument waves
-	mixed := MixWaves(waves...) // your no-clipping version
-
-	return mixed
 }
