@@ -9,6 +9,136 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/audio"
 )
 
+// GenerateWaveFromText creates a single wave (mono) from a "notes string".
+func GenerateWaveFromText(text string, bpm, sampleRate int) []float32 {
+	beatDuration := time.Minute / time.Duration(bpm) // duration of one beat (quarter note)
+	var finalWave []float32
+
+	for _, noteStr := range strings.Split(text, ",") {
+		note, duration := ParseNote(noteStr)
+		if note == "" {
+			continue
+		}
+		noteDuration := time.Duration(beatDuration.Seconds() * duration * float64(time.Second))
+
+		// Check if chord
+		chordNotes := strings.Split(note, "/")
+		if len(chordNotes) > 1 {
+			chordWave := PlayChordOffline(chordNotes, noteDuration, sampleRate)
+			finalWave = append(finalWave, chordWave...)
+		} else {
+			freq := CalculateFrequency(note)
+			noteWave := PlayNoteOffline(freq, noteDuration, sampleRate)
+			finalWave = append(finalWave, noteWave...)
+		}
+	}
+
+	return finalWave
+}
+
+// PlayNoteOffline generates wave data (without playing) for a single note.
+func PlayNoteOffline(freq float64, duration time.Duration, sampleRate int) []float32 {
+	if freq == 0 {
+		// rest
+		return make([]float32, int(float64(sampleRate)*duration.Seconds()))
+	}
+	wave := GenerateSmoothWave(freq, duration, sampleRate)
+	wave = ApplyADSR(wave, sampleRate, 0.05, 0.1, 0.5, 0.5)
+	return wave
+}
+
+// PlayChordOffline generates wave data (without playing) for a chord.
+func PlayChordOffline(chord []string, duration time.Duration, sampleRate int) []float32 {
+	// Generate wave for each note in the chord
+	var waves [][]float32
+	for _, note := range chord {
+		freq := CalculateFrequency(note)
+		noteWave := GenerateSmoothWave(freq, duration, sampleRate)
+		noteWave = ApplyADSR(noteWave, sampleRate, 0.05, 0.1, 0.5, 0.5)
+		waves = append(waves, noteWave)
+	}
+
+	// Sum waves
+	chordWave := make([]float32, len(waves[0]))
+	for i := range chordWave {
+		var sum float32
+		for _, w := range waves {
+			sum += w[i]
+		}
+		sum /= float32(len(waves)) // average
+		chordWave[i] = sum
+	}
+	return chordWave
+}
+
+// MixWaves sums multiple mono wave slices (all same sample rate)
+// 1) Averages by number of wave inputs
+// 2) Scales further only if needed to prevent clipping
+func MixWaves(waves ...[]float32) []float32 {
+	// 1. Determine the maximum length among all input waves
+	var maxLen int
+	for _, w := range waves {
+		if len(w) > maxLen {
+			maxLen = len(w)
+		}
+	}
+
+	// 2. Sum the waves
+	mixed := make([]float32, maxLen)
+	for _, w := range waves {
+		for i := 0; i < len(w); i++ {
+			mixed[i] += w[i]
+		}
+	}
+
+	// 3. Average by number of waves
+	numWaves := float32(len(waves))
+	if numWaves > 1.0 {
+		for i := 0; i < maxLen; i++ {
+			mixed[i] /= numWaves + 1
+		}
+	}
+
+	// 4. Find the peak amplitude (absolute value)
+	var maxAmp float32
+	for _, sample := range mixed {
+		absVal := sample
+		if absVal < 0 {
+			absVal = -absVal
+		}
+		if absVal > maxAmp {
+			maxAmp = absVal
+		}
+	}
+
+	// 5. If the peak amplitude exceeds 1.0, scale the whole wave down
+	if maxAmp > 1.0 {
+		scale := 1.0 / maxAmp
+		for i := range mixed {
+			mixed[i] *= scale
+		}
+	}
+
+	return mixed
+}
+
+// PlayWave plays a wave using Ebiten's audio.
+func PlayWave(wave []float32, audioContext *audio.Context, sampleRate int) {
+	soundData := make([]byte, len(wave)*2)
+	for i, sample := range wave {
+		val := int16(sample * 32767)
+		soundData[i*2] = byte(val)
+		soundData[i*2+1] = byte(val >> 8)
+	}
+
+	player := audioContext.NewPlayerFromBytes(soundData)
+	player.Play()
+
+	// Wait for playback to finish
+	duration := time.Duration(float64(len(wave)) / float64(sampleRate) * float64(time.Second))
+	time.Sleep(duration)
+}
+
 // CalculateFrequency calculates the frequency of a note based on its name and octave.
 func CalculateFrequency(note string) float64 {
 	// Base note A4
@@ -93,7 +223,7 @@ func GenerateSmoothWave(freq float64, duration time.Duration, sampleRate int) []
 				squareWave = -1.0
 			}
 			sineWave := math.Sin(2 * math.Pi * freq * t)
-			wave[i] = float32(0.5*squareWave + 0.5*sineWave) // 50% square, 50% sine
+			wave[i] = float32(0.3*squareWave + 0.5*sineWave) // 50% square, 50% sine
 		}
 	}
 	return wave
@@ -212,45 +342,94 @@ func PlayTextAsNotes(text string, bpm int, sampleRate int, audioContext *audio.C
 
 // Main function to set up Ebiten and audio
 func playMusic() {
-	// Initialize Ebiten's audio system
+	startTime := time.Now()
+
 	audioContext := audio.NewContext(44100)
 
-	for {
-		time.Sleep(time.Millisecond * 500)
+	// Instrument 1: Lead
+	lead := `
+Bb4 1, Cb5 1, Db5 2,
+Eb5 1, Db5 1, Bb4 2,
+Eb5 1, Fb5 1, Gb5 2,
+Ab5 2, Gb5 2,
+Bb4 1, Db5 1, Eb5 2,
+Bb4 1, Db5 1, Fb5 2,
+Gb5 1, Eb5 1, Db5 2,
+Cb5 4,
 
-		// This text defines the chord progression and single notes of our epic shanty.
-		// Notation:
-		//   - Chords are written like "Ab4/Db5/Eb5" followed by a duration (e.g., "1" for one beat).
-		//   - Single notes are written like "Ab4 0.5".
-		//   - Durations are in multiples (or fractions) of a quarter note at the chosen BPM.
-		text := `
-Ab4/Cb5/Eb5 4, Fb4/Ab4/Cb5 4, Eb4/Gb4/Bb4 4, Ab4/Cb5/Eb5 4,
-Ab4/Cb5/Eb5 4, Fb4/Ab4/Cb5 4, Eb4/Gb4/Bb4 4, Ab4/Cb5/Eb5 4,
-
-Ab4/Cb5/Eb5 4, Fb4/Ab4/Cb5 4, Eb4/Gb4/Bb4 4, Ab4/Cb5/Eb5 4,
-Ab4/Cb5/Eb5 4, Fb4/Ab4/Cb5 4, Eb4/Gb4/Bb4 4, Ab4/Cb5/Eb5 4,
-
-Db4/Fb4/Ab4 4, Cb4/Eb4/Gb4 4, Eb4/Gb4/Bb4 4, Ab4/Cb5/Eb5 4,
-Db4/Fb4/Ab4 4, Cb4/Eb4/Gb4 4, Eb4/Gb4/Bb4 4, Ab4/Cb5/Eb5 4,
-
-Db4/Fb4/Ab4 4, Cb4/Eb4/Gb4 4, Eb4/Gb4/Bb4 4, Ab4/Cb5/Eb5 4,
-Db4/Fb4/Ab4 4, Cb4/Eb4/Gb4 4, Eb4/Gb4/Bb4 4, Ab4/Cb5/Eb5 4,
-
-Ab4/Cb5/Eb5 4, Ab4/Cb5/Eb5 4, Fb4/Ab4/Cb5 4, Fb4/Ab4/Cb5 4,
-Eb4/Gb4/Bb4 4, Eb4/Gb4/Bb4 4, Ab4/Cb5/Eb5 4, Ab4/Cb5/Eb5 4
+Bb4 1, Cb5 1, Db5 2,
+Eb5 2, Db5 2,
+Fb5 2, Gb5 2,
+Ab5 1, Gb5 1, Fb5 2,
+Eb5 2, Db5 2,
+Bb4 1, Cb5 1, Db5 2,
+Eb5 1, Bb4 1, Db5 2,
+Bb4 4
 `
 
-		// Increase tempo to keep it energetic
-		bpm := 160          // Faster tempo for a driving, epic feel
-		sampleRate := 44100 // Standard audio sample rate
+	// Instrument 2: Harmony (chords)
+	harmony := `
+Bb4/Db5/Fb5 4,
+Gb4/Bb4/Db5 4,
+Ab4/Cb5/Eb5 4,
+Bb4/Db5/Fb5 4,
+Bb4/Db5/Fb5 4,
+Gb4/Bb4/Db5 4,
+Ab4/Cb5/Eb5 4,
+Bb4/Db5/Fb5 4,
+Bb4/Db5/Fb5 4,
+Gb4/Bb4/Db5 4,
+Ab4/Cb5/Eb5 4,
+Bb4/Db5/Fb5 4,
+Bb4/Db5/Fb5 4,
+Gb4/Bb4/Db5 4,
+Ab4/Cb5/Eb5 4,
+Bb4/Db5/Fb5 4
+`
 
-		fmt.Println("Playing Epic, Energetic Sea Shanty with Chords...")
+	// Instrument 3: Bass
+	bass := `
+Bb2 4,
+Gb2 4,
+Ab2 4,
+Bb2 4,
+Bb2 4,
+Gb2 4,
+Ab2 4,
+Bb2 4,
+Bb2 4,
+Gb2 4,
+Ab2 4,
+Bb2 4,
+Bb2 4,
+Gb2 4,
+Ab2 4,
+Bb2 4
+`
 
-		// This function parses the text above, interprets chord symbols vs. single notes,
-		// and plays them at the specified BPM and sample rate using the ADSR + wave mixing.
-		PlayTextAsNotes(text, bpm, sampleRate, audioContext)
+	// Choose BPM (try 90 for a moving but not too fast pace)
+	bpm := 90
+	sampleRate := 44100
 
-		// After one playthrough, wait a bit before looping
-		time.Sleep(time.Second * 5)
-	}
+	// Generate each instrument wave
+	fmt.Println("Generating lead wave...")
+	leadWave := GenerateWaveFromText(lead, bpm, sampleRate)
+
+	fmt.Println("Generating harmony wave...")
+	harmonyWave := GenerateWaveFromText(harmony, bpm, sampleRate)
+
+	fmt.Println("Generating bass wave...")
+	bassWave := GenerateWaveFromText(bass, bpm, sampleRate)
+
+	// Mix them
+	fmt.Println("Mixing waves...")
+	finalWave := MixWaves(leadWave, harmonyWave, bassWave)
+
+	fmt.Printf("Took %v to generate.", time.Since(startTime))
+
+	// Play
+	fmt.Println("Playing final track...")
+	PlayWave(finalWave, audioContext, sampleRate)
+
+	fmt.Println("Done playing.")
 }
