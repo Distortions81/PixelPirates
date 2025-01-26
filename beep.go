@@ -382,9 +382,44 @@ func PlayTextAsNotes(text string, bpm int, sampleRate int, audioContext *audio.C
 func playMusic() {
 	audioContext := audio.NewContext(44100)
 
-	songOne(audioContext)   // Aboard the Ebony Gale
-	songTwo(audioContext)   // Crimson Tides
-	songThree(audioContext) // Ghostlights in the Fog
-	songFour(audioContext)  // The Moonlit Maw
-	songFive(audioContext)  // Iron Tides at Dawn
+	for {
+		for _, song := range songList {
+			playSong(*song, audioContext)
+		}
+	}
+}
+
+func playSong(song songData, audioContext *audio.Context) {
+	startTime := time.Now()
+
+	// Choose BPM (try 90 for a moving but not too fast pace)
+	bpm := song.bpm
+	if bpm == 0 {
+		bpm = 90
+	}
+	sampleRate := 44100
+
+	// Generate each instrument wave
+	fmt.Println("Generating lead wave...")
+	leadWave := GenerateWaveFromText(song.lead, bpm, sampleRate)
+
+	fmt.Println("Generating harmony wave...")
+	harmonyWave := GenerateWaveFromText(song.harmony, bpm, sampleRate)
+
+	fmt.Println("Generating bass wave...")
+	bassWave := GenerateWaveFromText(song.bass, bpm, sampleRate)
+
+	// Mix the instrument waves
+	finalWave := MixWaves(leadWave, harmonyWave, bassWave)
+
+	// Add a silence at the beginning and end
+	finalWave = AddLeader(finalWave, sampleRate, 1)
+
+	fmt.Printf("Took %v to generate.\n", time.Since(startTime))
+
+	// Play
+	fmt.Printf("Playing %v\n", song.name)
+	PlayWave(finalWave, audioContext, sampleRate)
+
+	fmt.Println("Done playing.")
 }
