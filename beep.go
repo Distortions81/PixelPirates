@@ -15,50 +15,101 @@ func CalculateFrequency(note string) float64 {
 	baseFrequency := 440.0
 	// Note names (A-G), standard equal temperament tuning
 	noteNames := map[string]int{
-		"A": 0, "A#": 1, "B": 2, "C": 3, "C#": 4, "D": 5,
-		"D#": 6, "E": 7, "F": 8, "F#": 9, "G": 10, "G#": 11,
+		"NN": -1, "Ab": 0, "A#": 1, "Bb": 2, "Cb": 3, "C#": 4, "Db": 5,
+		"D#": 6, "Eb": 7, "Fb": 8, "F#": 9, "Gb": 10, "G#": 11,
 	}
 
 	// Note names are of the form "A1", "C#4", etc.
 	// First, extract the note (A, B, C, etc.) and the octave number
 	var noteName string
 	var octave int
-	fmt.Sscanf(note, "%1s%d", &noteName, &octave)
+	fmt.Sscanf(note, "%2s%d", &noteName, &octave)
 
 	// Find the index of the note (A, A#, B, etc.)
 	halfSteps := noteNames[noteName]
+	if halfSteps == -1 {
+		return 0
+	}
+
 	// Calculate the number of half-steps from A4 (which is the 49th note)
-	halfStepsFromA4 := (octave-4)*12 + halfSteps
+	halfStepsFromA4 := (octave-6)*12 + halfSteps
 	// Frequency of the note
 	frequency := baseFrequency * math.Pow(2, float64(halfStepsFromA4)/12)
 	return frequency
 }
 
-// GenerateSquareWave generates a square wave for a given frequency, duration, and sample rate.
-func GenerateSquareWave(freq float64, duration time.Duration, sampleRate int) []float32 {
+// ApplyADSR applies an ADSR envelope to the wave to smooth the note transitions.
+func ApplyADSR(wave []float32, sampleRate int, attack, decay, sustain, release float64) []float32 {
+	length := len(wave)
+	adsrWave := make([]float32, length)
+
+	// Calculate the number of samples for each phase
+	attackSamples := int(float64(sampleRate) * attack)
+	decaySamples := int(float64(sampleRate) * decay)
+	releaseSamples := int(float64(sampleRate) * release)
+	sustainSamples := length - attackSamples - decaySamples - releaseSamples
+
+	// Ensure sustainSamples is non-negative; if not, adjust to 0 to avoid out-of-bounds
+	if sustainSamples < 0 {
+		sustainSamples = 0
+	}
+
+	// Apply the Attack phase
+	for i := 0; i < attackSamples && i < length; i++ {
+		adsrWave[i] = wave[i] * float32(float64(i)/float64(attackSamples))
+	}
+
+	// Apply the Decay phase
+	for i := attackSamples; i < attackSamples+decaySamples && i < length; i++ {
+		adsrWave[i] = wave[i] * float32(1-(1-sustain)*(float64(i-attackSamples)/float64(decaySamples)))
+	}
+
+	// Apply the Sustain phase
+	for i := attackSamples + decaySamples; i < attackSamples+decaySamples+sustainSamples && i < length; i++ {
+		adsrWave[i] = wave[i] * float32(sustain)
+	}
+
+	// Apply the Release phase
+	for i := attackSamples + decaySamples + sustainSamples; i < length; i++ {
+		// Prevent any out-of-bounds access by capping index properly
+		adsrWave[i] = wave[i] * float32(sustain*(1-float64(i-(attackSamples+decaySamples+sustainSamples))/float64(releaseSamples)))
+	}
+
+	return adsrWave
+}
+
+func GenerateSmoothWave(freq float64, duration time.Duration, sampleRate int) []float32 {
 	samples := int(float64(sampleRate) * duration.Seconds())
 	wave := make([]float32, samples)
 	for i := 0; i < samples; i++ {
 		t := float64(i) / float64(sampleRate)
-		// Generate a square wave by alternating between 1 and -1
-		if math.Sin(2*math.Pi*freq*t) >= 0 {
-			wave[i] = 1
+
+		if freq == 0 {
+			wave[i] = 0
 		} else {
-			wave[i] = -1
+			// Blend square and sine waves for a smoother sound
+			squareWave := 1.0
+			if math.Sin(2*math.Pi*freq*t) < 0 {
+				squareWave = -1.0
+			}
+			sineWave := math.Sin(2 * math.Pi * freq * t)
+			wave[i] = float32(0.5*squareWave + 0.5*sineWave) // 50% square, 50% sine
 		}
 	}
 	return wave
 }
 
-// PlayNote generates and plays a note as a square wave.
 func PlayNote(freq float64, duration time.Duration, sampleRate int, audioContext *audio.Context) {
 	if freq == 0 {
 		time.Sleep(duration) // Handle rests by sleeping
 		return
 	}
 
-	fmt.Printf("%v : %v\n", freq, duration)
-	wave := GenerateSquareWave(freq, duration, sampleRate)
+	// Generate a smoother wave
+	wave := GenerateSmoothWave(freq, duration, sampleRate)
+
+	// Apply an ADSR envelope (adjust parameters for smoother transitions)
+	wave = ApplyADSR(wave, sampleRate, 0.01, 0.1, 0.8, 0.2)
 
 	// Convert wave to []byte suitable for ebiten
 	soundData := make([]byte, len(wave)*2)
@@ -75,8 +126,8 @@ func PlayNote(freq float64, duration time.Duration, sampleRate int, audioContext
 	// Play the sound
 	player.Play()
 
-	// Wait for the note to finish playing
-	time.Sleep(duration)
+	// Overlap the notes slightly by reducing sleep duration
+	time.Sleep(duration - (duration / 8)) // Reduce sleep time to avoid sharp note cuts
 }
 
 // ParseNote parses the note and its duration from a string like "A4 1".
@@ -119,18 +170,33 @@ func PlayTextAsNotes(text string, bpm int, sampleRate int, audioContext *audio.C
 
 // Main function to set up Ebiten and audio
 func playMusic() {
+
 	// Initialize Ebiten's audio system
 	audioContext := audio.NewContext(44100)
 
-	// Sea shanty melody with variable note lengths (e.g., "A4 1" for whole notes)
-	text := "A4 1,B4 0.5,C4 0.25,D4 0.5,E4 1,F4 0.5,G4 0.25,A4 1 " +
-		"A4 1,B4 0.5,C4 0.25,D4 0.5,E4 1,F4 0.5,G4 0.25,A4 1"
+	for {
+		time.Sleep(time.Millisecond * 500)
 
-	bpm := 120          // 120 beats per minute
-	sampleRate := 44100 // Standard audio sample rate
+		// Sea shanty melody with variable note lengths (e.g., "A4 1" for whole notes)
+		text := `A#4 1, Db5 1, Gb5 0.5, Fb5 0.5, Ab5 1, A#5 1,
+Fb5 0.5, Ab4 0.5, Gb4 1, Db5 1, D#5 1, Fb5 0.75, Eb5 0.25,
+Gb4 1, Ab4 0.5, Db5 0.5, Fb5 1, Gb5 1, A#5 0.75, Bb5 0.25,
+Db5 1, D#5 1, Gb5 0.5, Bb5 0.5, Fb5 1, Eb5 1,
 
-	// Play the sea shanty notes with variable lengths
-	fmt.Println("Playing Sea Shanty with Variable Length Notes...")
-	PlayTextAsNotes(text, bpm, sampleRate, audioContext)
+Ab4 0.5, A#4 0.5, Cb5 1, Db5 1, Fb5 0.5, Gb5 0.5, A#5 1,
+Cb5 1, D#5 0.5, Fb5 0.5, Gb5 1, Bb5 1, Cb5 1,
+D#5 1, Fb5 1, Gb5 0.5, A#5 0.5, Db5 1, Bb5 1,
 
+Ab4 1, Gb4 0.75, A#4 0.25, Cb5 1, D#5 0.5, Fb5 0.5,
+Gb5 1, A#5 1, Fb5 0.5, Db5 0.5, Cb5 1, Ab4 1`
+
+		bpm := 120          // 120 beats per minute
+		sampleRate := 44100 // Standard audio sample rate
+
+		// Play the sea shanty notes with variable lengths
+		fmt.Println("Playing Sea Shanty with Variable Length Notes...")
+		PlayTextAsNotes(text, bpm, sampleRate, audioContext)
+
+		time.Sleep(time.Second * 5)
+	}
 }
