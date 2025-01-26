@@ -11,15 +11,20 @@ var songList []*songData = []*songData{
 }
 
 type songData struct {
-	name                string
-	lead, harmony, bass string
-	bpm                 int
+	name string
+	ins  []insData
+	bpm  int
+}
+
+type insData struct {
+	name, data string
 }
 
 var EbonyGale = songData{
 	name: "Aboard the Ebony Gale",
 	bpm:  90,
-	lead: `Eb4 1, Gb4 1, Ab4 2,
+	ins: []insData{
+		insData{name: "lead", data: `Eb4 1, Gb4 1, Ab4 2,
 Bb4 1, Ab4 1, Gb4 2,
 Fb4 1, Gb4 1, Ab4 2,
 Bb4 2, Ab4 2,
@@ -27,9 +32,10 @@ Bb4 2, Ab4 2,
 Eb4 1, Gb4 1, Ab4 2,
 Bb4 1, Ab4 1, Db5 2,
 Cb5 1, Bb4 1, Ab4 2,
-Gb4 4`,
+Gb4 4`},
 
-	harmony: `Eb4/Gb4/Bb4 4,
+		insData{name: "harmony", data: `
+		Eb4/Gb4/Bb4 4,
 Cb4/Eb4/Gb4 4,
 Db4/Ab4/Db5 4,
 Eb4/Gb4/Bb4 4,
@@ -47,9 +53,10 @@ Eb4/Gb4/Bb4 4,
 Eb4/Gb4/Bb4 4,
 Cb4/Eb4/Gb4 4,
 Db4/Gb4/Bb4 4,
-Eb4/Gb4/Bb4 4`,
+Eb4/Gb4/Bb4 4`},
 
-	bass: `Eb2 4,
+		insData{name: "bass", data: `
+		Eb2 4,
 Cb2 4,
 Db2 4,
 Eb2 4,
@@ -68,12 +75,13 @@ Eb2 4,
 Cb2 4,
 Db2 4,
 Eb2 4`,
-}
+		}}}
 
 var SailsOfDusk = songData{
 	name: "Sails of Dusk",
 	bpm:  120,
-	lead: `
+	ins: []insData{
+		insData{name: "lead", data: `
 Eb4 1, Gb4 1, Ab4 2,
 Bb4 1, Ab4 1, Gb4 2,
 Fb4 1, Gb4 1, Ab4 2,
@@ -83,8 +91,8 @@ Eb4 1, Gb4 1, Ab4 2,
 Bb4 1, Ab4 1, Db5 2,
 Cb5 1, Bb4 1, Ab4 2,
 Gb4 4
-`,
-	harmony: `
+`},
+		insData{name: "harmony", data: `
 Eb4/Gb4/Bb4 4,
 Cb4/Eb4/Gb4 4,
 Bb3/Db4/Fb4 4,
@@ -104,8 +112,8 @@ Eb4/Gb4/Bb4 4,
 Cb4/Eb4/Gb4 4,
 Db4/Gb4/Bb4 4,
 Eb4/Gb4/Bb4 4
-`,
-	bass: `
+`},
+		insData{name: "bass", data: `
 Eb2 4,
 Cb2 4,
 Bb2 4,
@@ -125,13 +133,14 @@ Eb2 4,
 Cb2 4,
 Db2 4,
 Eb2 4
-`,
-}
+`},
+	}}
 
 var DarklingWaters = songData{
 	name: "Darkling Waters",
 	bpm:  130,
-	lead: `
+	ins: []insData{
+		insData{name: "lead", data: `
 Eb4 1, Fb4 1, Gb4 2,
 Ab4 1, Gb4 1, Fb4 2,
 Eb4 1, Gb4 1, Bb4 2,
@@ -141,8 +150,8 @@ Eb4 1, Fb4 1, Gb4 2,
 Ab4 1, Gb4 1, Eb4 2,
 Fb4 1, Gb4 1, Ab4 2,
 Bb4 4
-`,
-	harmony: `
+`},
+		insData{name: "harmony", data: `
 Eb4/Gb4/Bb4 4,
 Cb4/Eb4/Gb4 4,
 Db4/Fb4/Ab4 4,
@@ -162,8 +171,8 @@ Eb4/Gb4/Bb4 4,
 Cb4/Eb4/Gb4 4,
 Bb3/Db4/Fb4 4,
 Eb4/Gb4/Bb4 4
-`,
-	bass: `
+`},
+		insData{name: "bass", data: `
 Eb2 4,
 Cb2 4,
 Db2 4,
@@ -183,13 +192,14 @@ Eb2 4,
 Cb2 4,
 Bb2 4,
 Eb2 4
-`,
-}
+`},
+	}}
 
 var NightfallApproch = songData{
 	name: "Nightfall Approach",
 	bpm:  110,
-	lead: `
+	ins: []insData{
+		insData{name: "lead", data: `
 Eb4 1, Gb4 1, Bb4 2,
 Ab4 1, Gb4 1, Eb4 2,
 Fb4 2, Gb4 2,
@@ -200,8 +210,8 @@ Eb4 1, Gb4 1, Ab4 2,
 Bb4 1, Ab4 1, Gb4 2,
 Eb4 1, Gb4 1, Ab4 2,
 Bb4 4
-`,
-	harmony: `
+`},
+		insData{name: "harmony", data: `
 Eb4/Gb4/Bb4 4,
 Cb4/Eb4/Gb4 4,
 Bb3/Db4/Fb4 4,
@@ -221,8 +231,8 @@ Eb4/Gb4/Bb4 4,
 Cb4/Eb4/Gb4 4,
 Db4/Gb4/Bb4 4,
 Eb4/Gb4/Bb4 4
-`,
-	bass: `
+`},
+		insData{name: "bass", data: `
 Eb2 4,
 Cb2 4,
 Bb2 4,
@@ -242,13 +252,14 @@ Eb2 4,
 Cb2 4,
 Db2 4,
 Eb2 4
-`,
-}
+`},
+	}}
 
 var SerpentsWake = songData{
 	name: "Serpent's Wake",
 	bpm:  115,
-	lead: `
+	ins: []insData{
+		insData{name: "lead", data: `
 Eb4 1, Fb4 1, Gb4 2,
 Ab4 1, Gb4 1, Fb4 2,
 Eb4 1, Gb4 1, Ab4 2,
@@ -258,8 +269,8 @@ Eb4 1, Fb4 1, Gb4 2,
 Ab4 1, Gb4 1, Db5 2,
 Cb5 1, Bb4 1, Ab4 2,
 Gb4 4
-`,
-	harmony: `
+`},
+		insData{name: "harmony", data: `
 Eb4/Gb4/Bb4 4,
 Cb4/Eb4/Gb4 4,
 Db4/Fb4/Ab4 4,
@@ -279,8 +290,8 @@ Eb4/Gb4/Bb4 4,
 Cb4/Eb4/Gb4 4,
 Bb3/Db4/Fb4 4,
 Eb4/Gb4/Bb4 4
-`,
-	bass: `
+`},
+		insData{name: "bass", data: `
 Eb2 4,
 Cb2 4,
 Db2 4,
@@ -300,13 +311,14 @@ Eb2 4,
 Cb2 4,
 Bb2 4,
 Eb2 4
-`,
-}
+`},
+	}}
 
 var AshenCrosswinds = songData{
 	name: "Ashen Crosswinds",
 	bpm:  125,
-	lead: `
+	ins: []insData{
+		insData{name: "lead", data: `
 Eb4 1, Gb4 1, Ab4 2,
 Bb4 1, Ab4 1, Gb4 2,
 Fb4 1, Gb4 1, Bb4 2,
@@ -316,8 +328,8 @@ Eb4 1, Gb4 1, Ab4 2,
 Bb4 1, Ab4 1, Eb4 2,
 Fb4 1, Gb4 1, Ab4 2,
 Bb4 4
-`,
-	harmony: `
+`},
+		insData{name: "harmony", data: `
 Eb4/Gb4/Bb4 4,
 Cb4/Eb4/Gb4 4,
 Db4/Fb4/Ab4 4,
@@ -337,8 +349,8 @@ Eb4/Gb4/Bb4 4,
 Cb4/Eb4/Gb4 4,
 Bb3/Db4/Fb4 4,
 Eb4/Gb4/Bb4 4
-`,
-	bass: `
+`},
+		insData{name: "bass", data: `
 Eb2 4,
 Cb2 4,
 Db2 4,
@@ -358,14 +370,14 @@ Eb2 4,
 Cb2 4,
 Bb2 4,
 Eb2 4
-`,
-}
+`},
+	}}
 
 var GuildedStorm = songData{
 	name: "The Gilded Storm",
 	bpm:  110,
-
-	lead: `
+	ins: []insData{
+		insData{name: "lead", data: `
 Eb4 1, Gb4 1, Ab4 1, Bb4 1,
 Db5 1, Bb4 1, Ab4 1, Gb4 1,
 Eb4 2, Fb4 2,
@@ -383,9 +395,9 @@ Bb4 1.5, Ab4 0.5, Gb4 1, Eb4 1,
 Fb4 2, Gb4 2,
 Ab4 1, Bb4 1, Db5 2,
 Eb5 4
-`,
+`},
 
-	harmony: `
+		insData{name: "harmony", data: `
 Eb4/Gb4/Bb4 4,
 Eb4/Gb4/Bb4 4,
 Gb4/Bb4/Db5 4,
@@ -402,9 +414,9 @@ Cb4/Eb4/Gb4 4,
 Cb4/Eb4/Gb4 4,
 Eb4/Gb4/Bb4 4,
 Eb4/Gb4/Bb4 4
-`,
+`},
 
-	bass: `
+		insData{name: "bass", data: `
 Eb2 4,
 Eb2 4,
 Gb2 4,
@@ -421,5 +433,5 @@ Cb2 4,
 Cb2 4,
 Eb2 4,
 Eb2 4
-`,
-}
+`},
+	}}

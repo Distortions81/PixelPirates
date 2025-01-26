@@ -160,21 +160,16 @@ func trimTrailingSilence(wave []float32, threshold float32) []float32 {
 	return wave[:end+1]
 }
 
-// AddLeader inserts a specified pause (in seconds) of silence
+// AddLeMakeSilenceader inserts a specified pause (in seconds) of silence
 // at the start of the wave.
-func AddLeader(wave []float32, sampleRate int, pauseSeconds float64) []float32 {
+func MakeSilence(sampleRate int, pauseSeconds float64) []float32 {
 	// Calculate how many samples correspond to the pause
 	numSilenceSamples := int(float64(sampleRate) * pauseSeconds)
 
 	// Create a slice of zeros (silence)
 	silence := make([]float32, numSilenceSamples)
 
-	// Create a new wave with silence + original wave + silence
-	newWave := make([]float32, 0, len(wave)+2*numSilenceSamples)
-	newWave = append(newWave, silence...) // front
-	newWave = append(newWave, wave...)    // original wave
-
-	return newWave
+	return silence
 }
 
 // CalculateFrequency calculates the frequency of a note based on its name and octave.
@@ -400,20 +395,17 @@ func playSong(song songData, audioContext *audio.Context) {
 	sampleRate := 44100
 
 	// Generate each instrument wave
-	fmt.Println("Generating lead wave...")
-	leadWave := GenerateWaveFromText(song.lead, bpm, sampleRate)
+	var wavList [][]float32
+	for _, ins := range song.ins {
+		fmt.Printf("Generating %v...\n", ins.name)
 
-	fmt.Println("Generating harmony wave...")
-	harmonyWave := GenerateWaveFromText(song.harmony, bpm, sampleRate)
-
-	fmt.Println("Generating bass wave...")
-	bassWave := GenerateWaveFromText(song.bass, bpm, sampleRate)
+		wavData := append(MakeSilence(sampleRate, 1), GenerateWaveFromText(ins.data, bpm, sampleRate)...)
+		wavData = append(wavData, MakeSilence(sampleRate, 1)...)
+		wavList = append(wavList, wavData)
+	}
 
 	// Mix the instrument waves
-	finalWave := MixWaves(leadWave, harmonyWave, bassWave)
-
-	// Add a silence at the beginning and end
-	finalWave = AddLeader(finalWave, sampleRate, 1)
+	finalWave := MixWaves(wavList...)
 
 	fmt.Printf("Took %v to generate.\n", time.Since(startTime))
 
