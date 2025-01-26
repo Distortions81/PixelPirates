@@ -130,6 +130,46 @@ func PlayNote(freq float64, duration time.Duration, sampleRate int, audioContext
 	time.Sleep(duration - (duration / 8)) // Reduce sleep time to avoid sharp note cuts
 }
 
+func PlayChord(chord []string, duration time.Duration, sampleRate int, audioContext *audio.Context) {
+	// Generate frequencies for the chord notes
+	var waves [][]float32
+	for _, note := range chord {
+		freq := CalculateFrequency(note)
+		wave := GenerateSmoothWave(freq, duration, sampleRate)
+		waves = append(waves, wave)
+	}
+
+	// Combine the waves by adding their samples together
+	chordWave := make([]float32, len(waves[0]))
+	for i := 0; i < len(chordWave); i++ {
+		var sampleSum float32
+		for _, wave := range waves {
+			sampleSum += wave[i]
+		}
+		chordWave[i] = sampleSum / float32(len(waves)) // Average for multiple notes
+	}
+
+	// Apply ADSR envelope
+	chordWave = ApplyADSR(chordWave, sampleRate, 0.02, 0.1, 0.5, 0.5)
+
+	// Convert wave to []byte suitable for ebiten
+	soundData := make([]byte, len(chordWave)*2)
+	for i, sample := range chordWave {
+		val := int16(sample * 32767)
+		soundData[i*2] = byte(val)
+		soundData[i*2+1] = byte(val >> 8)
+	}
+
+	// Load the sound data into an AudioPlayer
+	player := audioContext.NewPlayerFromBytes(soundData)
+
+	// Play the chord
+	player.Play()
+
+	// Overlap the notes slightly by reducing sleep duration
+	time.Sleep(duration - (duration / 8)) // Reduce sleep time to avoid sharp note cuts
+}
+
 // ParseNote parses the note and its duration from a string like "A4 1".
 func ParseNote(noteStr string) (string, float64) {
 	parts := strings.Fields(noteStr)
@@ -157,58 +197,42 @@ func PlayTextAsNotes(text string, bpm int, sampleRate int, audioContext *audio.C
 			continue
 		}
 
-		// Calculate the frequency for the note directly
-		freq := CalculateFrequency(note)
-
-		// Adjust the duration based on the beat duration
-		durationInSeconds := beatDuration.Seconds() * duration
-
-		// Play the note (or rest) for the calculated duration
-		PlayNote(freq, time.Duration(durationInSeconds*float64(time.Second)), sampleRate, audioContext)
+		// Check if the note is a chord (comma-separated notes, e.g., "C4,E4,G4")
+		chordNotes := strings.Split(note, "/")
+		if len(chordNotes) > 1 {
+			// It's a chord, play all notes simultaneously
+			PlayChord(chordNotes, time.Duration(beatDuration.Seconds()*duration*float64(time.Second)), sampleRate, audioContext)
+		} else {
+			// It's a single note, play it
+			freq := CalculateFrequency(note)
+			PlayNote(freq, time.Duration(beatDuration.Seconds()*duration*float64(time.Second)), sampleRate, audioContext)
+		}
 	}
 }
 
 // Main function to set up Ebiten and audio
 func playMusic() {
-
 	// Initialize Ebiten's audio system
 	audioContext := audio.NewContext(44100)
 
 	for {
 		time.Sleep(time.Millisecond * 500)
 
-		// Sea shanty melody with variable note lengths (e.g., "A4 1" for whole notes)
-		text := `Ab4 1, Bb4 1, Db5 0.5, Eb5 0.5, Gb5 1, Fb5 1, Ab5 1, Bb5 0.5, Fb5 0.5, Db5 1,
-Cb5 1, Gb4 0.5, Ab4 0.5, Bb4 1, Db5 1, Fb5 0.5, Gb5 0.5, A#5 1, Bb5 1,
+		// Epic sea shanty with smoother, flowing transitions and more variation in chords
+		text := `
+Ab4/Bb4 2, Db5/Eb5 2, Gb5/Ab5 2, Bb5 2, Db5/Fb5 2, Gb5 2, Ab5 2, 
+Bb5/Db5 2, Eb5 1, Gb5 1.5, Ab5 2, Bb5 1, Db5 2, Gb5 2, Ab5 2, 
+Db5 1.5, Fb5 1.5, Gb5 2, Ab5 2, Bb5 2, Db5 1.5, Eb5 1.5, Fb5 2, 
+Gb5 2, Ab5 2, Db5 2, Eb5 1, Gb5 2, Ab5 1.5, Bb5 2, Db6 2, 
+Ab5 2, Bb5 1, Db6/Fb6 2, Gb6 2, Ab6 2, Bb6 1.5, Db6 1.5, 
+Fb6 2, Gb6 2, Ab6/Bb6 2, Db6 2, Gb6 2, Ab6 2, Bb6 2
+`
 
-Ab5 1, Gb5 1, Fb5 0.75, Db5 0.25, Bb4 0.5, Cb5 0.5, Gb5 1, Db5 1, A#5 0.75, Bb5 0.25,
-Cb5 1, D#5 1, Fb5 1, Gb5 0.5, Ab5 0.5, Bb5 1, Cb5 1,
-
-Db5 1, Eb5 0.5, Fb5 0.5, Gb5 1, Fb5 1, Cb5 1, Ab4 1, A#4 0.5, Bb4 0.5, Db5 1,
-Ab4 1, Gb4 0.75, A#4 0.25, Cb5 1, D#5 0.5, Fb5 0.5, Gb5 1, Bb5 1,
-
-Ab5 1, Gb5 1, Fb5 0.75, Db5 0.25, Bb4 0.5, Cb5 0.5, Gb5 1, Db5 1, A#5 0.75, Bb5 0.25,
-Db5 1, Fb5 1, Ab5 1, Gb5 0.5, Fb5 0.5, Db5 1, Cb5 1,
-
-// Key Change - Higher Energy
-A#5 1, Bb5 1, Db6 0.5, Fb6 0.5, Gb6 1, Fb6 1, Ab6 1, Bb6 0.5, Db6 0.5, Fb6 1,
-Bb5 1, Ab5 0.5, Gb5 0.5, Db6 1, Fb6 0.5, Gb6 0.5, A#6 1, Bb6 1,
-
-Ab6 1, Gb6 1, Fb6 0.75, Db6 0.25, Bb5 0.5, Cb6 0.5, Gb6 1, Db6 1, A#6 0.75, Bb6 0.25,
-Cb6 1, D#6 1, Fb6 1, Gb6 0.5, Ab6 0.5, Bb6 1, Cb6 1,
-
-Db6 1, Eb6 0.5, Fb6 0.5, Gb6 1, Fb6 1, Cb6 1, Ab5 1, A#5 0.5, Bb5 0.5, Db6 1,
-Ab5 1, Gb5 0.75, A#5 0.25, Cb6 1, D#6 0.5, Fb6 0.5, Gb6 1, Bb6 1,
-
-// Final Chorus (Dramatic Finale)
-Ab6 1, Gb6 1, Fb6 0.75, Db6 0.25, Bb5 0.5, Cb6 0.5, Gb6 1, Db6 1, A#6 0.75, Bb6 0.25,
-Db6 1, Fb6 1, Ab6 1, Gb6 0.5, Fb6 0.5, Db6 1, Cb6 1`
-
-		bpm := 120          // 120 beats per minute
+		bpm := 150          // Moderate BPM for a more epic feel
 		sampleRate := 44100 // Standard audio sample rate
 
-		// Play the sea shanty notes with variable lengths
-		fmt.Println("Playing Sea Shanty with Variable Length Notes...")
+		// Play the sea shanty with smoother and epic chord progressions
+		fmt.Println("Playing Epic Sea Shanty with Smoother Flow...")
 		PlayTextAsNotes(text, bpm, sampleRate, audioContext)
 
 		time.Sleep(time.Second * 5)
