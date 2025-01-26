@@ -9,6 +9,7 @@ import (
 var spriteNames []string = []string{
 	"boat",
 	"sun",
+	"title",
 }
 
 func loadSprites() {

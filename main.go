@@ -23,12 +23,13 @@ func main() {
 }
 
 var (
-	boatSP, sunSP *ebiten.Image
+	boatSP, sunSP, titleSP *ebiten.Image
 )
 
 func newGame() *Game {
 	boatSP = spriteList["boat"].image
 	sunSP = spriteList["sun"].image
+	titleSP = spriteList["title"].image
 	return &Game{
 		gameMode: GAME_TITLE,
 		colors: colorData{

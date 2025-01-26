@@ -7,8 +7,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
-var vflop, hflop bool
-
 func (g *Game) drawTitle(screen *ebiten.Image) {
 
 	time := time.Now().Unix()
@@ -34,5 +32,13 @@ func (g *Game) drawTitle(screen *ebiten.Image) {
 	op.GeoM.Scale(magScale, magScale)
 	op.GeoM.Translate(32*magScale, 8*magScale)
 	screen.DrawImage(sunSP, op)
+
+	//Text
+	op = &ebiten.DrawImageOptions{}
+	op.GeoM.Scale(magScale, magScale)
+	op.GeoM.Translate(
+		float64((dWinWidth/2)-(titleSP.Bounds().Dx()*magScale)/2),
+		float64((dWinHeight/4)-(titleSP.Bounds().Dy()*magScale)/2))
+	screen.DrawImage(titleSP, op)
 
 }
