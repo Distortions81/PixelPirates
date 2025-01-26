@@ -122,8 +122,11 @@ func MixWaves(waves ...[]float32) []float32 {
 	return mixed
 }
 
-// PlayWave plays a wave using Ebiten's audio.
 func PlayWave(wave []float32, audioContext *audio.Context, sampleRate int) {
+	// 1) Trim trailing silence
+	wave = trimTrailingSilence(wave, 0.0001) // remove samples < 0.0001 near the end
+
+	// 2) Convert float32 samples to raw bytes (16-bit PCM)
 	soundData := make([]byte, len(wave)*2)
 	for i, sample := range wave {
 		val := int16(sample * 32767)
@@ -131,12 +134,47 @@ func PlayWave(wave []float32, audioContext *audio.Context, sampleRate int) {
 		soundData[i*2+1] = byte(val >> 8)
 	}
 
+	// 3) Create a player and play
 	player := audioContext.NewPlayerFromBytes(soundData)
 	player.Play()
 
-	// Wait for playback to finish
-	duration := time.Duration(float64(len(wave)) / float64(sampleRate) * float64(time.Second))
+	// 4) Wait for playback to finish
+	duration := time.Duration(float64(len(wave)/2) / float64(sampleRate) * float64(time.Second))
 	time.Sleep(duration)
+}
+
+// trimTrailingSilence cuts off samples at the end of `wave` that are
+// below the specified `threshold`. This helps remove long silent tails.
+func trimTrailingSilence(wave []float32, threshold float32) []float32 {
+	end := len(wave) - 1
+	for end >= 0 {
+		if wave[end] > threshold || wave[end] < -threshold {
+			break
+		}
+		end--
+	}
+	// If 'end' is -1, it means the entire wave is silence
+	if end < 0 {
+		return []float32{} // or wave[:0] to keep same slice reference
+	}
+	return wave[:end+1]
+}
+
+// AddLeader inserts a specified pause (in seconds) of silence
+// at the start of the wave.
+func AddLeader(wave []float32, sampleRate int, pauseSeconds float64) []float32 {
+	// Calculate how many samples correspond to the pause
+	numSilenceSamples := int(float64(sampleRate) * pauseSeconds)
+
+	// Create a slice of zeros (silence)
+	silence := make([]float32, numSilenceSamples)
+
+	// Create a new wave with silence + original wave + silence
+	newWave := make([]float32, 0, len(wave)+2*numSilenceSamples)
+	newWave = append(newWave, silence...) // front
+	newWave = append(newWave, wave...)    // original wave
+
+	return newWave
 }
 
 // CalculateFrequency calculates the frequency of a note based on its name and octave.
@@ -342,94 +380,11 @@ func PlayTextAsNotes(text string, bpm int, sampleRate int, audioContext *audio.C
 
 // Main function to set up Ebiten and audio
 func playMusic() {
-	startTime := time.Now()
-
 	audioContext := audio.NewContext(44100)
 
-	// Instrument 1: Lead
-	lead := `
-Bb4 1, Cb5 1, Db5 2,
-Eb5 1, Db5 1, Bb4 2,
-Eb5 1, Fb5 1, Gb5 2,
-Ab5 2, Gb5 2,
-Bb4 1, Db5 1, Eb5 2,
-Bb4 1, Db5 1, Fb5 2,
-Gb5 1, Eb5 1, Db5 2,
-Cb5 4,
-
-Bb4 1, Cb5 1, Db5 2,
-Eb5 2, Db5 2,
-Fb5 2, Gb5 2,
-Ab5 1, Gb5 1, Fb5 2,
-Eb5 2, Db5 2,
-Bb4 1, Cb5 1, Db5 2,
-Eb5 1, Bb4 1, Db5 2,
-Bb4 4
-`
-
-	// Instrument 2: Harmony (chords)
-	harmony := `
-Bb4/Db5/Fb5 4,
-Gb4/Bb4/Db5 4,
-Ab4/Cb5/Eb5 4,
-Bb4/Db5/Fb5 4,
-Bb4/Db5/Fb5 4,
-Gb4/Bb4/Db5 4,
-Ab4/Cb5/Eb5 4,
-Bb4/Db5/Fb5 4,
-Bb4/Db5/Fb5 4,
-Gb4/Bb4/Db5 4,
-Ab4/Cb5/Eb5 4,
-Bb4/Db5/Fb5 4,
-Bb4/Db5/Fb5 4,
-Gb4/Bb4/Db5 4,
-Ab4/Cb5/Eb5 4,
-Bb4/Db5/Fb5 4
-`
-
-	// Instrument 3: Bass
-	bass := `
-Bb2 4,
-Gb2 4,
-Ab2 4,
-Bb2 4,
-Bb2 4,
-Gb2 4,
-Ab2 4,
-Bb2 4,
-Bb2 4,
-Gb2 4,
-Ab2 4,
-Bb2 4,
-Bb2 4,
-Gb2 4,
-Ab2 4,
-Bb2 4
-`
-
-	// Choose BPM (try 90 for a moving but not too fast pace)
-	bpm := 90
-	sampleRate := 44100
-
-	// Generate each instrument wave
-	fmt.Println("Generating lead wave...")
-	leadWave := GenerateWaveFromText(lead, bpm, sampleRate)
-
-	fmt.Println("Generating harmony wave...")
-	harmonyWave := GenerateWaveFromText(harmony, bpm, sampleRate)
-
-	fmt.Println("Generating bass wave...")
-	bassWave := GenerateWaveFromText(bass, bpm, sampleRate)
-
-	// Mix them
-	fmt.Println("Mixing waves...")
-	finalWave := MixWaves(leadWave, harmonyWave, bassWave)
-
-	fmt.Printf("Took %v to generate.", time.Since(startTime))
-
-	// Play
-	fmt.Println("Playing final track...")
-	PlayWave(finalWave, audioContext, sampleRate)
-
-	fmt.Println("Done playing.")
+	songOne(audioContext)   // Aboard the Ebony Gale
+	songTwo(audioContext)   // Crimson Tides
+	songThree(audioContext) // Ghostlights in the Fog
+	songFour(audioContext)  // The Moonlit Maw
+	songFive(audioContext)  // Iron Tides at Dawn
 }
