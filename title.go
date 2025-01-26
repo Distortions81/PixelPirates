@@ -1,6 +1,7 @@
 package main
 
 import (
+	"image/color"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -30,6 +31,11 @@ func (g *Game) drawTitle(screen *ebiten.Image) {
 	op.GeoM.Translate(
 		float64((dWinWidth/2)-(boatSP.Bounds().Dx()*magScale)/2+offset.X*magScale),
 		float64((dWinHeight/2)-(boatSP.Bounds().Dy()*magScale)/2+offset.Y*magScale)+magScale*2)
+	op.ColorScale.ScaleWithColor(
+		GetFadeColor(
+			color.RGBA{R: 255, G: 255, B: 255, A: 255},
+			color.RGBA{R: 128, G: 128, B: 128, A: 255},
+			titleFadeTime))
 	screen.DrawImage(boatSP, op)
 
 	//Sun
@@ -44,6 +50,7 @@ func (g *Game) drawTitle(screen *ebiten.Image) {
 	op.GeoM.Translate(
 		float64((dWinWidth/2)-(titleSP.Bounds().Dx()*magScale)/2),
 		float64((dWinHeight/4)-(titleSP.Bounds().Dy()*magScale)/2))
+	op.ColorScale.ScaleAlpha(0.3)
 	screen.DrawImage(titleSP, op)
 
 }
