@@ -76,7 +76,9 @@ func GetFadeColor(start, end color.RGBA, duration time.Duration) color.RGBA {
 	currentHSV := LerpHSV(startHSV, endHSV, t)
 
 	// Convert the interpolated HSV back to RGB (uint8)
-	return HSVToRGB(currentHSV)
+	outColor := HSVToRGB(currentHSV)
+	outColor.A = 255
+	return outColor
 }
 
 // RGBToHSV converts an RGB color to HSV
