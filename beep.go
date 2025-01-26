@@ -461,6 +461,7 @@ func playMusic() {
 			PlayWave(output, audioContext, sampleRate)
 			time.Sleep(time.Second)
 		}
+		fmt.Println("\nRestarting playlist...")
 	}
 }
 
