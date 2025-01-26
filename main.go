@@ -31,6 +31,8 @@ func newGame() *Game {
 	sunSP = spriteList["sun"].image
 	titleSP = spriteList["title"].image
 	clickStartSP = spriteList["clickstart"].image
+	go playMusic()
+
 	return &Game{
 		gameMode: GAME_TITLE,
 		colors: colorData{
@@ -46,6 +48,7 @@ func newGame() *Game {
 			},
 		},
 	}
+
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
