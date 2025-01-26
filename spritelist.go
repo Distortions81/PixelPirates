@@ -10,6 +10,7 @@ var spriteNames []string = []string{
 	"boat",
 	"sun",
 	"title",
+	"clickstart",
 }
 
 func loadSprites() {

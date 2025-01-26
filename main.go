@@ -23,13 +23,14 @@ func main() {
 }
 
 var (
-	boatSP, sunSP, titleSP *ebiten.Image
+	boatSP, sunSP, titleSP, clickStartSP *ebiten.Image
 )
 
 func newGame() *Game {
 	boatSP = spriteList["boat"].image
 	sunSP = spriteList["sun"].image
 	titleSP = spriteList["title"].image
+	clickStartSP = spriteList["clickstart"].image
 	return &Game{
 		gameMode: GAME_TITLE,
 		colors: colorData{
@@ -54,10 +55,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 func (g *Game) Draw(screen *ebiten.Image) {
 	if g.gameMode == GAME_TITLE {
 		g.drawTitle(screen)
+	} else if g.gameMode == GAME_PLAY {
+		g.drawGame(screen)
 	}
-}
-
-// Ebiten input handler
-func (g *Game) Update() error {
-	return nil
 }

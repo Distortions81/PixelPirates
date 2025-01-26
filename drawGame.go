@@ -8,9 +8,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
-const titleFadeTime = time.Minute * 2
-
-func (g *Game) drawTitle(screen *ebiten.Image) {
+func (g *Game) drawGame(screen *ebiten.Image) {
 
 	unix := time.Now().Unix()
 	//Sky, water, horizon
@@ -43,14 +41,4 @@ func (g *Game) drawTitle(screen *ebiten.Image) {
 	op.GeoM.Scale(magScale, magScale)
 	op.GeoM.Translate(32*magScale, 8*magScale)
 	screen.DrawImage(sunSP, op)
-
-	//Text
-	op = &ebiten.DrawImageOptions{}
-	op.GeoM.Scale(magScale, magScale)
-	op.GeoM.Translate(
-		float64((dWinWidth/2)-(titleSP.Bounds().Dx()*magScale)/2),
-		float64((dWinHeight/4)-(titleSP.Bounds().Dy()*magScale)/2))
-	op.ColorScale.ScaleAlpha(0.3)
-	screen.DrawImage(titleSP, op)
-
 }
