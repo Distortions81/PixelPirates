@@ -450,7 +450,7 @@ func PlayTextAsNotes(text string, bpm int, sampleRate int, audioContext *audio.C
 // Main function to set up Ebiten and audio
 func playMusic() {
 	sampleRate := 44100
-	audioContext := audio.NewContext(sampleRate)
+	//audioContext := audio.NewContext(sampleRate)
 
 	time.Sleep(time.Second)
 	for {
@@ -458,10 +458,13 @@ func playMusic() {
 			startTime := time.Now()
 			output := playSong(*song, sampleRate)
 			fmt.Printf("Render: %v, Playing %v...\n", time.Since(startTime).Round(time.Millisecond), song.name)
-			PlayWave(output, audioContext, sampleRate)
+			//PlayWave(output, audioContext, sampleRate)
+			SaveMono16BitWav("songs/"+song.name+".wav", sampleRate, output)
 			time.Sleep(time.Second)
+
 		}
 		fmt.Println("\nRestarting playlist...")
+		return
 	}
 }
 
