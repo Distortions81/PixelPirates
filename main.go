@@ -33,9 +33,16 @@ func newGame() *Game {
 	return &Game{
 		gameMode: GAME_TITLE,
 		colors: colorData{
-			water:   hexToRGB("009688"),
-			horizon: hexToRGB("4fc3f7"),
-			sky:     hexToRGB("5b6ee1"),
+			day: colors{
+				water:   hexToRGB("009688"),
+				horizon: hexToRGB("4fc3f7"),
+				sky:     hexToRGB("5b6ee1"),
+			},
+			evening: colors{
+				water:   hexToRGB("006064"),
+				horizon: hexToRGB("303f9f"),
+				sky:     hexToRGB("1a237e"),
+			},
 		},
 	}
 }
