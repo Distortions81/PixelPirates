@@ -4,23 +4,37 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-const dWinWidth, dWinHeight = 1280, 720
+const (
+	dWinWidth, dWinHeight = 1280, 720
+)
+
+var WASMMode bool
 
 func main() {
 	ebiten.SetTPS(ebiten.SyncWithFPS)
 	ebiten.SetWindowSize(dWinWidth, dWinHeight)
 	ebiten.SetWindowTitle("Pixel Pirates")
 
+	loadSprites()
+
 	if err := ebiten.RunGameWithOptions(newGame(), &ebiten.RunGameOptions{GraphicsLibrary: ebiten.GraphicsLibraryOpenGL}); err != nil {
 		return
 	}
 }
 
-type Game struct {
-}
+var (
+	boatSP *ebiten.Image
+)
 
 func newGame() *Game {
-	return &Game{}
+	boatSP = spriteList["boat"].image
+	return &Game{
+		gameMode: GAME_TITLE,
+		colors: colorData{
+			water: hexToRGB("009688"),
+			sky:   hexToRGB("5b6ee1"),
+		},
+	}
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
@@ -28,6 +42,9 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
+	if g.gameMode == GAME_TITLE {
+		g.drawTitle(screen)
+	}
 }
 
 // Ebiten input handler
