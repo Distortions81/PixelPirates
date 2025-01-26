@@ -218,23 +218,39 @@ func playMusic() {
 	for {
 		time.Sleep(time.Millisecond * 500)
 
-		// Epic sea shanty with smoother, flowing transitions and more variation in chords
+		// This text defines the chord progression and single notes of our epic shanty.
+		// Notation:
+		//   - Chords are written like "Ab4/Db5/Eb5" followed by a duration (e.g., "1" for one beat).
+		//   - Single notes are written like "Ab4 0.5".
+		//   - Durations are in multiples (or fractions) of a quarter note at the chosen BPM.
 		text := `
-Ab4/Bb4 2, Db5/Eb5 2, Gb5/Ab5 2, Bb5 2, Db5/Fb5 2, Gb5 2, Ab5 2, 
-Bb5/Db5 2, Eb5 1, Gb5 1.5, Ab5 2, Bb5 1, Db5 2, Gb5 2, Ab5 2, 
-Db5 1.5, Fb5 1.5, Gb5 2, Ab5 2, Bb5 2, Db5 1.5, Eb5 1.5, Fb5 2, 
-Gb5 2, Ab5 2, Db5 2, Eb5 1, Gb5 2, Ab5 1.5, Bb5 2, Db6 2, 
-Ab5 2, Bb5 1, Db6/Fb6 2, Gb6 2, Ab6 2, Bb6 1.5, Db6 1.5, 
-Fb6 2, Gb6 2, Ab6/Bb6 2, Db6 2, Gb6 2, Ab6 2, Bb6 2
+Ab4/Cb5/Eb5 4, Fb4/Ab4/Cb5 4, Eb4/Gb4/Bb4 4, Ab4/Cb5/Eb5 4,
+Ab4/Cb5/Eb5 4, Fb4/Ab4/Cb5 4, Eb4/Gb4/Bb4 4, Ab4/Cb5/Eb5 4,
+
+Ab4/Cb5/Eb5 4, Fb4/Ab4/Cb5 4, Eb4/Gb4/Bb4 4, Ab4/Cb5/Eb5 4,
+Ab4/Cb5/Eb5 4, Fb4/Ab4/Cb5 4, Eb4/Gb4/Bb4 4, Ab4/Cb5/Eb5 4,
+
+Db4/Fb4/Ab4 4, Cb4/Eb4/Gb4 4, Eb4/Gb4/Bb4 4, Ab4/Cb5/Eb5 4,
+Db4/Fb4/Ab4 4, Cb4/Eb4/Gb4 4, Eb4/Gb4/Bb4 4, Ab4/Cb5/Eb5 4,
+
+Db4/Fb4/Ab4 4, Cb4/Eb4/Gb4 4, Eb4/Gb4/Bb4 4, Ab4/Cb5/Eb5 4,
+Db4/Fb4/Ab4 4, Cb4/Eb4/Gb4 4, Eb4/Gb4/Bb4 4, Ab4/Cb5/Eb5 4,
+
+Ab4/Cb5/Eb5 4, Ab4/Cb5/Eb5 4, Fb4/Ab4/Cb5 4, Fb4/Ab4/Cb5 4,
+Eb4/Gb4/Bb4 4, Eb4/Gb4/Bb4 4, Ab4/Cb5/Eb5 4, Ab4/Cb5/Eb5 4
 `
 
-		bpm := 150          // Moderate BPM for a more epic feel
+		// Increase tempo to keep it energetic
+		bpm := 160          // Faster tempo for a driving, epic feel
 		sampleRate := 44100 // Standard audio sample rate
 
-		// Play the sea shanty with smoother and epic chord progressions
-		fmt.Println("Playing Epic Sea Shanty with Smoother Flow...")
+		fmt.Println("Playing Epic, Energetic Sea Shanty with Chords...")
+
+		// This function parses the text above, interprets chord symbols vs. single notes,
+		// and plays them at the specified BPM and sample rate using the ADSR + wave mixing.
 		PlayTextAsNotes(text, bpm, sampleRate, audioContext)
 
+		// After one playthrough, wait a bit before looping
 		time.Sleep(time.Second * 5)
 	}
 }
