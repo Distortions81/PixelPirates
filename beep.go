@@ -109,7 +109,7 @@ func PlayNote(freq float64, duration time.Duration, sampleRate int, audioContext
 	wave := GenerateSmoothWave(freq, duration, sampleRate)
 
 	// Apply an ADSR envelope (adjust parameters for smoother transitions)
-	wave = ApplyADSR(wave, sampleRate, 0.01, 0.1, 0.8, 0.2)
+	wave = ApplyADSR(wave, sampleRate, 0.05, 0.1, 0.5, 0.5)
 
 	// Convert wave to []byte suitable for ebiten
 	soundData := make([]byte, len(wave)*2)
@@ -178,17 +178,31 @@ func playMusic() {
 		time.Sleep(time.Millisecond * 500)
 
 		// Sea shanty melody with variable note lengths (e.g., "A4 1" for whole notes)
-		text := `A#4 1, Db5 1, Gb5 0.5, Fb5 0.5, Ab5 1, A#5 1,
-Fb5 0.5, Ab4 0.5, Gb4 1, Db5 1, D#5 1, Fb5 0.75, Eb5 0.25,
-Gb4 1, Ab4 0.5, Db5 0.5, Fb5 1, Gb5 1, A#5 0.75, Bb5 0.25,
-Db5 1, D#5 1, Gb5 0.5, Bb5 0.5, Fb5 1, Eb5 1,
+		text := `Ab4 1, Bb4 1, Db5 0.5, Eb5 0.5, Gb5 1, Fb5 1, Ab5 1, Bb5 0.5, Fb5 0.5, Db5 1,
+Cb5 1, Gb4 0.5, Ab4 0.5, Bb4 1, Db5 1, Fb5 0.5, Gb5 0.5, A#5 1, Bb5 1,
 
-Ab4 0.5, A#4 0.5, Cb5 1, Db5 1, Fb5 0.5, Gb5 0.5, A#5 1,
-Cb5 1, D#5 0.5, Fb5 0.5, Gb5 1, Bb5 1, Cb5 1,
-D#5 1, Fb5 1, Gb5 0.5, A#5 0.5, Db5 1, Bb5 1,
+Ab5 1, Gb5 1, Fb5 0.75, Db5 0.25, Bb4 0.5, Cb5 0.5, Gb5 1, Db5 1, A#5 0.75, Bb5 0.25,
+Cb5 1, D#5 1, Fb5 1, Gb5 0.5, Ab5 0.5, Bb5 1, Cb5 1,
 
-Ab4 1, Gb4 0.75, A#4 0.25, Cb5 1, D#5 0.5, Fb5 0.5,
-Gb5 1, A#5 1, Fb5 0.5, Db5 0.5, Cb5 1, Ab4 1`
+Db5 1, Eb5 0.5, Fb5 0.5, Gb5 1, Fb5 1, Cb5 1, Ab4 1, A#4 0.5, Bb4 0.5, Db5 1,
+Ab4 1, Gb4 0.75, A#4 0.25, Cb5 1, D#5 0.5, Fb5 0.5, Gb5 1, Bb5 1,
+
+Ab5 1, Gb5 1, Fb5 0.75, Db5 0.25, Bb4 0.5, Cb5 0.5, Gb5 1, Db5 1, A#5 0.75, Bb5 0.25,
+Db5 1, Fb5 1, Ab5 1, Gb5 0.5, Fb5 0.5, Db5 1, Cb5 1,
+
+// Key Change - Higher Energy
+A#5 1, Bb5 1, Db6 0.5, Fb6 0.5, Gb6 1, Fb6 1, Ab6 1, Bb6 0.5, Db6 0.5, Fb6 1,
+Bb5 1, Ab5 0.5, Gb5 0.5, Db6 1, Fb6 0.5, Gb6 0.5, A#6 1, Bb6 1,
+
+Ab6 1, Gb6 1, Fb6 0.75, Db6 0.25, Bb5 0.5, Cb6 0.5, Gb6 1, Db6 1, A#6 0.75, Bb6 0.25,
+Cb6 1, D#6 1, Fb6 1, Gb6 0.5, Ab6 0.5, Bb6 1, Cb6 1,
+
+Db6 1, Eb6 0.5, Fb6 0.5, Gb6 1, Fb6 1, Cb6 1, Ab5 1, A#5 0.5, Bb5 0.5, Db6 1,
+Ab5 1, Gb5 0.75, A#5 0.25, Cb6 1, D#6 0.5, Fb6 0.5, Gb6 1, Bb6 1,
+
+// Final Chorus (Dramatic Finale)
+Ab6 1, Gb6 1, Fb6 0.75, Db6 0.25, Bb5 0.5, Cb6 0.5, Gb6 1, Db6 1, A#6 0.75, Bb6 0.25,
+Db6 1, Fb6 1, Ab6 1, Gb6 0.5, Fb6 0.5, Db6 1, Cb6 1`
 
 		bpm := 120          // 120 beats per minute
 		sampleRate := 44100 // Standard audio sample rate
