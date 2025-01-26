@@ -9,10 +9,15 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/audio"
 )
 
-// GenerateWaveFromText creates a single wave (mono) from a "notes string".
-func GenerateWaveFromText(text string, bpm, sampleRate int) []float32 {
-	beatDuration := time.Minute / time.Duration(bpm) // duration of one beat (quarter note)
+// GenerateWaveFromTextWithParams creates a single wave for one instrument.
+// We pass waveBlend & volume from insData to shape the tone and loudness.
+func GenerateWaveFromTextWithParams(text string, bpm, sampleRate int, waveBlend, volume float64) []float32 {
+	beatDuration := time.Minute / time.Duration(bpm)
 	var finalWave []float32
+
+	if volume == 0 {
+		volume = 1
+	}
 
 	for _, noteStr := range strings.Split(text, ",") {
 		note, duration := ParseNote(noteStr)
@@ -21,19 +26,88 @@ func GenerateWaveFromText(text string, bpm, sampleRate int) []float32 {
 		}
 		noteDuration := time.Duration(beatDuration.Seconds() * duration * float64(time.Second))
 
-		// Check if chord
+		// Check for chord
 		chordNotes := strings.Split(note, "/")
 		if len(chordNotes) > 1 {
-			chordWave := PlayChordOffline(chordNotes, noteDuration, sampleRate)
+			chordWave := PlayChordOfflineWithParams(chordNotes, noteDuration, sampleRate, waveBlend, volume)
 			finalWave = append(finalWave, chordWave...)
 		} else {
 			freq := CalculateFrequency(note)
-			noteWave := PlayNoteOffline(freq, noteDuration, sampleRate)
+			noteWave := PlayNoteOfflineWithParams(freq, noteDuration, sampleRate, waveBlend, volume)
 			finalWave = append(finalWave, noteWave...)
 		}
 	}
 
 	return finalWave
+}
+
+// PlayNoteOfflineWithParams: generates wave data for a single note, applying volume & wave blend.
+func PlayNoteOfflineWithParams(freq float64, duration time.Duration, sampleRate int, waveBlend, volume float64) []float32 {
+	// Handle rest
+	if freq == 0 {
+		return make([]float32, int(float64(sampleRate)*duration.Seconds()))
+	}
+
+	wave := GenerateCustomWave(freq, duration, sampleRate, waveBlend)
+	wave = ApplyADSR(wave, sampleRate, 0.05, 0.1, 0.5, 0.5)
+
+	// Apply per-instrument volume
+	for i := range wave {
+		wave[i] *= float32(volume)
+	}
+
+	return wave
+}
+
+// GenerateCustomWave blends square & sine waves based on waveBlend (0.0 to 1.0).
+func GenerateCustomWave(freq float64, duration time.Duration, sampleRate int, waveBlend float64) []float32 {
+	samples := int(float64(sampleRate) * duration.Seconds())
+	wave := make([]float32, samples)
+	for i := 0; i < samples; i++ {
+		t := float64(i) / float64(sampleRate)
+		if freq == 0 {
+			wave[i] = 0
+		} else {
+			sinVal := math.Sin(2 * math.Pi * freq * t)
+			sqrVal := 1.0
+			if sinVal < 0 {
+				sqrVal = -1.0
+			}
+			// waveBlend: 0.0 = pure sine, 1.0 = pure square
+			mix := waveBlend*sqrVal + (1.0-waveBlend)*sinVal
+			wave[i] = float32(mix)
+		}
+	}
+	return wave
+}
+
+// PlayChordOfflineWithParams: generates wave data for a chord, applying volume & wave blend.
+func PlayChordOfflineWithParams(chord []string, duration time.Duration, sampleRate int, waveBlend, volume float64) []float32 {
+	// Generate wave for each note in the chord
+	var waves [][]float32
+	for _, note := range chord {
+		freq := CalculateFrequency(note)
+		noteWave := GenerateCustomWave(freq, duration, sampleRate, waveBlend)
+		noteWave = ApplyADSR(noteWave, sampleRate, 0.05, 0.1, 0.5, 0.5)
+		// Apply volume
+		for i := range noteWave {
+			noteWave[i] *= float32(volume)
+		}
+		waves = append(waves, noteWave)
+	}
+
+	// Sum waves
+	chordWave := make([]float32, len(waves[0]))
+	for i := range chordWave {
+		var sum float32
+		for _, w := range waves {
+			sum += w[i]
+		}
+		// average to prevent single chord from ballooning amplitude
+		chordWave[i] = sum / float32(len(waves))
+	}
+
+	return chordWave
 }
 
 // PlayNoteOffline generates wave data (without playing) for a single note.
@@ -375,43 +449,35 @@ func PlayTextAsNotes(text string, bpm int, sampleRate int, audioContext *audio.C
 
 // Main function to set up Ebiten and audio
 func playMusic() {
-	audioContext := audio.NewContext(44100)
+	sampleRate := 44100
+	audioContext := audio.NewContext(sampleRate)
 
 	for {
 		for _, song := range songList {
-			playSong(*song, audioContext)
+			fmt.Printf("Playing %v...\n", song.name)
+			output := playSong(*song, sampleRate)
+			PlayWave(output, audioContext, sampleRate)
 		}
 	}
 }
 
-func playSong(song songData, audioContext *audio.Context) {
-	startTime := time.Now()
+func playSong(song songData, sampleRate int) []float32 {
+	var waves [][]float32
 
-	// Choose BPM (try 90 for a moving but not too fast pace)
-	bpm := song.bpm
-	if bpm == 0 {
-		bpm = 90
-	}
-	sampleRate := 44100
-
-	// Generate each instrument wave
-	var wavList [][]float32
-	for _, ins := range song.ins {
-		fmt.Printf("Generating %v...\n", ins.name)
-
-		wavData := append(MakeSilence(sampleRate, 1), GenerateWaveFromText(ins.data, bpm, sampleRate)...)
-		wavData = append(wavData, MakeSilence(sampleRate, 1)...)
-		wavList = append(wavList, wavData)
+	for _, instrument := range song.ins {
+		// We'll assume we stored volume & waveBlend in instrument.volume, instrument.waveBlend
+		insWave := GenerateWaveFromTextWithParams(
+			instrument.data,
+			song.bpm,
+			sampleRate,
+			instrument.blend,
+			instrument.volume,
+		)
+		waves = append(waves, insWave)
 	}
 
-	// Mix the instrument waves
-	finalWave := MixWaves(wavList...)
+	// Mix all instrument waves
+	mixed := MixWaves(waves...) // your no-clipping version
 
-	fmt.Printf("Took %v to generate.\n", time.Since(startTime))
-
-	// Play
-	fmt.Printf("Playing %v\n", song.name)
-	PlayWave(finalWave, audioContext, sampleRate)
-
-	fmt.Println("Done playing.\n")
+	return mixed
 }
