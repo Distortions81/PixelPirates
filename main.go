@@ -13,6 +13,7 @@ const (
 	dWinWidth, dWinHeight = 1280 / magScale, 720 / magScale
 	magScale              = 4
 	sampleRate            = 48000
+	verbose               = false
 )
 
 var (
@@ -58,7 +59,7 @@ var (
 
 func newGame() *Game {
 
-	boatSP = spriteList["boat"].image
+	boatSP = spriteList["boat1"].image
 	sunSP = spriteList["sun"].image
 	titleSP = spriteList["title"].image
 	clickStartSP = spriteList["clickstart"].image

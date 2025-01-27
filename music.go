@@ -24,7 +24,9 @@ func PlayTitleMusic(g *Game) {
 				return
 			}
 			startTime := time.Now()
-			fmt.Printf("Rendering: '%v'\n", song.name)
+			if verbose {
+				fmt.Printf("Rendering: '%v'\n", song.name)
+			}
 			output := PlaySong(song)
 
 			if song.reverb > 0 {
@@ -48,7 +50,9 @@ func PlayGameMusic(g *Game) {
 				return
 			}
 			startTime := time.Now()
-			fmt.Printf("Rendering: '%v'\n", song.name)
+			if verbose {
+				fmt.Printf("Rendering: '%v'\n", song.name)
+			}
 			output := PlaySong(song)
 
 			if song.reverb > 0 {
@@ -68,7 +72,9 @@ func DumpMusic() {
 	os.Mkdir("dump", 0755)
 
 	for _, song := range titleSongList {
-		fmt.Printf("Rendering: '%v'\n", song.name)
+		if verbose {
+			fmt.Printf("Rendering: '%v'\n", song.name)
+		}
 		output := PlaySong(song)
 
 		if song.reverb > 0 {
@@ -109,7 +115,9 @@ func GenerateFromText(song *songData, ins *insData) audioData {
 	beatDuration := time.Minute / time.Duration(song.bpm)
 	var finalWave audioData
 
-	fmt.Printf("Rendering: %v\n", ins.name)
+	if verbose {
+		fmt.Printf("Rendering: %v\n", ins.name)
+	}
 	for _, noteStr := range strings.Split(ins.data, ",") {
 		note, duration := ParseNote(noteStr)
 		if note == "" {

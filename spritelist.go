@@ -1,38 +1,53 @@
 package main
 
 import (
-	"os"
+	"image"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-var spriteNames []string = []string{
-	"boat",
-	"sun",
-	"title",
-	"clickstart",
+var spriteList map[string]*spriteItem = map[string]*spriteItem{
+	"boat1":      {Path: "boats/"},
+	"sun":        {Path: "world/"},
+	"title":      {Path: "title/"},
+	"clickstart": {Path: "title/"},
 }
 
 func loadSprites() {
-	spriteList = make(map[string]spriteItem)
 
-	for _, name := range spriteNames {
-		image, err := loadSprite(name+".png", false)
+	for name, sprite := range spriteList {
+		image, err := loadSprite(sprite.Path+name, false)
 		if err == nil {
-			spriteList[name] = spriteItem{Name: name, Size: point(image.Bounds().Max), image: image}
 			doLog(true, "loading sprite '"+name+"'")
+			spriteList[name].image = image
 		} else {
 			doLog(true, "loading sprite '"+name+"' failed.")
-			os.Exit(1)
 		}
+
+		aniData, err := loadAnimationData(sprite.Path + name)
+		if err == nil {
+			spriteList[name].animation = aniData
+		}
+
 	}
 }
 
-var spriteList map[string]spriteItem
-
 type spriteItem struct {
-	Name string
-	Size point
+	Name, Path string
 
-	image *ebiten.Image
+	image     *ebiten.Image
+	animation *animationData
+}
+
+func getAniFrame(frame int, ani *spriteItem) *ebiten.Image {
+	numFrames := len(ani.animation.Frames)
+	if frame < 0 || frame > numFrames {
+		return nil
+	}
+
+	fKey := ani.animation.SortedFrames[frame]
+	fRect := ani.animation.Frames[fKey].Frame
+	rect := image.Rectangle{Min: image.Point{X: fRect.X, Y: fRect.Y}, Max: image.Point{X: fRect.W, Y: fRect.H}}
+	subFrame := ani.image.SubImage(rect).(*ebiten.Image)
+	return subFrame
 }
