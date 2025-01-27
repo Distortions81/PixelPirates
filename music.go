@@ -15,9 +15,9 @@ import (
 // Render takes longer, but higher quality output.
 // Recommended: 1 (fast, none), 2 (low), 4 (medium), 8 (high), 16 (very high), 32 (extreme)
 // https://theproaudiofiles.com/oversampling/
-var oversampling = 4
 
 func PlayMusic() {
+	const oversampling = 4
 	sampleRate := 48000 * oversampling
 	audioContext := audio.NewContext(sampleRate / oversampling)
 
@@ -33,7 +33,7 @@ func PlayMusic() {
 			runtime.GC()
 			fmt.Printf("Render took %v\nNow Playing: %v.\n\n", time.Since(startTime).Round(time.Millisecond), song.name)
 
-			PlayWave(output, audioContext, sampleRate)
+			PlayWave(output, audioContext, sampleRate, oversampling)
 			//SaveMono16BitWav("songs/"+song.name+".wav", sampleRate/oversampling, output)
 		}
 		fmt.Println("\nRestarting playlist...")
@@ -42,7 +42,7 @@ func PlayMusic() {
 }
 
 func DumpMusic() {
-	oversampling = 32
+	const oversampling = 32
 	sampleRate := 48000 * oversampling
 
 	os.Mkdir("dump", 0755)
@@ -54,7 +54,7 @@ func DumpMusic() {
 		if song.reverb > 0 {
 			output = ApplyReverb(output, sampleRate, song.delay, song.feedback, song.reverb)
 		}
-		SaveMono16BitWav("dump/"+song.name+".wav", sampleRate/oversampling, output)
+		SaveMono16BitWav("dump/"+song.name+".wav", sampleRate/oversampling, oversampling, output)
 	}
 }
 
@@ -236,7 +236,7 @@ func MixWaves(waves ...audioData) audioData {
 // DownsampleLinear takes a slice of samples (wave)
 // and returns a new slice at rate/oversample the original sample rate
 // using simple linear interpolation.
-func DownsampleLinear(wave audioData) audioData {
+func DownsampleLinear(wave audioData, oversampling int) audioData {
 	oldLen := len(wave)
 	// If there's not enough data, or nothing to do, just return the original wave.
 	if oldLen < 2 {
@@ -277,9 +277,9 @@ func DownsampleLinear(wave audioData) audioData {
 	return out
 }
 
-func PlayWave(wave audioData, audioContext *audio.Context, sampleRate int) {
+func PlayWave(wave audioData, audioContext *audio.Context, sampleRate, oversampling int) {
 
-	resampled := DownsampleLinear(wave)
+	resampled := DownsampleLinear(wave, oversampling)
 
 	// 2) Convert float64 samples to raw bytes (16-bit PCM), with noise shaping
 	soundData := make([]byte, len(resampled)*2)

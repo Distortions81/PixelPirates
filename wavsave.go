@@ -9,8 +9,8 @@ import (
 )
 
 // SaveMono16BitWav uses go-audio/wav to write a single-channel 16-bit WAV.
-func SaveMono16BitWav(filename string, sampleRate int, samples []float32) error {
-	resampled := DownsampleLinear(samples)
+func SaveMono16BitWav(filename string, sampleRate, oversampling int, samples []float32) error {
+	resampled := DownsampleLinear(samples, oversampling)
 
 	// 1. Create the output file
 	f, err := os.Create(filename)
