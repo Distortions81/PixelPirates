@@ -13,9 +13,11 @@ const (
 )
 
 var WASMMode bool
+var fxtest *bool
 
 func main() {
 	dump := flag.Bool("dumpMusic", false, "Dump songs out as WAV and quit.")
+	fxtest = flag.Bool("fxtest", false, "test sound effects.")
 	flag.Parse()
 
 	if *dump {
@@ -50,7 +52,12 @@ func newGame() *Game {
 	sunSP = spriteList["sun"].image
 	titleSP = spriteList["title"].image
 	clickStartSP = spriteList["clickstart"].image
-	go PlayMusic()
+
+	if *fxtest {
+		go PlayFx()
+	} else {
+		go PlayMusic()
+	}
 
 	return &Game{
 		gameMode: GAME_TITLE,
