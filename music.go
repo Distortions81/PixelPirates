@@ -314,6 +314,9 @@ func ApplyADSR(wave []float64, sampleRate int, ins *insData) []float64 {
 	if ins.sustain < 0.01 {
 		ins.sustain = 0.01
 	}
+	if ins.release < 0.01 {
+		ins.release = 0.01
+	}
 
 	// Calculate the number of samples for each phase
 	attackSamples := int(float64(sampleRate) * ins.attack)
