@@ -14,28 +14,29 @@ func PlayFx() {
 
 	const repeatTime = 1
 	const nextTime = 3
+	const fxTime = 1
 
 	for {
 		for x := 0; x < 3; x++ {
-			PlayWave(SeagullSound(sampleRate, 1), audioContext, sampleRate, 1)
+			PlayWave(SeagullSound(sampleRate, 1), audioContext, sampleRate, fxTime)
 			time.Sleep(repeatTime * time.Second)
 		}
 		time.Sleep(time.Second * nextTime)
 
 		for x := 0; x < 3; x++ {
-			PlayWave(WoodCreakSound(sampleRate, 1), audioContext, sampleRate, 1)
+			PlayWave(WoodCreakSound(sampleRate, 1), audioContext, sampleRate, fxTime)
 			time.Sleep(repeatTime * time.Second)
 		}
 		time.Sleep(time.Second * nextTime)
 
 		for x := 0; x < 3; x++ {
-			PlayWave(CannonSound(sampleRate, 1), audioContext, sampleRate, 1)
+			PlayWave(CannonSound(sampleRate, 1), audioContext, sampleRate, fxTime)
 			time.Sleep(repeatTime * time.Second)
 		}
 		time.Sleep(time.Second * nextTime)
 
 		for x := 0; x < 3; x++ {
-			PlayWave(GoldCoinsSound(sampleRate, 1), audioContext, sampleRate, 1)
+			PlayWave(GoldCoinsSound(sampleRate, 1), audioContext, sampleRate, fxTime)
 			time.Sleep(repeatTime * time.Second)
 		}
 		time.Sleep(time.Second * nextTime)
