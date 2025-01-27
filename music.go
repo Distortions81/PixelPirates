@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math/rand/v2"
 	"os"
 	"runtime"
 	"strings"
@@ -25,7 +26,7 @@ func PlayMusic() {
 		for _, song := range songList {
 			startTime := time.Now()
 			fmt.Printf("Rendering: '%v'\n", song.name)
-			output := PlaySong(song, sampleRate)
+			output := PlaySong(song, sampleRate, oversampling)
 
 			if song.reverb > 0 {
 				output = ApplyReverb(output, sampleRate, song.delay, song.feedback, song.reverb)
@@ -49,7 +50,7 @@ func DumpMusic() {
 
 	for _, song := range songList {
 		fmt.Printf("Rendering: '%v'\n", song.name)
-		output := PlaySong(song, sampleRate)
+		output := PlaySong(song, sampleRate, oversampling)
 
 		if song.reverb > 0 {
 			output = ApplyReverb(output, sampleRate, song.delay, song.feedback, song.reverb)
@@ -58,7 +59,7 @@ func DumpMusic() {
 	}
 }
 
-func PlaySong(song songData, sampleRate int) audioData {
+func PlaySong(song songData, sampleRate, oversampling int) audioData {
 	var waves []audioData
 	var waveLock sync.Mutex
 
@@ -72,6 +73,7 @@ func PlaySong(song songData, sampleRate int) audioData {
 		go func(ins insData) {
 			insWave := GenerateFromText(
 				sampleRate,
+				oversampling,
 				&song,
 				&ins,
 			)
@@ -86,7 +88,7 @@ func PlaySong(song songData, sampleRate int) audioData {
 	return MixWaves(waves...)
 }
 
-func GenerateFromText(sampleRate int, song *songData, ins *insData) audioData {
+func GenerateFromText(sampleRate, oversampling int, song *songData, ins *insData) audioData {
 	beatDuration := time.Minute / time.Duration(song.bpm)
 	var finalWave audioData
 
@@ -105,7 +107,7 @@ func GenerateFromText(sampleRate int, song *songData, ins *insData) audioData {
 			finalWave = append(finalWave, chordWave...)
 		} else {
 			freq := CalculateFrequency(note)
-			noteWave := PlayNote(freq, noteDuration, sampleRate, ins)
+			noteWave := PlayNote(freq, noteDuration, sampleRate, oversampling, ins)
 			finalWave = append(finalWave, noteWave...)
 		}
 	}
@@ -113,18 +115,44 @@ func GenerateFromText(sampleRate int, song *songData, ins *insData) audioData {
 	return finalWave
 }
 
-func PlayNote(freq float32, duration time.Duration, sampleRate int, ins *insData) audioData {
+func PlayNote(freq float32, duration time.Duration, sampleRate, oversampling int, ins *insData) audioData {
 	// Handle rest
 	if freq == 0 {
 		return make(audioData, int(float64(sampleRate)*duration.Seconds()))
 	}
 
-	wave := GenerateWave(freq, duration, sampleRate, ins.square)
+	var wave audioData
+	if freq == -1 {
+		wave = GenerateNoise(duration, sampleRate, oversampling)
+	} else {
+		wave = GenerateWave(freq, duration, sampleRate, ins.square)
+	}
 	wave = ApplyADSR(wave, sampleRate, ins)
 
 	// Apply per-instrument volume
 	for i := range wave {
 		wave[i] *= float32(ins.volume)
+	}
+
+	return wave
+}
+
+func GenerateNoise(duration time.Duration, samplerate, oversampling int) audioData {
+	numSamples := int(float64(samplerate) * duration.Seconds())
+	wave := make(audioData, numSamples)
+
+	// Generate white noise samples in the range [-1.0, 1.0]
+	// and write them as float32 (little-endian)
+	for i := 0; i < numSamples; i++ {
+		sample := float32((rand.Float64()*2.0 - 1.0)) // in [-1.0, 1.0]
+		// Write the float32 sample
+		wave[i] = sample
+		for x := 0; x < oversampling*4; x++ {
+			i++
+			if i < numSamples {
+				wave[i] = sample
+			}
+		}
 	}
 
 	return wave
@@ -328,7 +356,7 @@ func CalculateFrequency(note string) float32 {
 	var baseFrequency float32 = 440.0
 	// Note names (A-G), standard equal temperament tuning
 	noteNames := map[string]int{
-		"NN": -1, "Ab": 0, "A#": 1, "Bb": 2, "Cb": 3, "C#": 4, "Db": 5,
+		"WN": -2, "NN": -1, "Ab": 0, "A#": 1, "Bb": 2, "Cb": 3, "C#": 4, "Db": 5,
 		"D#": 6, "Eb": 7, "Fb": 8, "F#": 9, "Gb": 10, "G#": 11,
 	}
 
@@ -342,6 +370,8 @@ func CalculateFrequency(note string) float32 {
 	halfSteps := noteNames[noteName]
 	if halfSteps == -1 {
 		return 0
+	} else if halfSteps == -2 {
+		return -1
 	}
 
 	// Calculate the number of half-steps from A4 (which is the 49th note)

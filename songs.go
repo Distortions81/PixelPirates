@@ -226,6 +226,19 @@ var EbonyGale = songData{
 	ins: []insData{
 		{
 			// Bright, prominent lead
+			name:    "ocean",
+			volume:  0.4,
+			attack:  6.0,
+			decay:   6.0,
+			sustain: 0.0,
+			release: 0.0,
+			data: `
+WN 16, WN 16, WN 16,
+WN 16, WN 16, WN 16,
+`,
+		},
+		{
+			// Bright, prominent lead
 			name:    "lead",
 			volume:  0.8,
 			square:  0.2, // Mostly sine with a bit of buzz
