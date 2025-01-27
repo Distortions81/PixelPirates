@@ -12,7 +12,7 @@ import (
 )
 
 // Render takes longer, but higher quality output.
-// Recommend 2, 4 or 8 https://theproaudiofiles.com/oversampling/
+// Recommended: 1 (fast), 2 (low), 4 (medium), 8 (high), 16 (very high), 32 (extreme) https://theproaudiofiles.com/oversampling/
 const oversampling = 4
 
 // Main function to set up Ebiten and audio
