@@ -40,6 +40,9 @@ func playSong(song songData, sampleRate int) []float64 {
 	var waves [][]float64
 
 	for _, instrument := range song.ins {
+		if instrument.volume <= 0 {
+			continue
+		}
 		// We'll assume we stored volume & waveBlend in instrument.volume, instrument.waveBlend
 		insWave := GenerateWaveFromTextWithParams(
 			sampleRate,
@@ -239,8 +242,6 @@ func MixWaves(waves ...[]float64) []float64 {
 }
 
 func PlayWave(wave []float64, audioContext *audio.Context, sampleRate int) {
-	// 1) Trim trailing silence
-	//wave = trimTrailingSilence(wave, 0.0001) // remove samples < 0.0001 near the end
 
 	// 2) Convert float64 samples to raw bytes (16-bit PCM)
 	soundData := make([]byte, len(wave)*2)
@@ -259,24 +260,7 @@ func PlayWave(wave []float64, audioContext *audio.Context, sampleRate int) {
 	time.Sleep(duration)
 }
 
-// trimTrailingSilence cuts off samples at the end of `wave` that are
-// below the specified `threshold`. This helps remove long silent tails.
-func trimTrailingSilence(wave []float64, threshold float64) []float64 {
-	end := len(wave) - 1
-	for end >= 0 {
-		if wave[end] > threshold || wave[end] < -threshold {
-			break
-		}
-		end--
-	}
-	// If 'end' is -1, it means the entire wave is silence
-	if end < 0 {
-		return []float64{} // or wave[:0] to keep same slice reference
-	}
-	return wave[:end+1]
-}
-
-// AddLeMakeSilenceader inserts a specified pause (in seconds) of silence
+// MakeSilence inserts a specified pause (in seconds) of silence
 // at the start of the wave.
 func MakeSilence(sampleRate int, pauseSeconds float64) []float64 {
 	// Calculate how many samples correspond to the pause
@@ -317,10 +301,19 @@ func CalculateFrequency(note string) float64 {
 	return frequency
 }
 
-// ApplyADSR applies an ADSR envelope to the wave to smooth the note transitions.
 func ApplyADSR(wave []float64, sampleRate int, ins *insData) []float64 {
 	length := len(wave)
 	adsrWave := make([]float64, length)
+
+	if ins.attack < 0.01 {
+		ins.attack = 0.01
+	}
+	if ins.decay < 0.01 {
+		ins.decay = 0.01
+	}
+	if ins.sustain < 0.01 {
+		ins.sustain = 0.01
+	}
 
 	// Calculate the number of samples for each phase
 	attackSamples := int(float64(sampleRate) * ins.attack)
@@ -328,30 +321,44 @@ func ApplyADSR(wave []float64, sampleRate int, ins *insData) []float64 {
 	releaseSamples := int(float64(sampleRate) * ins.release)
 	sustainSamples := length - attackSamples - decaySamples - releaseSamples
 
-	// Ensure sustainSamples is non-negative; if not, adjust to 0 to avoid out-of-bounds
 	if sustainSamples < 0 {
 		sustainSamples = 0
 	}
 
-	// Apply the Attack phase
+	// Attack
 	for i := 0; i < attackSamples && i < length; i++ {
-		adsrWave[i] = wave[i] * float64(float64(i)/float64(attackSamples))
+		adsrWave[i] = wave[i] * float64(i) / float64(attackSamples)
 	}
 
-	// Apply the Decay phase
+	// Decay
 	for i := attackSamples; i < attackSamples+decaySamples && i < length; i++ {
-		adsrWave[i] = wave[i] * float64(1-(1-ins.sustain)*(float64(i-attackSamples)/float64(decaySamples)))
+		t := float64(i-attackSamples) / float64(decaySamples)
+		adsrWave[i] = wave[i] * (1.0 - (1.0-ins.sustain)*t)
 	}
 
-	// Apply the Sustain phase
+	// Sustain
 	for i := attackSamples + decaySamples; i < attackSamples+decaySamples+sustainSamples && i < length; i++ {
-		adsrWave[i] = wave[i] * float64(ins.sustain)
+		adsrWave[i] = wave[i] * ins.sustain
 	}
 
-	// Apply the Release phase
-	for i := attackSamples + decaySamples + sustainSamples; i < length; i++ {
-		// Prevent any out-of-bounds access by capping index properly
-		adsrWave[i] = wave[i] * float64(ins.sustain*(1-float64(i-(attackSamples+decaySamples+sustainSamples))/float64(releaseSamples)))
+	// Release
+	releaseStart := attackSamples + decaySamples + sustainSamples
+	for i := releaseStart; i < length; i++ {
+		t := float64(i-releaseStart) / float64(releaseSamples)
+		adsrWave[i] = wave[i] * ins.sustain * (1.0 - t)
+	}
+
+	// ---- Quick fade-out fix to ensure zero at the end ----
+	fadeOutDurationSec := 0.01 // 10 ms
+	fadeOutSamples := int(float64(sampleRate) * fadeOutDurationSec)
+	if fadeOutSamples > length {
+		fadeOutSamples = length
+	}
+
+	startFade := length - fadeOutSamples
+	for i := startFade; i < length; i++ {
+		factor := 1.0 - float64(i-startFade)/float64(fadeOutSamples)
+		adsrWave[i] *= factor
 	}
 
 	return adsrWave
