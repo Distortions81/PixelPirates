@@ -109,6 +109,7 @@ func decodeAniJSON(data []byte) (animationData, error) {
 		log.Fatalf("Error sorting frame names: %v", err)
 	}
 	root.SortedFrames = sorted
+	root.NumFrames = int64(len(sorted))
 
 	if verbose {
 		fmt.Println("Frames:")
@@ -135,6 +136,7 @@ func decodeAniJSON(data []byte) (animationData, error) {
 type animationData struct {
 	Frames       map[string]aniFrame `json:"frames"`
 	SortedFrames []string            `json:"-"`
+	NumFrames    int64               `json:"-"`
 	Meta         aniMeta             `json:"meta"`
 }
 

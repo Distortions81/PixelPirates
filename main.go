@@ -54,15 +54,15 @@ func main() {
 }
 
 var (
-	boatSP, sunSP, titleSP, clickStartSP *ebiten.Image
+	boatSP, sunSP, titleSP, clickStartSP *spriteItem
 )
 
 func newGame() *Game {
 
-	boatSP = spriteList["boat1"].image
-	sunSP = spriteList["sun"].image
-	titleSP = spriteList["title"].image
-	clickStartSP = spriteList["clickstart"].image
+	boatSP = spriteList["boat1"]
+	sunSP = spriteList["sun"]
+	titleSP = spriteList["title"]
+	clickStartSP = spriteList["clickstart"]
 
 	g := &Game{
 		gameMode: GAME_TITLE,

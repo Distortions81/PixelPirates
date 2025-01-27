@@ -27,34 +27,40 @@ func (g *Game) drawTitle(screen *ebiten.Image) {
 	if unix%3 == 0 {
 		offset.Y = 1
 	}
+	firstFrame := boatSP.animation.SortedFrames[0]
+	speed := boatSP.animation.Frames[firstFrame].Duration
+	time := time.Now().UnixMilli() / int64(speed)
+	frameNum := time % (boatSP.animation.NumFrames)
+	boatFrame := getAniFrame(frameNum, boatSP)
+
 	op.GeoM.Translate(
-		float64((dWinWidth/2)-(boatSP.Bounds().Dx())/2+offset.X),
-		float64((dWinHeight/2)-(boatSP.Bounds().Dy())/2+offset.Y)+2)
+		float64((dWinWidth/2)-(boatFrame.Bounds().Dx())/2+offset.X),
+		float64((dWinHeight/2)-(boatFrame.Bounds().Dy())/2+offset.Y)+2)
 	op.ColorScale.ScaleWithColor(
 		GetFadeColor(
 			color.RGBA{R: 255, G: 255, B: 255, A: 255},
 			color.RGBA{R: 128, G: 128, B: 128, A: 255},
 			titleFadeTime))
-	screen.DrawImage(boatSP, op)
+	screen.DrawImage(boatFrame, op)
 
 	//Sun
 	op = &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(32, 8)
-	screen.DrawImage(sunSP, op)
+	screen.DrawImage(sunSP.image, op)
 
 	//Text
 	op = &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(
-		float64((dWinWidth/2)-(titleSP.Bounds().Dx())/2),
-		float64((dWinHeight/4)-(titleSP.Bounds().Dy())/2))
+		float64((dWinWidth/2)-(titleSP.image.Bounds().Dx())/2),
+		float64((dWinHeight/4)-(titleSP.image.Bounds().Dy())/2))
 	op.ColorScale.ScaleAlpha(0.3)
-	screen.DrawImage(titleSP, op)
+	screen.DrawImage(titleSP.image, op)
 
 	//Click message
 	op = &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(
-		float64((dWinWidth/2)-(clickStartSP.Bounds().Dx())/2),
-		float64((dWinHeight/4)*3-(clickStartSP.Bounds().Dy())/2))
+		float64((dWinWidth/2)-(clickStartSP.image.Bounds().Dx())/2),
+		float64((dWinHeight/4)*3-(clickStartSP.image.Bounds().Dy())/2))
 	op.ColorScale.ScaleAlpha(0.3)
-	screen.DrawImage(clickStartSP, op)
+	screen.DrawImage(clickStartSP.image, op)
 }

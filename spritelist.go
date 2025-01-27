@@ -39,15 +39,15 @@ type spriteItem struct {
 	animation *animationData
 }
 
-func getAniFrame(frame int, ani *spriteItem) *ebiten.Image {
-	numFrames := len(ani.animation.Frames)
+func getAniFrame(frame int64, ani *spriteItem) *ebiten.Image {
+	numFrames := int64(len(ani.animation.Frames))
 	if frame < 0 || frame > numFrames {
 		return nil
 	}
 
 	fKey := ani.animation.SortedFrames[frame]
 	fRect := ani.animation.Frames[fKey].Frame
-	rect := image.Rectangle{Min: image.Point{X: fRect.X, Y: fRect.Y}, Max: image.Point{X: fRect.W, Y: fRect.H}}
+	rect := image.Rectangle{Min: image.Point{X: fRect.X, Y: fRect.Y}, Max: image.Point{X: fRect.X + fRect.W, Y: fRect.Y + fRect.H}}
 	subFrame := ani.image.SubImage(rect).(*ebiten.Image)
 	return subFrame
 }
