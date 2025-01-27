@@ -13,12 +13,12 @@ import (
 
 // Render takes longer, but higher quality output.
 // Recommend 2, 4 or 8 https://theproaudiofiles.com/oversampling/
-const oversampling = 2
+const oversampling = 4
 
 // Main function to set up Ebiten and audio
 func PlayMusic() {
-	sampleRate := 44100 * oversampling
-	audioContext := audio.NewContext(sampleRate)
+	sampleRate := 48000 * oversampling
+	audioContext := audio.NewContext(sampleRate / oversampling)
 
 	for {
 		for _, song := range songList {
@@ -79,7 +79,7 @@ func GenerateFromText(sampleRate int, song *songData, ins *insData) audioData {
 		if note == "" {
 			continue
 		}
-		noteDuration := time.Duration(beatDuration.Seconds() * duration * float64(time.Second*oversampling))
+		noteDuration := time.Duration(beatDuration.Seconds() * duration * float64(time.Second))
 
 		// Check for chord
 		chordNotes := strings.Split(note, "/")
@@ -302,7 +302,7 @@ func PlayWave(wave audioData, audioContext *audio.Context, sampleRate int) {
 
 	// 4) Wait for playback to finish
 	duration := time.Duration(
-		float64(len(resampled)/2) / float64(sampleRate/oversampling) * float64(time.Second/oversampling),
+		float64(len(resampled)/2) / float64(sampleRate/oversampling) * float64(time.Second),
 	)
 	time.Sleep(duration)
 }
@@ -310,7 +310,7 @@ func PlayWave(wave audioData, audioContext *audio.Context, sampleRate int) {
 // CalculateFrequency calculates the frequency of a note based on its name and octave.
 func CalculateFrequency(note string) float32 {
 	// Base note A4
-	var baseFrequency float32 = 440.0 / oversampling
+	var baseFrequency float32 = 440.0
 	// Note names (A-G), standard equal temperament tuning
 	noteNames := map[string]int{
 		"NN": -1, "Ab": 0, "A#": 1, "Bb": 2, "Cb": 3, "C#": 4, "Db": 5,
