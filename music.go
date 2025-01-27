@@ -58,7 +58,6 @@ func PlayGameMusic(g *Game) {
 			fmt.Printf("Render took %v\nNow Playing: %v.\n\n", time.Since(startTime).Round(time.Millisecond), song.name)
 
 			PlayWave(g, output)
-			//SaveMono16BitWav("songs/"+song.name+".wav", sampleRate/oversampling, output)
 		}
 		fmt.Println("\nRestarting playlist...")
 	}
