@@ -40,6 +40,7 @@ func PlayTitleMusic(g *Game) {
 }
 
 func PlayGameMusic(g *Game) {
+	time.Sleep(time.Millisecond * 1000)
 
 	for {
 		for _, song := range gameSongList {
@@ -318,10 +319,17 @@ func PlayWave(g *Game, wave audioData) {
 	for player.IsPlaying() {
 		if g.stopMusic {
 			g.stopMusic = false
+
+			fadeout := 50
+			for x := 1; x < fadeout; x++ {
+				volume := 1 - float64(x)/float64(fadeout)
+				player.SetVolume(volume)
+				time.Sleep(time.Millisecond * 10)
+			}
 			player.Close()
 			return
 		}
-		time.Sleep(time.Millisecond * 100)
+		time.Sleep(time.Millisecond * 10)
 	}
 }
 

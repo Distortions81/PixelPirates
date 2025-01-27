@@ -1,8 +1,6 @@
 package main
 
 import (
-	"time"
-
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
@@ -18,7 +16,7 @@ func (g *Game) Update() error {
 			inpututil.IsMouseButtonJustPressed(ebiten.MouseButton1) {
 			g.stopMusic = true
 			g.gameMode = GAME_PLAY
-			time.Sleep(time.Millisecond * 500)
+
 			go PlayGameMusic(g)
 		}
 		return nil
