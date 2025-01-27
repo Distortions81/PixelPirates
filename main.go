@@ -1,6 +1,8 @@
 package main
 
 import (
+	_ "net/http/pprof"
+
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -11,6 +13,12 @@ const (
 var WASMMode bool
 
 func main() {
+	/*
+		go func() {
+			http.ListenAndServe("localhost:6060", nil)
+		}()
+	*/
+
 	ebiten.SetTPS(ebiten.SyncWithFPS)
 	ebiten.SetWindowSize(dWinWidth, dWinHeight)
 	ebiten.SetWindowTitle("Pixel Pirates")
@@ -27,6 +35,7 @@ var (
 )
 
 func newGame() *Game {
+
 	boatSP = spriteList["boat"].image
 	sunSP = spriteList["sun"].image
 	titleSP = spriteList["title"].image
