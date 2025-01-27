@@ -42,6 +42,7 @@ func main() {
 
 	ebiten.SetTPS(ebiten.SyncWithFPS)
 	ebiten.SetWindowSize(dWinWidth*magScale, dWinHeight*magScale)
+	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	ebiten.SetWindowTitle("Pixel Pirates")
 
 	loadSprites()
