@@ -54,12 +54,13 @@ func main() {
 }
 
 var (
-	boatSP, sunSP, titleSP, clickStartSP *spriteItem
+	boat1SP, boat2SP, sunSP, titleSP, clickStartSP *spriteItem
 )
 
 func newGame() *Game {
 
-	boatSP = spriteList["boat1"]
+	boat1SP = spriteList["boat1"]
+	boat2SP = spriteList["boat2"]
 	sunSP = spriteList["sun"]
 	titleSP = spriteList["title"]
 	clickStartSP = spriteList["clickstart"]
