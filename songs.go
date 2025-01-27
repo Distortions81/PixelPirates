@@ -23,10 +23,10 @@ type audioData []float32
 
 var songList = []songData{
 	EbonyGaleEx,
-	//EbonyGale,
 	MidnightDepthsPercussion,
 	introspectiveTheme,
 	MerrySailingTheme,
+	EbonyGale,
 	PirateDramaticTheme,
 	PirateEpicTheme,
 }
