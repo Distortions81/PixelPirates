@@ -4,13 +4,9 @@ import (
 	"math"
 	"math/rand/v2"
 	"time"
-
-	"github.com/hajimehoshi/ebiten/v2/audio"
 )
 
-func PlayFx() {
-	sampleRate := 48000
-	audioContext := audio.NewContext(sampleRate)
+func PlayFx(g *Game) {
 
 	const repeatTime = 0
 	const nextTime = 0
@@ -19,19 +15,19 @@ func PlayFx() {
 
 	for {
 		for x := 0; x < repeats; x++ {
-			PlayWave(ApplyReverb(SeagullSound(sampleRate, fxTime), sampleRate, 0.1, 0.3, 0.9), audioContext, sampleRate, 1)
+			PlayWave(g, ApplyReverb(SeagullSound(fxTime), 0.1, 0.3, 0.9))
 			time.Sleep(repeatTime * time.Second)
 		}
 		time.Sleep(time.Second * nextTime)
 
 		for x := 0; x < repeats; x++ {
-			PlayWave(ApplyReverb(CannonSound(sampleRate, fxTime), sampleRate, 0.5, 0.4, 0.3), audioContext, sampleRate, 1)
+			PlayWave(g, ApplyReverb(CannonSound(fxTime), 0.5, 0.4, 0.3))
 			time.Sleep(repeatTime * time.Second)
 		}
 		time.Sleep(time.Second * nextTime)
 
 		for x := 0; x < repeats; x++ {
-			PlayWave(ApplyReverb(GoldCoinsSound(sampleRate, fxTime), sampleRate, 0.8, 0.03, 0.8), audioContext, sampleRate, 1)
+			PlayWave(g, ApplyReverb(GoldCoinsSound(fxTime), 0.8, 0.03, 0.8))
 			time.Sleep(repeatTime * time.Second)
 		}
 		time.Sleep(time.Second * nextTime)
@@ -41,7 +37,7 @@ func PlayFx() {
 // ------------------------------------------------------------------------------
 // 1) Seagull Sound
 // ------------------------------------------------------------------------------
-func SeagullSound(sampleRate int, durationSec float64) []float32 {
+func SeagullSound(durationSec float64) []float32 {
 	numSamples := int(durationSec * float64(sampleRate))
 	out := make([]float32, numSamples)
 
@@ -119,7 +115,7 @@ func seagullEnv(t, total float64) float64 {
 // ------------------------------------------------------------------------------
 // 3) Cannon Sound
 // ------------------------------------------------------------------------------
-func CannonSound(sampleRate int, durationSec float64) []float32 {
+func CannonSound(durationSec float64) []float32 {
 	numSamples := int(durationSec * float64(sampleRate))
 	out := make([]float32, numSamples)
 
@@ -159,7 +155,7 @@ func CannonSound(sampleRate int, durationSec float64) []float32 {
 // ------------------------------------------------------------------------------
 // 4) Gold Coins Sound
 // ------------------------------------------------------------------------------
-func GoldCoinsSound(sampleRate int, durationSec float64) []float32 {
+func GoldCoinsSound(durationSec float64) []float32 {
 	numSamples := int(durationSec * float64(sampleRate))
 	out := make([]float32, numSamples)
 

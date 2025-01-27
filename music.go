@@ -10,56 +10,75 @@ import (
 	"time"
 
 	"github.com/chewxy/math32"
-	"github.com/hajimehoshi/ebiten/v2/audio"
 )
 
 // Render takes longer, but higher quality output.
 // 1 (fast, none), 2 (low), 4 (medium), 8 (high) (slow, even in 2025), 16 (very high), 32 (extreme)
 // https://theproaudiofiles.com/oversampling/
 
-func PlayMusic() {
-	const oversampling = 1
-	sampleRate := 48000 * oversampling
-	audioContext := audio.NewContext(sampleRate / oversampling)
+func PlayTitleMusic(g *Game) {
 
 	for {
-		for _, song := range songList {
+		for _, song := range titleSongList {
+			if g.gameMode != GAME_TITLE {
+				return
+			}
 			startTime := time.Now()
 			fmt.Printf("Rendering: '%v'\n", song.name)
-			output := PlaySong(song, sampleRate, oversampling)
+			output := PlaySong(song)
 
 			if song.reverb > 0 {
-				output = ApplyReverb(output, sampleRate, song.delay, song.feedback, song.reverb)
+				output = ApplyReverb(output, song.delay, song.feedback, song.reverb)
 			}
 			runtime.GC()
 			fmt.Printf("Render took %v\nNow Playing: %v.\n\n", time.Since(startTime).Round(time.Millisecond), song.name)
 
-			PlayWave(output, audioContext, sampleRate, oversampling)
+			PlayWave(g, output)
+		}
+		fmt.Println("\nRestarting playlist...")
+	}
+}
+
+func PlayGameMusic(g *Game) {
+
+	for {
+		for _, song := range gameSongList {
+			if g.gameMode != GAME_PLAY {
+				return
+			}
+			startTime := time.Now()
+			fmt.Printf("Rendering: '%v'\n", song.name)
+			output := PlaySong(song)
+
+			if song.reverb > 0 {
+				output = ApplyReverb(output, song.delay, song.feedback, song.reverb)
+			}
+			runtime.GC()
+			fmt.Printf("Render took %v\nNow Playing: %v.\n\n", time.Since(startTime).Round(time.Millisecond), song.name)
+
+			PlayWave(g, output)
 			//SaveMono16BitWav("songs/"+song.name+".wav", sampleRate/oversampling, output)
 		}
 		fmt.Println("\nRestarting playlist...")
-		//return
 	}
 }
 
 func DumpMusic() {
-	const oversampling = 32
-	sampleRate := 48000 * oversampling
 
 	os.Mkdir("dump", 0755)
 
-	for _, song := range songList {
+	for _, song := range titleSongList {
 		fmt.Printf("Rendering: '%v'\n", song.name)
-		output := PlaySong(song, sampleRate, oversampling)
+		output := PlaySong(song)
 
 		if song.reverb > 0 {
-			output = ApplyReverb(output, sampleRate, song.delay, song.feedback, song.reverb)
+			output = ApplyReverb(output, song.delay, song.feedback, song.reverb)
 		}
-		SaveMono16BitWav("dump/"+song.name+".wav", sampleRate/oversampling, oversampling, output)
+		SaveMono16BitWav("dump/"+song.name+".wav", output)
 	}
 }
 
-func PlaySong(song songData, sampleRate, oversampling int) audioData {
+func PlaySong(song songData) audioData {
 	var waves []audioData
 	var waveLock sync.Mutex
 
@@ -72,8 +91,6 @@ func PlaySong(song songData, sampleRate, oversampling int) audioData {
 		wg.Add(1)
 		go func(ins insData) {
 			insWave := GenerateFromText(
-				sampleRate,
-				oversampling,
 				&song,
 				&ins,
 			)
@@ -88,7 +105,7 @@ func PlaySong(song songData, sampleRate, oversampling int) audioData {
 	return MixWaves(waves...)
 }
 
-func GenerateFromText(sampleRate, oversampling int, song *songData, ins *insData) audioData {
+func GenerateFromText(song *songData, ins *insData) audioData {
 	beatDuration := time.Minute / time.Duration(song.bpm)
 	var finalWave audioData
 
@@ -103,11 +120,11 @@ func GenerateFromText(sampleRate, oversampling int, song *songData, ins *insData
 		// Check for chord
 		chordNotes := strings.Split(note, "/")
 		if len(chordNotes) > 1 {
-			chordWave := PlayChord(chordNotes, noteDuration, sampleRate, ins)
+			chordWave := PlayChord(chordNotes, noteDuration, ins)
 			finalWave = append(finalWave, chordWave...)
 		} else {
 			freq := CalculateFrequency(note)
-			noteWave := PlayNote(freq, noteDuration, sampleRate, oversampling, ins)
+			noteWave := PlayNote(freq, noteDuration, ins)
 			finalWave = append(finalWave, noteWave...)
 		}
 	}
@@ -115,7 +132,7 @@ func GenerateFromText(sampleRate, oversampling int, song *songData, ins *insData
 	return finalWave
 }
 
-func PlayNote(freq float32, duration time.Duration, sampleRate, oversampling int, ins *insData) audioData {
+func PlayNote(freq float32, duration time.Duration, ins *insData) audioData {
 	// Handle rest
 	if freq == 0 {
 		return make(audioData, int(float64(sampleRate)*duration.Seconds()))
@@ -123,11 +140,11 @@ func PlayNote(freq float32, duration time.Duration, sampleRate, oversampling int
 
 	var wave audioData
 	if freq == -1 {
-		wave = GenerateNoise(duration, sampleRate, oversampling)
+		wave = GenerateNoise(duration)
 	} else {
-		wave = GenerateWave(freq, duration, sampleRate, ins.square)
+		wave = GenerateWave(freq, duration, ins.square)
 	}
-	wave = ApplyADSR(wave, sampleRate, ins)
+	wave = ApplyADSR(wave, ins)
 
 	// Apply per-instrument volume
 	for i := range wave {
@@ -137,8 +154,8 @@ func PlayNote(freq float32, duration time.Duration, sampleRate, oversampling int
 	return wave
 }
 
-func GenerateNoise(duration time.Duration, samplerate, oversampling int) audioData {
-	numSamples := int(float64(samplerate) * duration.Seconds())
+func GenerateNoise(duration time.Duration) audioData {
+	numSamples := int(float64(sampleRate) * duration.Seconds())
 	wave := make(audioData, numSamples)
 
 	// Generate white noise samples in the range [-1.0, 1.0]
@@ -147,7 +164,7 @@ func GenerateNoise(duration time.Duration, samplerate, oversampling int) audioDa
 		sample := float32((rand.Float64()*2.0 - 1.0)) // in [-1.0, 1.0]
 		// Write the float32 sample
 		wave[i] = sample
-		for x := 0; x < oversampling*8; x++ {
+		for x := 0; x < 8; x++ {
 			i++
 			if i < numSamples {
 				wave[i] = sample
@@ -158,7 +175,7 @@ func GenerateNoise(duration time.Duration, samplerate, oversampling int) audioDa
 	return wave
 }
 
-func GenerateWave(freq float32, duration time.Duration, sampleRate int, waveBlend float32) audioData {
+func GenerateWave(freq float32, duration time.Duration, waveBlend float32) audioData {
 	samples := int(float64(sampleRate) * duration.Seconds())
 	wave := make(audioData, samples)
 	for i := 0; i < samples; i++ {
@@ -179,13 +196,13 @@ func GenerateWave(freq float32, duration time.Duration, sampleRate int, waveBlen
 	return wave
 }
 
-func PlayChord(chord []string, duration time.Duration, sampleRate int, ins *insData) audioData {
+func PlayChord(chord []string, duration time.Duration, ins *insData) audioData {
 	// Generate wave for each note in the chord
 	var waves []audioData
 	for _, note := range chord {
 		freq := CalculateFrequency(note)
-		noteWave := GenerateWave(freq, duration, sampleRate, ins.square)
-		noteWave = ApplyADSR(noteWave, sampleRate, ins)
+		noteWave := GenerateWave(freq, duration, ins.square)
+		noteWave = ApplyADSR(noteWave, ins)
 		// Apply volume
 		for i := range noteWave {
 			noteWave[i] *= float32(ins.volume)
@@ -261,61 +278,15 @@ func MixWaves(waves ...audioData) audioData {
 	return mixed
 }
 
-// DownsampleLinear takes a slice of samples (wave)
-// and returns a new slice at rate/oversample the original sample rate
-// using simple linear interpolation.
-func DownsampleLinear(wave audioData, oversampling int) audioData {
-	oldLen := len(wave)
-	// If there's not enough data, or nothing to do, just return the original wave.
-	if oldLen < 2 {
-		return wave
-	}
-
-	// New length will be / oversample of oldLen (integer division).
-	newLen := oldLen / oversampling
-	if newLen < 2 {
-		newLen = 2 // ensure at least 2 samples to avoid edge cases
-	}
-
-	out := make(audioData, newLen)
-
-	// We want to cover the entire range of the original wave [0..oldLen-1]
-	// and map it onto [0..newLen-1] with linear interpolation.
-	//
-	// Let's map each index i in [0..newLen-1] to a floating-point index in the old wave:
-	//   oldIndexF = i * (float64(oldLen - 1) / float64(newLen - 1))
-	// This ensures the first new sample aligns with wave[0]
-	// and the last new sample aligns exactly with wave[oldLen - 1].
-	scale := float32(oldLen-1) / float32(newLen-1)
-
-	for i := 0; i < newLen; i++ {
-		oldIndexF := float32(i) * scale
-		idx := int(oldIndexF)
-		frac := oldIndexF - float32(idx)
-
-		// Edge case: if idx is at the end, just copy the last sample.
-		if idx >= oldLen-1 {
-			out[i] = wave[oldLen-1]
-		} else {
-			// Linear interpolation between wave[idx] and wave[idx+1].
-			out[i] = wave[idx]*(1.0-frac) + wave[idx+1]*frac
-		}
-	}
-
-	return out
-}
-
-func PlayWave(wave audioData, audioContext *audio.Context, sampleRate, oversampling int) {
-
-	resampled := DownsampleLinear(wave, oversampling)
+func PlayWave(g *Game, wave audioData) {
 
 	// 2) Convert float64 samples to raw bytes (16-bit PCM), with noise shaping
-	soundData := make([]byte, len(resampled)*2)
+	soundData := make([]byte, len(wave)*2)
 
 	// We'll store the quantization error from the previous sample
 	var prevError float32
 
-	for i, sample := range resampled {
+	for i, sample := range wave {
 		// Add shaped error from the previous sample.
 		// A small feedback factor (like 0.5) is a simple first-order noise shaper.
 		shapedSample := sample + 0.5*prevError
@@ -344,11 +315,14 @@ func PlayWave(wave audioData, audioContext *audio.Context, sampleRate, oversampl
 	player := audioContext.NewPlayerFromBytes(soundData)
 	player.Play()
 
-	// 4) Wait for playback to finish
-	duration := time.Duration(
-		float64(len(resampled)/2) / float64(sampleRate/oversampling) * float64(time.Second),
-	)
-	time.Sleep(duration)
+	for player.IsPlaying() {
+		if g.stopMusic {
+			g.stopMusic = false
+			player.Close()
+			return
+		}
+		time.Sleep(time.Millisecond * 10)
+	}
 }
 
 func CalculateFrequency(note string) float32 {
@@ -381,7 +355,7 @@ func CalculateFrequency(note string) float32 {
 	return frequency
 }
 
-func ApplyADSR(wave audioData, sampleRate int, ins *insData) audioData {
+func ApplyADSR(wave audioData, ins *insData) audioData {
 	length := len(wave)
 	adsrWave := make(audioData, length)
 

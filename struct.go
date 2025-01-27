@@ -5,6 +5,7 @@ import "image/color"
 type Game struct {
 	gameMode        int
 	boatPos, camPos point
+	stopMusic       bool
 
 	colors colorData
 }

@@ -6,21 +6,28 @@ import (
 	_ "net/http/pprof"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/audio"
 )
 
 const (
 	dWinWidth, dWinHeight = 1280 / magScale, 720 / magScale
 	magScale              = 4
+	sampleRate            = 48000
 )
 
-var WASMMode bool
-var fxtest *bool
+var (
+	WASMMode     bool
+	fxtest       *bool
+	audioContext *audio.Context
+)
 
 func main() {
 	fmt.Printf("Game res: %v,%v (%vx) : (%v, %v)\n", dWinWidth, dWinHeight, magScale, dWinWidth*magScale, dWinHeight*magScale)
 	dump := flag.Bool("dumpMusic", false, "Dump songs out as WAV and quit.")
 	fxtest = flag.Bool("fxtest", false, "test sound effects.")
 	flag.Parse()
+
+	audioContext = audio.NewContext(sampleRate)
 
 	if *dump {
 		DumpMusic()
@@ -55,13 +62,7 @@ func newGame() *Game {
 	titleSP = spriteList["title"].image
 	clickStartSP = spriteList["clickstart"].image
 
-	if *fxtest {
-		go PlayFx()
-	} else {
-		go PlayMusic()
-	}
-
-	return &Game{
+	g := &Game{
 		gameMode: GAME_TITLE,
 		colors: colorData{
 			day: colors{
@@ -76,6 +77,13 @@ func newGame() *Game {
 			},
 		},
 	}
+
+	if *fxtest {
+		go PlayFx(g)
+	} else {
+		go PlayTitleMusic(g)
+	}
+	return g
 
 }
 

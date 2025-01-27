@@ -21,328 +21,17 @@ type insData struct {
 
 type audioData []float32
 
-var songList = []songData{
+var titleSongList = []songData{
 	EbonyGaleEx,
+}
+
+var gameSongList = []songData{
 	MidnightDepthsPercussion,
 	introspectiveTheme,
 	MerrySailingTheme,
 	EbonyGale,
 	PirateDramaticTheme,
 	PirateEpicTheme,
-}
-
-var EbonyGale = songData{
-	name:     "Aboard the Ebony Gale",
-	bpm:      70,
-	reverb:   0.4,  // Slightly cavernous
-	delay:    0.25, // 250ms delay
-	feedback: 0.3,  // Mild echo repeats
-	ins: []insData{
-		{
-			// Bright, prominent lead
-			name:    "ocean",
-			volume:  0.15,
-			attack:  6.0,
-			decay:   6.0,
-			sustain: 0.0,
-			release: 0.0,
-			data: `
-WN 16, WN 16, WN 16,
-WN 16, WN 16,
-`,
-		},
-		{
-			// Bright, prominent lead
-			name:    "lead",
-			volume:  0.8,
-			square:  0.2, // Mostly sine with a bit of buzz
-			attack:  0.1,
-			decay:   0.3,
-			sustain: 0.7,
-			release: 0.4,
-			data: `
-Eb4 1, Gb4 1, Ab4 2,
-Bb4 1, Ab4 1, Gb4 2,
-Fb4 1, Gb4 1, Ab4 2,
-Bb4 2, Ab4 2,
-
-Eb4 1, Gb4 1, Ab4 2,
-Bb4 1, Ab4 1, Db5 2,
-Cb5 1, Bb4 1, Ab4 2,
-Gb4 4
-`,
-		},
-		{
-			// Gentle accompaniment chords
-			name:    "harmony",
-			volume:  0.6,
-			square:  0.1, // Softer timbre
-			attack:  0.2,
-			decay:   0.3,
-			sustain: 0.6,
-			release: 0.5,
-			data: `
-Eb4/Gb4/Bb4 4,
-Cb4/Eb4/Gb4 4,
-Db4/Ab4/Db5 4,
-Eb4/Gb4/Bb4 4,
-
-Eb4/Gb4/Bb4 4,
-Cb4/Eb4/Gb4 4,
-Db4/Gb4/Bb4 4,
-Eb4/Gb4/Bb4 4,
-
-Eb4/Gb4/Bb4 4,
-Cb4/Eb4/Gb4 4,
-Db4/Ab4/Db5 4,
-Eb4/Gb4/Bb4 4,
-
-Eb4/Gb4/Bb4 4,
-Cb4/Eb4/Gb4 4,
-Db4/Gb4/Bb4 4,
-Eb4/Gb4/Bb4 4
-`,
-		},
-		{
-			// Steady low-end anchor
-			name:    "bass",
-			volume:  0.7,
-			square:  0.3, // Slightly more edge in the low range
-			attack:  0.05,
-			decay:   0.2,
-			sustain: 0.7,
-			release: 0.3,
-			data: `
-Eb2 4,
-Cb2 4,
-Db2 4,
-Eb2 4,
-
-Eb2 4,
-Cb2 4,
-Db2 4,
-Eb2 4,
-
-Eb2 4,
-Cb2 4,
-Db2 4,
-Eb2 4,
-
-Eb2 4,
-Cb2 4,
-Db2 4,
-Eb2 4
-`,
-		},
-		{
-			// Simple percussive hits (kick/snare imitation)
-			name:    "percussion",
-			volume:  0.0, // Muted
-			square:  1.0, // Pure square for a sharper click
-			attack:  0.0,
-			decay:   0.1,
-			sustain: 0.0,
-			release: 0.05,
-			data: `
-Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
-Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
-Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
-Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
-
-Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
-Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
-Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
-Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75
-`,
-		},
-	},
-}
-
-var introspectiveTheme = songData{
-	name:     "Introspective Reflection",
-	bpm:      70,
-	reverb:   0.5, // moderate, for spacious introspection
-	delay:    0.3,
-	feedback: 0.3,
-	ins: []insData{
-		{
-			// 1) Soft Piano (Chords)
-			name:   "Soft Piano (Chords)",
-			volume: 0.6,
-			square: 0.1, // mostly sine-like but a bit of "bite"
-			// Longer attack/decay for a gentle swell, moderate sustain/release
-			attack:  0.5,
-			decay:   0.5,
-			sustain: 0.7,
-			release: 1.0,
-			// One 16-measure chord progression:
-			//   i (Eb minor) -> VI (Cb major) -> iv (Ab minor) -> i (Eb minor)
-			// Each chord is 4 measures, total 16. Then repeat 2 more times => 48 measures (~2:45 at 70 BPM).
-			data: `
-////////////////////////////////////////////////////////////////////////
-// 16-MEASURE CYCLE (4 chords × 4 measures each), REPEATED 3x
-////////////////////////////////////////////////////////////////////////
-
-// MEASURES 1-4: Eb minor (Eb, Gb, Bb)
-Eb3 1, Gb3 1, Bb3 1, Eb4 1,
-Gb3 1, Bb3 1, Eb4 1, Gb4 1,
-Bb3 1, Eb4 1, Gb4 1, Bb4 1,
-Eb4 1, Gb4 1, Bb4 1, Eb5 1,
-
-// MEASURES 5-8: Cb major (Cb, Eb, Gb)
-Cb3 1, Eb3 1, Gb3 1, Cb4 1,
-Eb3 1, Gb3 1, Cb4 1, Eb4 1,
-Gb3 1, Cb4 1, Eb4 1, Gb4 1,
-Cb4 1, Eb4 1, Gb4 1, Cb5 1,
-
-// MEASURES 9-12: Ab minor (Ab, Cb, Eb)
-Ab3 1, Cb4 1, Eb4 1, Ab4 1,
-Cb4 1, Eb4 1, Ab4 1, Cb5 1,
-Eb4 1, Ab4 1, Cb5 1, Eb5 1,
-Ab4 1, Cb5 1, Eb5 1, Ab5 1,
-
-// MEASURES 13-16: Eb minor again
-Eb3 1, Gb3 1, Bb3 1, Eb4 1,
-Gb3 1, Bb3 1, Eb4 1, Gb4 1,
-Bb3 1, Eb4 1, Gb4 1, Bb4 1,
-Eb4 1, Gb4 1, Bb4 1, Eb5 1,
-
-////////////////////////////////////////////////////////////////////////
-// REPEAT THE ABOVE 16 MEASURES 2 MORE TIMES => 48 TOTAL
-////////////////////////////////////////////////////////////////////////
-
-// Second pass
-Eb3 1, Gb3 1, Bb3 1, Eb4 1,
-Gb3 1, Bb3 1, Eb4 1, Gb4 1,
-Bb3 1, Eb4 1, Gb4 1, Bb4 1,
-Eb4 1, Gb4 1, Bb4 1, Eb5 1,
-
-Cb3 1, Eb3 1, Gb3 1, Cb4 1,
-Eb3 1, Gb3 1, Cb4 1, Eb4 1,
-Gb3 1, Cb4 1, Eb4 1, Gb4 1,
-Cb4 1, Eb4 1, Gb4 1, Cb5 1,
-
-Ab3 1, Cb4 1, Eb4 1, Ab4 1,
-Cb4 1, Eb4 1, Ab4 1, Cb5 1,
-Eb4 1, Ab4 1, Cb5 1, Eb5 1,
-Ab4 1, Cb5 1, Eb5 1, Ab5 1,
-
-Eb3 1, Gb3 1, Bb3 1, Eb4 1,
-Gb3 1, Bb3 1, Eb4 1, Gb4 1,
-Bb3 1, Eb4 1, Gb4 1, Bb4 1,
-Eb4 1, Gb4 1, Bb4 1, Eb5 1,
-
-// Third pass
-Eb3 1, Gb3 1, Bb3 1, Eb4 1,
-Gb3 1, Bb3 1, Eb4 1, Gb4 1,
-Bb3 1, Eb4 1, Gb4 1, Bb4 1,
-Eb4 1, Gb4 1, Bb4 1, Eb5 1,
-
-Cb3 1, Eb3 1, Gb3 1, Cb4 1,
-Eb3 1, Gb3 1, Cb4 1, Eb4 1,
-Gb3 1, Cb4 1, Eb4 1, Gb4 1,
-Cb4 1, Eb4 1, Gb4 1, Cb5 1,
-
-Ab3 1, Cb4 1, Eb4 1, Ab4 1,
-Cb4 1, Eb4 1, Ab4 1, Cb5 1,
-Eb4 1, Ab4 1, Cb5 1, Eb5 1,
-Ab4 1, Cb5 1, Eb5 1, Ab5 1,
-
-Eb3 1, Gb3 1, Bb3 1, Eb4 1,
-Gb3 1, Bb3 1, Eb4 1, Gb4 1,
-Bb3 1, Eb4 1, Gb4 1, Bb4 1,
-Eb4 1, Gb4 1, Bb4 1, Eb5 1,
-`,
-		},
-		{
-			// 2) Distant Strings (Melody or sustained lines)
-			name:   "Distant Strings",
-			volume: 0.5,
-			square: 0.0, // pure sine-like, smooth/soft
-			// Slow, gentle envelope
-			attack:  1.0,
-			decay:   0.5,
-			sustain: 0.7,
-			release: 1.5,
-			// We'll use half notes (2 beats) to create a slow, reflective melody.
-			// Each measure has 2 half notes. The 16-measure phrase is repeated 3x.
-			data: `
-////////////////////////////////////////////////////////////////////////
-// 16 MEASURES (2 half notes each), REPEATED 3x
-////////////////////////////////////////////////////////////////////////
-
-// MEASURES 1-4 (over Eb minor)
-Eb4 2, Gb4 2,
-Bb4 2, Gb4 2,
-Eb4 2, Db4 2,
-Bb3 2, Eb4 2,
-
-// MEASURES 5-8 (over Cb major)
-Cb4 2, Eb4 2,
-Gb4 2, Eb4 2,
-Cb4 2, Bb3 2,
-Ab3 2, Eb4 2,
-
-// MEASURES 9-12 (over Ab minor)
-Ab3 2, Cb4 2,
-Eb4 2, Cb4 2,
-Ab4 2, Gb4 2,
-Eb4 2, Cb4 2,
-
-// MEASURES 13-16 (over Eb minor)
-Bb3 2, Eb4 2,
-Gb4 2, Eb4 2,
-Bb4 2, Gb4 2,
-Eb4 2, Eb3 2,
-
-////////////////////////////////////////////////////////////////////////
-// REPEAT THOSE 16 MEASURES 2 MORE TIMES => 48 TOTAL
-////////////////////////////////////////////////////////////////////////
-
-// second pass
-Eb4 2, Gb4 2,
-Bb4 2, Gb4 2,
-Eb4 2, Db4 2,
-Bb3 2, Eb4 2,
-
-Cb4 2, Eb4 2,
-Gb4 2, Eb4 2,
-Cb4 2, Bb3 2,
-Ab3 2, Eb4 2,
-
-Ab3 2, Cb4 2,
-Eb4 2, Cb4 2,
-Ab4 2, Gb4 2,
-Eb4 2, Cb4 2,
-
-Bb3 2, Eb4 2,
-Gb4 2, Eb4 2,
-Bb4 2, Gb4 2,
-Eb4 2, Eb3 2,
-
-// third pass
-Eb4 2, Gb4 2,
-Bb4 2, Gb4 2,
-Eb4 2, Db4 2,
-Bb3 2, Eb4 2,
-
-Cb4 2, Eb4 2,
-Gb4 2, Eb4 2,
-Cb4 2, Bb3 2,
-Ab3 2, Eb4 2,
-
-Ab3 2, Cb4 2,
-Eb4 2, Cb4 2,
-Ab4 2, Gb4 2,
-Eb4 2, Cb4 2,
-
-Bb3 2, Eb4 2,
-Gb4 2, Eb4 2,
-Bb4 2, Gb4 2,
-Eb4 2, Eb3 2,
-`,
-		},
-	},
 }
 
 var EbonyGaleEx = songData{
@@ -674,6 +363,320 @@ Cb2 4,
 Db2 4,
 Eb2 4
 `},
+	},
+}
+
+var EbonyGale = songData{
+	name:     "Aboard the Ebony Gale",
+	bpm:      70,
+	reverb:   0.4,  // Slightly cavernous
+	delay:    0.25, // 250ms delay
+	feedback: 0.3,  // Mild echo repeats
+	ins: []insData{
+		{
+			// Bright, prominent lead
+			name:    "ocean",
+			volume:  0.15,
+			attack:  6.0,
+			decay:   6.0,
+			sustain: 0.0,
+			release: 0.0,
+			data: `
+WN 16, WN 16, WN 16,
+WN 16, WN 16,
+`,
+		},
+		{
+			// Bright, prominent lead
+			name:    "lead",
+			volume:  0.8,
+			square:  0.2, // Mostly sine with a bit of buzz
+			attack:  0.1,
+			decay:   0.3,
+			sustain: 0.7,
+			release: 0.4,
+			data: `
+Eb4 1, Gb4 1, Ab4 2,
+Bb4 1, Ab4 1, Gb4 2,
+Fb4 1, Gb4 1, Ab4 2,
+Bb4 2, Ab4 2,
+
+Eb4 1, Gb4 1, Ab4 2,
+Bb4 1, Ab4 1, Db5 2,
+Cb5 1, Bb4 1, Ab4 2,
+Gb4 4
+`,
+		},
+		{
+			// Gentle accompaniment chords
+			name:    "harmony",
+			volume:  0.6,
+			square:  0.1, // Softer timbre
+			attack:  0.2,
+			decay:   0.3,
+			sustain: 0.6,
+			release: 0.5,
+			data: `
+Eb4/Gb4/Bb4 4,
+Cb4/Eb4/Gb4 4,
+Db4/Ab4/Db5 4,
+Eb4/Gb4/Bb4 4,
+
+Eb4/Gb4/Bb4 4,
+Cb4/Eb4/Gb4 4,
+Db4/Gb4/Bb4 4,
+Eb4/Gb4/Bb4 4,
+
+Eb4/Gb4/Bb4 4,
+Cb4/Eb4/Gb4 4,
+Db4/Ab4/Db5 4,
+Eb4/Gb4/Bb4 4,
+
+Eb4/Gb4/Bb4 4,
+Cb4/Eb4/Gb4 4,
+Db4/Gb4/Bb4 4,
+Eb4/Gb4/Bb4 4
+`,
+		},
+		{
+			// Steady low-end anchor
+			name:    "bass",
+			volume:  0.7,
+			square:  0.3, // Slightly more edge in the low range
+			attack:  0.05,
+			decay:   0.2,
+			sustain: 0.7,
+			release: 0.3,
+			data: `
+Eb2 4,
+Cb2 4,
+Db2 4,
+Eb2 4,
+
+Eb2 4,
+Cb2 4,
+Db2 4,
+Eb2 4,
+
+Eb2 4,
+Cb2 4,
+Db2 4,
+Eb2 4,
+
+Eb2 4,
+Cb2 4,
+Db2 4,
+Eb2 4
+`,
+		},
+		{
+			// Simple percussive hits (kick/snare imitation)
+			name:    "percussion",
+			volume:  0.0, // Muted
+			square:  1.0, // Pure square for a sharper click
+			attack:  0.0,
+			decay:   0.1,
+			sustain: 0.0,
+			release: 0.05,
+			data: `
+Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
+Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
+Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
+Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
+
+Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
+Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
+Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
+Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75
+`,
+		},
+	},
+}
+
+var introspectiveTheme = songData{
+	name:     "Introspective Reflection",
+	bpm:      70,
+	reverb:   0.5, // moderate, for spacious introspection
+	delay:    0.3,
+	feedback: 0.3,
+	ins: []insData{
+		{
+			// 1) Soft Piano (Chords)
+			name:   "Soft Piano (Chords)",
+			volume: 0.6,
+			square: 0.1, // mostly sine-like but a bit of "bite"
+			// Longer attack/decay for a gentle swell, moderate sustain/release
+			attack:  0.5,
+			decay:   0.5,
+			sustain: 0.7,
+			release: 1.0,
+			// One 16-measure chord progression:
+			//   i (Eb minor) -> VI (Cb major) -> iv (Ab minor) -> i (Eb minor)
+			// Each chord is 4 measures, total 16. Then repeat 2 more times => 48 measures (~2:45 at 70 BPM).
+			data: `
+////////////////////////////////////////////////////////////////////////
+// 16-MEASURE CYCLE (4 chords × 4 measures each), REPEATED 3x
+////////////////////////////////////////////////////////////////////////
+
+// MEASURES 1-4: Eb minor (Eb, Gb, Bb)
+Eb3 1, Gb3 1, Bb3 1, Eb4 1,
+Gb3 1, Bb3 1, Eb4 1, Gb4 1,
+Bb3 1, Eb4 1, Gb4 1, Bb4 1,
+Eb4 1, Gb4 1, Bb4 1, Eb5 1,
+
+// MEASURES 5-8: Cb major (Cb, Eb, Gb)
+Cb3 1, Eb3 1, Gb3 1, Cb4 1,
+Eb3 1, Gb3 1, Cb4 1, Eb4 1,
+Gb3 1, Cb4 1, Eb4 1, Gb4 1,
+Cb4 1, Eb4 1, Gb4 1, Cb5 1,
+
+// MEASURES 9-12: Ab minor (Ab, Cb, Eb)
+Ab3 1, Cb4 1, Eb4 1, Ab4 1,
+Cb4 1, Eb4 1, Ab4 1, Cb5 1,
+Eb4 1, Ab4 1, Cb5 1, Eb5 1,
+Ab4 1, Cb5 1, Eb5 1, Ab5 1,
+
+// MEASURES 13-16: Eb minor again
+Eb3 1, Gb3 1, Bb3 1, Eb4 1,
+Gb3 1, Bb3 1, Eb4 1, Gb4 1,
+Bb3 1, Eb4 1, Gb4 1, Bb4 1,
+Eb4 1, Gb4 1, Bb4 1, Eb5 1,
+
+////////////////////////////////////////////////////////////////////////
+// REPEAT THE ABOVE 16 MEASURES 2 MORE TIMES => 48 TOTAL
+////////////////////////////////////////////////////////////////////////
+
+// Second pass
+Eb3 1, Gb3 1, Bb3 1, Eb4 1,
+Gb3 1, Bb3 1, Eb4 1, Gb4 1,
+Bb3 1, Eb4 1, Gb4 1, Bb4 1,
+Eb4 1, Gb4 1, Bb4 1, Eb5 1,
+
+Cb3 1, Eb3 1, Gb3 1, Cb4 1,
+Eb3 1, Gb3 1, Cb4 1, Eb4 1,
+Gb3 1, Cb4 1, Eb4 1, Gb4 1,
+Cb4 1, Eb4 1, Gb4 1, Cb5 1,
+
+Ab3 1, Cb4 1, Eb4 1, Ab4 1,
+Cb4 1, Eb4 1, Ab4 1, Cb5 1,
+Eb4 1, Ab4 1, Cb5 1, Eb5 1,
+Ab4 1, Cb5 1, Eb5 1, Ab5 1,
+
+Eb3 1, Gb3 1, Bb3 1, Eb4 1,
+Gb3 1, Bb3 1, Eb4 1, Gb4 1,
+Bb3 1, Eb4 1, Gb4 1, Bb4 1,
+Eb4 1, Gb4 1, Bb4 1, Eb5 1,
+
+// Third pass
+Eb3 1, Gb3 1, Bb3 1, Eb4 1,
+Gb3 1, Bb3 1, Eb4 1, Gb4 1,
+Bb3 1, Eb4 1, Gb4 1, Bb4 1,
+Eb4 1, Gb4 1, Bb4 1, Eb5 1,
+
+Cb3 1, Eb3 1, Gb3 1, Cb4 1,
+Eb3 1, Gb3 1, Cb4 1, Eb4 1,
+Gb3 1, Cb4 1, Eb4 1, Gb4 1,
+Cb4 1, Eb4 1, Gb4 1, Cb5 1,
+
+Ab3 1, Cb4 1, Eb4 1, Ab4 1,
+Cb4 1, Eb4 1, Ab4 1, Cb5 1,
+Eb4 1, Ab4 1, Cb5 1, Eb5 1,
+Ab4 1, Cb5 1, Eb5 1, Ab5 1,
+
+Eb3 1, Gb3 1, Bb3 1, Eb4 1,
+Gb3 1, Bb3 1, Eb4 1, Gb4 1,
+Bb3 1, Eb4 1, Gb4 1, Bb4 1,
+Eb4 1, Gb4 1, Bb4 1, Eb5 1,
+`,
+		},
+		{
+			// 2) Distant Strings (Melody or sustained lines)
+			name:   "Distant Strings",
+			volume: 0.5,
+			square: 0.0, // pure sine-like, smooth/soft
+			// Slow, gentle envelope
+			attack:  1.0,
+			decay:   0.5,
+			sustain: 0.7,
+			release: 1.5,
+			// We'll use half notes (2 beats) to create a slow, reflective melody.
+			// Each measure has 2 half notes. The 16-measure phrase is repeated 3x.
+			data: `
+////////////////////////////////////////////////////////////////////////
+// 16 MEASURES (2 half notes each), REPEATED 3x
+////////////////////////////////////////////////////////////////////////
+
+// MEASURES 1-4 (over Eb minor)
+Eb4 2, Gb4 2,
+Bb4 2, Gb4 2,
+Eb4 2, Db4 2,
+Bb3 2, Eb4 2,
+
+// MEASURES 5-8 (over Cb major)
+Cb4 2, Eb4 2,
+Gb4 2, Eb4 2,
+Cb4 2, Bb3 2,
+Ab3 2, Eb4 2,
+
+// MEASURES 9-12 (over Ab minor)
+Ab3 2, Cb4 2,
+Eb4 2, Cb4 2,
+Ab4 2, Gb4 2,
+Eb4 2, Cb4 2,
+
+// MEASURES 13-16 (over Eb minor)
+Bb3 2, Eb4 2,
+Gb4 2, Eb4 2,
+Bb4 2, Gb4 2,
+Eb4 2, Eb3 2,
+
+////////////////////////////////////////////////////////////////////////
+// REPEAT THOSE 16 MEASURES 2 MORE TIMES => 48 TOTAL
+////////////////////////////////////////////////////////////////////////
+
+// second pass
+Eb4 2, Gb4 2,
+Bb4 2, Gb4 2,
+Eb4 2, Db4 2,
+Bb3 2, Eb4 2,
+
+Cb4 2, Eb4 2,
+Gb4 2, Eb4 2,
+Cb4 2, Bb3 2,
+Ab3 2, Eb4 2,
+
+Ab3 2, Cb4 2,
+Eb4 2, Cb4 2,
+Ab4 2, Gb4 2,
+Eb4 2, Cb4 2,
+
+Bb3 2, Eb4 2,
+Gb4 2, Eb4 2,
+Bb4 2, Gb4 2,
+Eb4 2, Eb3 2,
+
+// third pass
+Eb4 2, Gb4 2,
+Bb4 2, Gb4 2,
+Eb4 2, Db4 2,
+Bb3 2, Eb4 2,
+
+Cb4 2, Eb4 2,
+Gb4 2, Eb4 2,
+Cb4 2, Bb3 2,
+Ab3 2, Eb4 2,
+
+Ab3 2, Cb4 2,
+Eb4 2, Cb4 2,
+Ab4 2, Gb4 2,
+Eb4 2, Cb4 2,
+
+Bb3 2, Eb4 2,
+Gb4 2, Eb4 2,
+Bb4 2, Gb4 2,
+Eb4 2, Eb3 2,
+`,
+		},
 	},
 }
 
