@@ -4,20 +4,22 @@ type songData struct {
 	name                    string
 	ins                     []insData
 	bpm                     int
-	reverb, delay, feedback float64
+	reverb, delay, feedback float32
 }
 
 type insData struct {
 	name, data     string
-	volume, square float64
+	volume, square float32
 	/*
 		Attack: The time it takes for a sound to go from silence to its full volume when a key is first pressed.
 		Decay: The time it takes for the sound to drop from its peak volume to the sustain level.
 		Sustain: The constant volume level maintained while a key is held down.
 		Release: The time it takes for the sound to fade from the sustain level to silence when the key is released.
 	*/
-	attack, decay, sustain, release float64
+	attack, decay, sustain, release float32
 }
+
+type audioData []float32
 
 var songList = []songData{
 	EbonyGale,

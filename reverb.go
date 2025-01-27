@@ -7,19 +7,16 @@ package main
 //   - sampleRate:  samples per second (e.g., 44100)
 //   - delaySec:    delay time in seconds (e.g., 0.3 for 300ms)
 //   - feedback:    how much of the delayed signal is fed back into the effect (0.0 - 1.0)
-func ApplyReverb(input []float64, sampleRate int, volume, delaySec, feedback float64) []float64 {
+func ApplyReverb(input audioData, sampleRate int, volume, delaySec, feedback float32) audioData {
 	// Calculate number of samples corresponding to the delay time
-	delaySamples := int(delaySec * float64(sampleRate))
+	delaySamples := int(delaySec * float32(sampleRate))
 	if delaySamples <= 0 {
-		// No valid delay => return copy of input
-		output := make([]float64, len(input))
-		copy(output, input)
-		return output
+		return input
 	}
 
 	// Allocate output and a buffer to store delayed samples
-	output := make([]float64, len(input))
-	delayBuffer := make([]float64, delaySamples)
+	output := make(audioData, len(input))
+	delayBuffer := make(audioData, delaySamples)
 
 	// Indices into the delay buffer
 	readIndex := 0
