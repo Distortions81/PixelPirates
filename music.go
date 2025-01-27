@@ -9,11 +9,12 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/audio"
 )
 
-// Render takes longer, but higher quality output. 2 or 4 is fine.
+// Render takes longer, but higher quality output.
+// Recommend 4 or 8 https://theproaudiofiles.com/oversampling/
 const oversampling = 4
 
 // Main function to set up Ebiten and audio
-func playMusic() {
+func PlayMusic() {
 	sampleRate := 48000 * oversampling
 	audioContext := audio.NewContext(sampleRate)
 
@@ -22,7 +23,7 @@ func playMusic() {
 		for _, song := range songList {
 			startTime := time.Now()
 			fmt.Printf("Rendering: '%v'", song.name)
-			output := playSong(song, sampleRate)
+			output := PlaySong(song, sampleRate)
 
 			if song.reverb > 0 {
 				fmt.Printf(" (Took: %v)\nAdding reverb: ", time.Since(startTime).Round(time.Millisecond))
@@ -37,7 +38,7 @@ func playMusic() {
 	}
 }
 
-func playSong(song songData, sampleRate int) []float64 {
+func PlaySong(song songData, sampleRate int) []float64 {
 	var waves [][]float64
 
 	for _, instrument := range song.ins {
@@ -45,7 +46,7 @@ func playSong(song songData, sampleRate int) []float64 {
 			continue
 		}
 		// We'll assume we stored volume & waveBlend in instrument.volume, instrument.waveBlend
-		insWave := GenerateWaveFromTextWithParams(
+		insWave := GenerateFromText(
 			sampleRate,
 			&song,
 			&instrument,
@@ -59,9 +60,9 @@ func playSong(song songData, sampleRate int) []float64 {
 	return mixed
 }
 
-// GenerateWaveFromTextWithParams creates a single wave for one instrument.
+// GenerateFromText creates a single wave for one instrument.
 // We pass waveBlend & volume from insData to shape the tone and loudness.
-func GenerateWaveFromTextWithParams(sampleRate int, song *songData, ins *insData) []float64 {
+func GenerateFromText(sampleRate int, song *songData, ins *insData) []float64 {
 	beatDuration := time.Minute / time.Duration(song.bpm)
 	var finalWave []float64
 
@@ -75,7 +76,7 @@ func GenerateWaveFromTextWithParams(sampleRate int, song *songData, ins *insData
 		// Check for chord
 		chordNotes := strings.Split(note, "/")
 		if len(chordNotes) > 1 {
-			chordWave := PlayChordOfflineWithParams(chordNotes, noteDuration, sampleRate, ins)
+			chordWave := PlayChord(chordNotes, noteDuration, sampleRate, ins)
 			finalWave = append(finalWave, chordWave...)
 		} else {
 			freq := CalculateFrequency(note)
@@ -127,8 +128,8 @@ func GenerateWave(freq float64, duration time.Duration, sampleRate int, waveBlen
 	return wave
 }
 
-// PlayChordOfflineWithParams: generates wave data for a chord, applying volume & wave blend.
-func PlayChordOfflineWithParams(chord []string, duration time.Duration, sampleRate int, ins *insData) []float64 {
+// PlayChord: generates wave data for a chord, applying volume & wave blend.
+func PlayChord(chord []string, duration time.Duration, sampleRate int, ins *insData) []float64 {
 	// Generate wave for each note in the chord
 	var waves [][]float64
 	for _, note := range chord {

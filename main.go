@@ -31,7 +31,7 @@ func newGame() *Game {
 	sunSP = spriteList["sun"].image
 	titleSP = spriteList["title"].image
 	clickStartSP = spriteList["clickstart"].image
-	go playMusic()
+	go PlayMusic()
 
 	return &Game{
 		gameMode: GAME_TITLE,
