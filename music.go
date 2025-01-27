@@ -18,7 +18,7 @@ import (
 // https://theproaudiofiles.com/oversampling/
 
 func PlayMusic() {
-	const oversampling = 4
+	const oversampling = 1
 	sampleRate := 48000 * oversampling
 	audioContext := audio.NewContext(sampleRate / oversampling)
 
