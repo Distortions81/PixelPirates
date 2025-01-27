@@ -12,23 +12,22 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 
 	unix := time.Now().Unix()
 	//Sky, water, horizon
-	vector.DrawFilledRect(screen, 0, 0, dWinWidth, dWinHeight/2-(magScale),
+	vector.DrawFilledRect(screen, 0, 0, dWinWidth, dWinHeight/2-1,
 		GetFadeColor(g.colors.day.sky, g.colors.evening.sky, titleFadeTime), false)
 	vector.DrawFilledRect(screen, 0, dWinHeight/2, dWinWidth, dWinHeight/2,
 		GetFadeColor(g.colors.day.water, g.colors.evening.water, titleFadeTime), false)
-	vector.DrawFilledRect(screen, 0, dWinHeight/2-(magScale), dWinWidth, magScale,
+	vector.DrawFilledRect(screen, 0, dWinHeight/2-(1), dWinWidth, 1,
 		GetFadeColor(g.colors.day.horizon, g.colors.evening.horizon, titleFadeTime), false)
 
 	//Draw boat
 	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Scale(magScale, magScale)
 	offset := point{}
 	if unix%3 == 0 {
 		offset.Y = 1
 	}
 	op.GeoM.Translate(
-		float64((dWinWidth/2)-(boatSP.Bounds().Dx()*magScale)/2+offset.X*magScale),
-		float64((dWinHeight/2)-(boatSP.Bounds().Dy()*magScale)/2+offset.Y*magScale)+magScale*2)
+		float64((dWinWidth/2)-(boatSP.Bounds().Dx())/2+offset.X),
+		float64((dWinHeight/2)-(boatSP.Bounds().Dy())/2+offset.Y)+2)
 	op.ColorScale.ScaleWithColor(
 		GetFadeColor(
 			color.RGBA{R: 255, G: 255, B: 255, A: 255},
@@ -38,7 +37,6 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 
 	//Sun
 	op = &ebiten.DrawImageOptions{}
-	op.GeoM.Scale(magScale, magScale)
-	op.GeoM.Translate(32*magScale, 8*magScale)
+	op.GeoM.Translate(32, 8)
 	screen.DrawImage(sunSP, op)
 }

@@ -7,10 +7,6 @@ const (
 )
 
 const (
-	magScale = 8
-)
-
-const (
 	GAME_TITLE = iota
 	GAME_MENU
 	GAME_JOIN

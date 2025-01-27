@@ -9,13 +9,15 @@ import (
 )
 
 const (
-	dWinWidth, dWinHeight = 1280, 720
+	dWinWidth, dWinHeight = 1280 / magScale, 720 / magScale
+	magScale              = 4
 )
 
 var WASMMode bool
 var fxtest *bool
 
 func main() {
+	fmt.Printf("Game res: %v,%v (%vx) : (%v, %v)\n", dWinWidth, dWinHeight, magScale, dWinWidth*magScale, dWinHeight*magScale)
 	dump := flag.Bool("dumpMusic", false, "Dump songs out as WAV and quit.")
 	fxtest = flag.Bool("fxtest", false, "test sound effects.")
 	flag.Parse()
@@ -32,7 +34,7 @@ func main() {
 	*/
 
 	ebiten.SetTPS(ebiten.SyncWithFPS)
-	ebiten.SetWindowSize(dWinWidth, dWinHeight)
+	ebiten.SetWindowSize(dWinWidth*magScale, dWinHeight*magScale)
 	ebiten.SetWindowTitle("Pixel Pirates")
 
 	loadSprites()
