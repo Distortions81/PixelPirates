@@ -21,7 +21,7 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 
 	//Draw boat
 	op := &ebiten.DrawImageOptions{}
-	offset := point{}
+	offset := iPoint{}
 	if unix%3 == 0 {
 		offset.Y = 1
 	}

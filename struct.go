@@ -3,9 +3,8 @@ package main
 import "image/color"
 
 type Game struct {
-	gameMode        int
-	boatPos, camPos point
-	stopMusic       bool
+	gameMode  int
+	stopMusic bool
 
 	colors colorData
 }
@@ -23,6 +22,10 @@ type colors struct {
 	sky, water, horizon color.RGBA
 }
 
-type point struct {
+type iPoint struct {
 	X, Y int
+}
+
+type fPoint struct {
+	X, Y float32
 }
