@@ -12,10 +12,10 @@ import (
 )
 
 // Render takes longer, but higher quality output.
-// Recommended: 1 (fast, none), 2 (low), 4 (medium), 8 (high), 16 (very high), 32 (extreme) https://theproaudiofiles.com/oversampling/
+// Recommended: 1 (fast, none), 2 (low), 4 (medium), 8 (high), 16 (very high), 32 (extreme)
+// https://theproaudiofiles.com/oversampling/
 const oversampling = 4
 
-// Main function to set up Ebiten and audio
 func PlayMusic() {
 	sampleRate := 48000 * oversampling
 	audioContext := audio.NewContext(sampleRate / oversampling)
@@ -68,8 +68,6 @@ func PlaySong(song songData, sampleRate int) audioData {
 	return MixWaves(waves...)
 }
 
-// GenerateFromText creates a single wave for one instrument.
-// We pass waveBlend & volume from insData to shape the tone and loudness.
 func GenerateFromText(sampleRate int, song *songData, ins *insData) audioData {
 	beatDuration := time.Minute / time.Duration(song.bpm)
 	var finalWave audioData
@@ -97,7 +95,6 @@ func GenerateFromText(sampleRate int, song *songData, ins *insData) audioData {
 	return finalWave
 }
 
-// PlayNote: generates wave data for a single note, applying volume & wave blend.
 func PlayNote(freq float32, duration time.Duration, sampleRate int, ins *insData) audioData {
 	// Handle rest
 	if freq == 0 {
@@ -115,7 +112,6 @@ func PlayNote(freq float32, duration time.Duration, sampleRate int, ins *insData
 	return wave
 }
 
-// GenerateWave blends square & sine waves based on waveBlend (0.0 to 1.0).
 func GenerateWave(freq float32, duration time.Duration, sampleRate int, waveBlend float32) audioData {
 	samples := int(float64(sampleRate) * duration.Seconds())
 	wave := make(audioData, samples)
@@ -137,7 +133,6 @@ func GenerateWave(freq float32, duration time.Duration, sampleRate int, waveBlen
 	return wave
 }
 
-// PlayChord: generates wave data for a chord, applying volume & wave blend.
 func PlayChord(chord []string, duration time.Duration, sampleRate int, ins *insData) audioData {
 	// Generate wave for each note in the chord
 	var waves []audioData
@@ -188,12 +183,14 @@ func MixWaves(waves ...audioData) audioData {
 	}
 
 	// 3. Average by number of waves
-	numWaves := float32(len(waves))
-	if numWaves > 1.0 {
-		for i := 0; i < maxLen; i++ {
-			mixed[i] /= numWaves
+	/*
+		numWaves := float32(len(waves))
+		if numWaves > 1.0 {
+			for i := 0; i < maxLen; i++ {
+				mixed[i] /= numWaves
+			}
 		}
-	}
+	*/
 
 	// 4. Find the peak amplitude (absolute value)
 	var maxAmp float32
@@ -219,7 +216,7 @@ func MixWaves(waves ...audioData) audioData {
 }
 
 // DownsampleLinear takes a slice of samples (wave)
-// and returns a new slice at 1/4 the original sample rate
+// and returns a new slice at rate/oversample the original sample rate
 // using simple linear interpolation.
 func DownsampleLinear(wave audioData) audioData {
 	oldLen := len(wave)
@@ -308,7 +305,6 @@ func PlayWave(wave audioData, audioContext *audio.Context, sampleRate int) {
 	time.Sleep(duration)
 }
 
-// CalculateFrequency calculates the frequency of a note based on its name and octave.
 func CalculateFrequency(note string) float32 {
 	// Base note A4
 	var baseFrequency float32 = 440.0
