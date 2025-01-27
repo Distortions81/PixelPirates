@@ -14,7 +14,7 @@ import (
 )
 
 // Render takes longer, but higher quality output.
-// Recommended: 1 (fast, none), 2 (low), 4 (medium), 8 (high), 16 (very high), 32 (extreme)
+// 1 (fast, none), 2 (low), 4 (medium), 8 (high) (slow, even in 2025), 16 (very high), 32 (extreme)
 // https://theproaudiofiles.com/oversampling/
 
 func PlayMusic() {
@@ -147,7 +147,7 @@ func GenerateNoise(duration time.Duration, samplerate, oversampling int) audioDa
 		sample := float32((rand.Float64()*2.0 - 1.0)) // in [-1.0, 1.0]
 		// Write the float32 sample
 		wave[i] = sample
-		for x := 0; x < oversampling*4; x++ {
+		for x := 0; x < oversampling*8; x++ {
 			i++
 			if i < numSamples {
 				wave[i] = sample

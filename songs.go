@@ -22,12 +22,140 @@ type insData struct {
 type audioData []float32
 
 var songList = []songData{
-	EbonyGale,
+	EbonyGaleEx,
+	//EbonyGale,
 	MidnightDepthsPercussion,
 	introspectiveTheme,
 	MerrySailingTheme,
 	PirateDramaticTheme,
 	PirateEpicTheme,
+}
+
+var EbonyGale = songData{
+	name:     "Aboard the Ebony Gale",
+	bpm:      70,
+	reverb:   0.4,  // Slightly cavernous
+	delay:    0.25, // 250ms delay
+	feedback: 0.3,  // Mild echo repeats
+	ins: []insData{
+		{
+			// Bright, prominent lead
+			name:    "ocean",
+			volume:  0.15,
+			attack:  6.0,
+			decay:   6.0,
+			sustain: 0.0,
+			release: 0.0,
+			data: `
+WN 16, WN 16, WN 16,
+WN 16, WN 16,
+`,
+		},
+		{
+			// Bright, prominent lead
+			name:    "lead",
+			volume:  0.8,
+			square:  0.2, // Mostly sine with a bit of buzz
+			attack:  0.1,
+			decay:   0.3,
+			sustain: 0.7,
+			release: 0.4,
+			data: `
+Eb4 1, Gb4 1, Ab4 2,
+Bb4 1, Ab4 1, Gb4 2,
+Fb4 1, Gb4 1, Ab4 2,
+Bb4 2, Ab4 2,
+
+Eb4 1, Gb4 1, Ab4 2,
+Bb4 1, Ab4 1, Db5 2,
+Cb5 1, Bb4 1, Ab4 2,
+Gb4 4
+`,
+		},
+		{
+			// Gentle accompaniment chords
+			name:    "harmony",
+			volume:  0.6,
+			square:  0.1, // Softer timbre
+			attack:  0.2,
+			decay:   0.3,
+			sustain: 0.6,
+			release: 0.5,
+			data: `
+Eb4/Gb4/Bb4 4,
+Cb4/Eb4/Gb4 4,
+Db4/Ab4/Db5 4,
+Eb4/Gb4/Bb4 4,
+
+Eb4/Gb4/Bb4 4,
+Cb4/Eb4/Gb4 4,
+Db4/Gb4/Bb4 4,
+Eb4/Gb4/Bb4 4,
+
+Eb4/Gb4/Bb4 4,
+Cb4/Eb4/Gb4 4,
+Db4/Ab4/Db5 4,
+Eb4/Gb4/Bb4 4,
+
+Eb4/Gb4/Bb4 4,
+Cb4/Eb4/Gb4 4,
+Db4/Gb4/Bb4 4,
+Eb4/Gb4/Bb4 4
+`,
+		},
+		{
+			// Steady low-end anchor
+			name:    "bass",
+			volume:  0.7,
+			square:  0.3, // Slightly more edge in the low range
+			attack:  0.05,
+			decay:   0.2,
+			sustain: 0.7,
+			release: 0.3,
+			data: `
+Eb2 4,
+Cb2 4,
+Db2 4,
+Eb2 4,
+
+Eb2 4,
+Cb2 4,
+Db2 4,
+Eb2 4,
+
+Eb2 4,
+Cb2 4,
+Db2 4,
+Eb2 4,
+
+Eb2 4,
+Cb2 4,
+Db2 4,
+Eb2 4
+`,
+		},
+		{
+			// Simple percussive hits (kick/snare imitation)
+			name:    "percussion",
+			volume:  0.0, // Muted
+			square:  1.0, // Pure square for a sharper click
+			attack:  0.0,
+			decay:   0.1,
+			sustain: 0.0,
+			release: 0.05,
+			data: `
+Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
+Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
+Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
+Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
+
+Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
+Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
+Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
+Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75
+`,
+		},
+	},
 }
 
 var introspectiveTheme = songData{
@@ -217,28 +345,48 @@ Eb4 2, Eb3 2,
 	},
 }
 
-var EbonyGale = songData{
-	name:     "Aboard the Ebony Gale",
+var EbonyGaleEx = songData{
+	name:     "Aboard the Ebony Gale (Extended)",
 	bpm:      70,
 	reverb:   0.4,  // Slightly cavernous
 	delay:    0.25, // 250ms delay
 	feedback: 0.3,  // Mild echo repeats
 	ins: []insData{
+
+		//------------------------------------------------------------------
+		// 1) Ocean - Subtle background white noise (with a few breaks)
+		//------------------------------------------------------------------
 		{
-			// Bright, prominent lead
 			name:    "ocean",
-			volume:  0.4,
+			volume:  0.15,
 			attack:  6.0,
 			decay:   6.0,
 			sustain: 0.0,
 			release: 0.0,
 			data: `
+////////////////////////////////////////////////////////////////////////
+// SECTION A: Gentle wash of white noise
+////////////////////////////////////////////////////////////////////////
 WN 16, WN 16, WN 16,
 WN 16, WN 16, WN 16,
+
+////////////////////////////////////////////////////////////////////////
+// SECTION B: Brief pause to let the track “breathe”
+////////////////////////////////////////////////////////////////////////
+WN 16, WN 8, NN 8,
+WN 16, WN 16, WN 16,
+WN 16, WN 8, NN 8,
+WN 16, WN 16, WN 16,
+
+
+
 `,
 		},
+
+		//------------------------------------------------------------------
+		// 2) Lead - Main melodic line with variations each section
+		//------------------------------------------------------------------
 		{
-			// Bright, prominent lead
 			name:    "lead",
 			volume:  0.8,
 			square:  0.2, // Mostly sine with a bit of buzz
@@ -247,6 +395,9 @@ WN 16, WN 16, WN 16,
 			sustain: 0.7,
 			release: 0.4,
 			data: `
+////////////////////////////////////////////////////////////////////////
+// SECTION A (Measures 1-16): Original melody
+////////////////////////////////////////////////////////////////////////
 Eb4 1, Gb4 1, Ab4 2,
 Bb4 1, Ab4 1, Gb4 2,
 Fb4 1, Gb4 1, Ab4 2,
@@ -255,11 +406,68 @@ Bb4 2, Ab4 2,
 Eb4 1, Gb4 1, Ab4 2,
 Bb4 1, Ab4 1, Db5 2,
 Cb5 1, Bb4 1, Ab4 2,
+Gb4 4,
+
+////////////////////////////////////////////////////////////////////////
+// SECTION B (Measures 17-32): Variation, slightly higher runs
+// (focus on Db5, Eb5, short phrases around Ab4/Bb4)
+////////////////////////////////////////////////////////////////////////
+Eb4 1, Gb4 1, Ab4 1, Bb4 1,
+Db5 2, Bb4 1, Ab4 1,
+Gb4 2, Eb4 2,
+Ab4 1, Bb4 1, Db5 2,
+Eb5 2, Db5 2,
+
+Db5 1, Bb4 1, Ab4 2,
+Gb4 1, Ab4 1, Bb4 2,
+Db5 1, Eb5 1, Db5 2,
+Bb4 2, Ab4 2,
+
+////////////////////////////////////////////////////////////////////////
+// SECTION C (Measures 33-48): Bridge-like melodic line
+// (move up to Eb5, walk down to Gb4, incorporate rests for tension)
+////////////////////////////////////////////////////////////////////////
+Eb5 1, NN 1, Db5 1, Cb5 1,
+Bb4 2, Ab4 1, Gb4 1,
+NN 2, Fb4 2,
+Gb4 1, Ab4 1, Bb4 2,
+Db5 2, NN 2,
+
+Eb5 1, Db5 1, Bb4 2,
+Ab4 1, Gb4 1, Fb4 2,
+NN 1, Bb4 1, Ab4 2,
+Gb4 2, Fb4 2,
+
+////////////////////////////////////////////////////////////////////////
+// SECTION D (Measures 49-64): Return and flourish ending
+// (blend original lines with quick end flourish around Db5/Eb5)
+////////////////////////////////////////////////////////////////////////
+Eb4 1, Gb4 1, Ab4 2,
+Bb4 1, Ab4 1, Gb4 1, Ab4 1,
+Db5 2, Cb5 2,
+Bb4 2, Ab4 2,
+
+Eb4 1, Gb4 1, Ab4 2,
+Db5 1, Eb5 1, Db5 1, Bb4 1,
+Ab4 2, Gb4 2,
+Eb4 2, Bb4 2,
+
+Gb4 1, Ab4 1, Bb4 1, Db5 1,
+Eb5 2, Db5 2,
+Bb4 2, Ab4 2,
+Gb4 4,
+
+Eb4 1, Gb4 1, Ab4 1, Bb4 1,
+Db5 2, Eb5 2,
+Db5 1, Bb4 1, Ab4 2,
 Gb4 4
 `,
 		},
+
+		//------------------------------------------------------------------
+		// 3) Harmony - Four sections of 16 measures each, new chords in B/C
+		//------------------------------------------------------------------
 		{
-			// Gentle accompaniment chords
 			name:    "harmony",
 			volume:  0.6,
 			square:  0.1, // Softer timbre
@@ -268,6 +476,9 @@ Gb4 4
 			sustain: 0.6,
 			release: 0.5,
 			data: `
+////////////////////////////////////////////////////////////////////////
+// SECTION A (Measures 1-16): Original chord progression
+////////////////////////////////////////////////////////////////////////
 Eb4/Gb4/Bb4 4,
 Cb4/Eb4/Gb4 4,
 Db4/Ab4/Db5 4,
@@ -286,11 +497,83 @@ Eb4/Gb4/Bb4 4,
 Eb4/Gb4/Bb4 4,
 Cb4/Eb4/Gb4 4,
 Db4/Gb4/Bb4 4,
+Eb4/Gb4/Bb4 4,
+
+////////////////////////////////////////////////////////////////////////
+// SECTION B (Measures 17-32): Slight chord voicing changes
+////////////////////////////////////////////////////////////////////////
+Eb4/Gb4/Bb4 4,
+Cb4/Eb4/Gb4 4,
+Db4/Gb4/Bb4 4,
+Eb4/Ab4/Bb4 4,
+
+Eb4/Gb4/Bb4 4,
+Cb4/Eb4/Gb4 4,
+Db4/Ab4/Db5 4,
+Eb4/Gb4/Bb4 4,
+
+Eb4/Gb4/Bb4 4,
+Cb4/Gb4/Cb5 4,
+Db4/Ab4/Db5 4,
+Eb4/Gb4/Bb4 4,
+
+Eb4/Gb4/Bb4 4,
+Cb4/Eb4/Gb4 4,
+Db4/Gb4/Bb4 4,
+Eb4/Ab4/Bb4 4,
+
+////////////////////////////////////////////////////////////////////////
+// SECTION C (Measures 33-48): Bridge chords (slightly higher, stepping up)
+////////////////////////////////////////////////////////////////////////
+Gb4/Bb4/Db5 4,
+Ab4/Cb5/Eb5 4,
+Bb4/Db5/Fb5 4,
+Cb4/Eb5/Gb5 4,
+
+Gb4/Bb4/Db5 4,
+Ab4/Cb5/Eb5 4,
+Bb4/Db5/Fb5 4,
+Cb4/Eb5/Gb5 4,
+
+Fb4/Ab4/Db5 4,
+Gb4/Bb4/Eb5 4,
+Ab4/Cb5/Eb5 4,
+Bb4/Db5/Gb5 4,
+
+Gb4/Bb4/Db5 4,
+Ab4/Cb5/Eb5 4,
+Fb4/Ab4/Cb5 4,
+Eb4/Gb4/Bb4 4,
+
+////////////////////////////////////////////////////////////////////////
+// SECTION D (Measures 49-64): Return to original tonality, subtle variations
+////////////////////////////////////////////////////////////////////////
+Eb4/Gb4/Bb4 4,
+Cb4/Eb4/Gb4 4,
+Db4/Gb4/Bb4 4,
+Eb4/Ab4/Bb4 4,
+
+Eb4/Gb4/Bb4 4,
+Cb4/Eb4/Gb4 4,
+Db4/Ab4/Db5 4,
+Eb4/Gb4/Bb4 4,
+
+Eb4/Gb4/Bb4 4,
+Cb4/Eb4/Gb4 4,
+Db4/Gb4/Bb4 4,
+Eb4/Gb4/Bb4 4,
+
+Eb4/Gb4/Bb4 4,
+Cb4/Eb4/Gb4 4,
+Db4/Ab4/Db5 4,
 Eb4/Gb4/Bb4 4
 `,
 		},
+
+		//------------------------------------------------------------------
+		// 4) Bass - Matches the harmony’s four sections
+		//------------------------------------------------------------------
 		{
-			// Steady low-end anchor
 			name:    "bass",
 			volume:  0.7,
 			square:  0.3, // Slightly more edge in the low range
@@ -299,6 +582,78 @@ Eb4/Gb4/Bb4 4
 			sustain: 0.7,
 			release: 0.3,
 			data: `
+////////////////////////////////////////////////////////////////////////
+// SECTION A (Measures 1-16): Original bass notes
+////////////////////////////////////////////////////////////////////////
+Eb2 4,
+Cb2 4,
+Db2 4,
+Eb2 4,
+
+Eb2 4,
+Cb2 4,
+Db2 4,
+Eb2 4,
+
+Eb2 4,
+Cb2 4,
+Db2 4,
+Eb2 4,
+
+Eb2 4,
+Cb2 4,
+Db2 4,
+Eb2 4,
+
+////////////////////////////////////////////////////////////////////////
+// SECTION B (Measures 17-32): Subtle changes (some leaps)
+////////////////////////////////////////////////////////////////////////
+Eb2 4,
+Cb2 4,
+Db2 4,
+Eb2 4,
+
+Eb2 4,
+Cb2 4,
+Db2 4,
+Ab2 4,
+
+Eb2 4,
+Cb2 4,
+Db2 4,
+Eb2 4,
+
+Eb2 4,
+Cb2 4,
+Db2 4,
+Eb2 4,
+
+////////////////////////////////////////////////////////////////////////
+// SECTION C (Measures 33-48): Bridge stepping up
+////////////////////////////////////////////////////////////////////////
+Gb2 4,
+Ab2 4,
+Bb1 4,
+Cb2 4,
+
+Gb2 4,
+Ab2 4,
+Bb1 4,
+Cb2 4,
+
+Fb2 4,
+Gb2 4,
+Ab2 4,
+Bb1 4,
+
+Gb2 4,
+Ab2 4,
+Fb2 4,
+Eb2 4,
+
+////////////////////////////////////////////////////////////////////////
+// SECTION D (Measures 49-64): Return to original but with a couple surprises
+////////////////////////////////////////////////////////////////////////
 Eb2 4,
 Cb2 4,
 Db2 4,
@@ -318,29 +673,7 @@ Eb2 4,
 Cb2 4,
 Db2 4,
 Eb2 4
-`,
-		},
-		{
-			// Simple percussive hits (kick/snare imitation)
-			name:    "percussion",
-			volume:  0.0, // Muted
-			square:  1.0, // Pure square for a sharper click
-			attack:  0.0,
-			decay:   0.1,
-			sustain: 0.0,
-			release: 0.05,
-			data: `
-Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
-Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
-Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
-Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
-
-Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
-Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
-Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
-Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75
-`,
-		},
+`},
 	},
 }
 
