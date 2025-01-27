@@ -13,32 +13,24 @@ func PlayFx() {
 	audioContext := audio.NewContext(sampleRate)
 
 	const repeatTime = 1
-	const nextTime = 3
-	const fxTime = 1
+	const nextTime = 1
+	const fxTime = 5
 
 	for {
 		for x := 0; x < 3; x++ {
-			PlayWave(GoldCoinsSound(sampleRate, 3), audioContext, sampleRate, fxTime)
-			time.Sleep(repeatTime * time.Second)
-		}
-		time.Sleep(time.Second * nextTime)
-	}
-
-	for {
-		for x := 0; x < 3; x++ {
-			PlayWave(SeagullSound(sampleRate, 5), audioContext, sampleRate, fxTime)
+			PlayWave(SeagullSound(sampleRate, fxTime), audioContext, sampleRate, 1)
 			time.Sleep(repeatTime * time.Second)
 		}
 		time.Sleep(time.Second * nextTime)
 
 		for x := 0; x < 3; x++ {
-			PlayWave(CannonSound(sampleRate, 1), audioContext, sampleRate, fxTime)
+			PlayWave(CannonSound(sampleRate, fxTime), audioContext, sampleRate, 1)
 			time.Sleep(repeatTime * time.Second)
 		}
 		time.Sleep(time.Second * nextTime)
 
 		for x := 0; x < 3; x++ {
-			PlayWave(GoldCoinsSound(sampleRate, 1), audioContext, sampleRate, fxTime)
+			PlayWave(GoldCoinsSound(sampleRate, fxTime), audioContext, sampleRate, 1)
 			time.Sleep(repeatTime * time.Second)
 		}
 		time.Sleep(time.Second * nextTime)
@@ -75,7 +67,7 @@ func SeagullSound(sampleRate int, durationSec float64) []float32 {
 			t := float64(i-startSample) / float64(sampleRate)
 
 			//Sweep
-			start := 600.0 + shift
+			start := 700.0 + shift
 			var increase float64
 			if direction {
 				increase = start - 20.0
