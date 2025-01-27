@@ -1,6 +1,8 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	_ "net/http/pprof"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -13,6 +15,14 @@ const (
 var WASMMode bool
 
 func main() {
+	dump := flag.Bool("dumpMusic", false, "Dump songs out as WAV and quit.")
+	flag.Parse()
+
+	if *dump {
+		DumpMusic()
+		fmt.Println("Music dump complete.")
+		return
+	}
 	/*
 		go func() {
 			http.ListenAndServe("localhost:6060", nil)

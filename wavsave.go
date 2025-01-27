@@ -60,5 +60,7 @@ func SaveMono16BitWav(filename string, sampleRate int, samples []float32) error 
 		return fmt.Errorf("failed to close encoder: %w", err)
 	}
 
+	fmt.Printf("Wrote %v\n", filename)
+
 	return nil
 }

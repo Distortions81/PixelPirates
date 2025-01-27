@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"runtime"
 	"strings"
 	"sync"
@@ -14,7 +15,7 @@ import (
 // Render takes longer, but higher quality output.
 // Recommended: 1 (fast, none), 2 (low), 4 (medium), 8 (high), 16 (very high), 32 (extreme)
 // https://theproaudiofiles.com/oversampling/
-const oversampling = 4
+var oversampling = 4
 
 func PlayMusic() {
 	sampleRate := 48000 * oversampling
@@ -37,6 +38,27 @@ func PlayMusic() {
 		}
 		fmt.Println("\nRestarting playlist...")
 		//return
+	}
+}
+
+func DumpMusic() {
+	oversampling = 32
+	sampleRate := 48000 * oversampling
+
+	os.Mkdir("dump", 0755)
+
+	for _, song := range songList {
+		startTime := time.Now()
+		fmt.Printf("Rendering: '%v'\n", song.name)
+		output := PlaySong(song, sampleRate)
+
+		if song.reverb > 0 {
+			output = ApplyReverb(output, sampleRate, song.delay, song.feedback, song.reverb)
+		}
+		runtime.GC()
+		fmt.Printf("Render took %v\n", time.Since(startTime).Round(time.Millisecond), song.name)
+
+		SaveMono16BitWav("dump/"+song.name+".wav", sampleRate/oversampling, output)
 	}
 }
 
