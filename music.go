@@ -33,9 +33,10 @@ func PlayMusic() {
 			fmt.Printf("Render took %v\nNow Playing: %v.\n\n", time.Since(startTime).Round(time.Millisecond), song.name)
 
 			PlayWave(output, audioContext, sampleRate)
-			//SaveMono16BitWav("songs/"+song.name+".wav", sampleRate, output)
+			//SaveMono16BitWav("songs/"+song.name+".wav", sampleRate/oversampling, output)
 		}
 		fmt.Println("\nRestarting playlist...")
+		//return
 	}
 }
 
