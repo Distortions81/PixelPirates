@@ -18,7 +18,7 @@ func PlayFx() {
 
 	for {
 		for x := 0; x < 3; x++ {
-			PlayWave(SeagullSound(sampleRate, 1), audioContext, sampleRate, fxTime)
+			PlayWave(SeagullSound(sampleRate, 5), audioContext, sampleRate, fxTime)
 			time.Sleep(repeatTime * time.Second)
 		}
 		time.Sleep(time.Second * nextTime)
@@ -51,37 +51,45 @@ func SeagullSound(sampleRate int, durationSec float64) []float32 {
 	out := make([]float32, numSamples)
 
 	// We'll produce 3 short calls, each ~0.3s, with small gaps in between
-	callDuration := 0.3
-	gapDuration := 0.1
+	call := 0.2
+	gap := 0.1
 	numCalls := 3
 
-	// Simple approach: each call is a sine wave with a frequency sweep,
-	// plus a bit of vibrato, plus an amplitude envelope.
-	//
-	// We'll define the frequency sweep from about 600 Hz -> 1200 Hz
-	// for a "shrill" effect, then fade it out.
-	//
-	// This is VERY approximate and won't sound exactly like a real seagull!
-
 	position := 0
+
+	var direction bool = rand.Float64() > 0.5
+
+	shift := rand.Float64() * 50
+	rise := rand.Float64() * 20
 	for c := 0; c < numCalls; c++ {
+		callDuration := call + (rand.Float64())
+		gapDuration := gap + (rand.Float64() / 2)
+
+		shift += rise
 		startSample := position
 		endSample := startSample + int(callDuration*float64(sampleRate))
 
 		for i := startSample; i < endSample && i < numSamples; i++ {
 			t := float64(i-startSample) / float64(sampleRate)
 
-			// Frequency sweep from 600 to 1200 Hz over callDuration
-			fr := 600.0 + (1200.0-600.0)*(t/callDuration)
+			//Sweep
+			start := 600.0 + shift
+			var increase float64
+			if direction {
+				increase = start - 20.0
+			} else {
+				increase = start + 20.0
+			}
+			fr := start + (increase-start)*(t/callDuration)
 
-			// A bit of vibrato: +/- 40 Hz at ~8 Hz rate
-			vibrato := 40.0 * math.Sin(2.0*math.Pi*8.0*t)
+			//timbre
+			timbre := 0.5 * math.Sin(2.0*math.Pi*20.0*t)
 
 			// Final frequency
-			f := fr + vibrato
+			f := fr
 
 			// Sine wave
-			sample := math.Sin(2.0 * math.Pi * f * t)
+			sample := math.Sin(2.0*math.Pi*f*t) - timbre
 
 			// Amplitude envelope (quick attack, quick decay)
 			ampEnv := seagullEnv(t, callDuration)
