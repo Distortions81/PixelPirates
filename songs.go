@@ -22,7 +22,6 @@ type insData struct {
 var songList = []songData{
 	EbonyGale,
 	MidnightDepthsPercussion,
-
 	introspectiveTheme,
 	MerrySailingTheme,
 	PirateDramaticTheme,
@@ -309,7 +308,7 @@ Eb2 4
 		{
 			// Simple percussive hits (kick/snare imitation)
 			name:    "percussion",
-			volume:  0.9,
+			volume:  0.0, // Muted
 			square:  1.0, // Pure square for a sharper click
 			attack:  0.0,
 			decay:   0.1,
@@ -465,7 +464,7 @@ Eb4/Gb4/Bb4 0.5, NN 3.5
 		},
 		{
 			name:    "percussion",
-			volume:  0.9,
+			volume:  0.0, // Muted
 			square:  1.0, // Sharp, clicky
 			attack:  0.0,
 			decay:   0.05,
