@@ -27,12 +27,7 @@ func (g *Game) drawTitle(screen *ebiten.Image) {
 	if unix%3 == 0 {
 		offset.Y = 1
 	}
-	firstFrame := boatSP.animation.SortedFrames[0]
-	speed := boatSP.animation.Frames[firstFrame].Duration
-	time := time.Now().UnixMilli() / int64(speed)
-	frameNum := time % (boatSP.animation.NumFrames)
-	boatFrame := getAniFrame(frameNum, boatSP)
-
+	boatFrame := autoAnimate(boatSP)
 	op.GeoM.Translate(
 		float64((dWinWidth/2)-(boatFrame.Bounds().Dx())/2+offset.X),
 		float64((dWinHeight/2)-(boatFrame.Bounds().Dy())/2+offset.Y)+2)
