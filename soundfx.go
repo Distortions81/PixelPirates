@@ -18,7 +18,7 @@ func PlayFx() {
 
 	for {
 		for x := 0; x < 3; x++ {
-			PlayWave(CannonSound(sampleRate, 3), audioContext, sampleRate, fxTime)
+			PlayWave(GoldCoinsSound(sampleRate, 3), audioContext, sampleRate, fxTime)
 			time.Sleep(repeatTime * time.Second)
 		}
 		time.Sleep(time.Second * nextTime)
@@ -175,7 +175,7 @@ func GoldCoinsSound(sampleRate int, durationSec float64) []float32 {
 	// with exponential decay. This is extremely simplified,
 	// but can give a vaguely metallic feel.
 
-	numClinks := 4
+	numClinks := 6
 
 	for c := 0; c < numClinks; c++ {
 		// Random start time for each clink
@@ -189,11 +189,12 @@ func GoldCoinsSound(sampleRate int, durationSec float64) []float32 {
 			endSample = numSamples
 		}
 
+		const base = 1250
 		// We’ll pick 3-4 partial frequencies in a metallic range
 		partials := []float64{
-			1000 + 3000*rand.Float64(),
-			1000 + 3000*rand.Float64(),
-			1000 + 3000*rand.Float64(),
+			base + 3000*rand.Float64(),
+			base + 3000*rand.Float64(),
+			base + 3000*rand.Float64(),
 		}
 		// Optionally add a 4th partial
 		if rand.Float64() < 0.5 {
@@ -205,7 +206,7 @@ func GoldCoinsSound(sampleRate int, durationSec float64) []float32 {
 
 			var sampleVal float64
 			for _, f := range partials {
-				sampleVal += math.Sin(2.0 * math.Pi * f * t)
+				sampleVal += math.Sin(2.0*math.Pi*f*t) + rand.Float64()
 			}
 
 			// Exponential decay
