@@ -18,13 +18,15 @@ func PlayFx() {
 
 	for {
 		for x := 0; x < 3; x++ {
-			PlayWave(SeagullSound(sampleRate, 5), audioContext, sampleRate, fxTime)
+			PlayWave(CannonSound(sampleRate, 3), audioContext, sampleRate, fxTime)
 			time.Sleep(repeatTime * time.Second)
 		}
 		time.Sleep(time.Second * nextTime)
+	}
 
+	for {
 		for x := 0; x < 3; x++ {
-			PlayWave(WoodCreakSound(sampleRate, 1), audioContext, sampleRate, fxTime)
+			PlayWave(SeagullSound(sampleRate, 5), audioContext, sampleRate, fxTime)
 			time.Sleep(repeatTime * time.Second)
 		}
 		time.Sleep(time.Second * nextTime)
@@ -122,100 +124,40 @@ func seagullEnv(t, total float64) float64 {
 }
 
 // ------------------------------------------------------------------------------
-// 2) Wood Creaking
-// ------------------------------------------------------------------------------
-func WoodCreakSound(sampleRate int, durationSec float64) []float32 {
-	numSamples := int(durationSec * float64(sampleRate))
-	out := make([]float32, numSamples)
-
-	// We'll create ~10 random squeaks over the duration.
-	// Each squeak is a short sine wave of random frequency with a quick envelope.
-	numSqueaks := 10
-
-	for s := 0; s < numSqueaks; s++ {
-		// Squeak start time (random in [0, durationSec-0.1])
-		startTime := rand.Float64() * (durationSec - 0.1)
-		startSample := int(startTime * float64(sampleRate))
-
-		// Squeak length ~ [30ms..100ms]
-		squeakLen := 0.03 + 0.07*rand.Float64()
-		endSample := startSample + int(squeakLen*float64(sampleRate))
-		if endSample > numSamples {
-			endSample = numSamples
-		}
-
-		// Random frequency [100..500 Hz]
-		freq := 100.0 + 400.0*rand.Float64()
-
-		for i := startSample; i < endSample; i++ {
-			t := float64(i-startSample) / float64(sampleRate)
-			// Sine wave
-			sample := math.Sin(2.0 * math.Pi * freq * t)
-			// Quick fade in/out
-			env := woodCreakEnv(t, squeakLen)
-			out[i] += float32(sample * env * 0.5) // scale down a bit
-		}
-	}
-
-	return out
-}
-
-// Quick fade-in / fade-out for a squeak
-func woodCreakEnv(t, length float64) float64 {
-	attack := 0.01
-	release := 0.01
-	sustain := length - (attack + release)
-
-	switch {
-	case t < 0:
-		return 0
-	case t < attack:
-		return t / attack
-	case t < attack+sustain:
-		return 1.0
-	case t < attack+sustain+release:
-		return 1.0 - (t-attack-sustain)/release
-	default:
-		return 0
-	}
-}
-
-// ------------------------------------------------------------------------------
 // 3) Cannon Sound
 // ------------------------------------------------------------------------------
 func CannonSound(sampleRate int, durationSec float64) []float32 {
 	numSamples := int(durationSec * float64(sampleRate))
 	out := make([]float32, numSamples)
 
-	// We'll do a short broadband noise burst plus a low-frequency decaying sine.
-	//  - First 50ms: noise burst
-	//  - Then 1s of a ~80 Hz sine with an exponential decay
-	//  - The rest is silence
-
-	noiseBurstLen := 0.05
-	sineLen := 1.0
-	cannonFreq := 80.0
+	noiseBurstLen := 0.2
+	sineLen := 6.0
+	freq := 12.0
 
 	// 1) Noise burst
 	noiseEnd := int(noiseBurstLen * float64(sampleRate))
 	for i := 0; i < noiseEnd && i < numSamples; i++ {
-		// random in [-1..1]
-		val := 2.0*rand.Float64() - 1.0
-		// quick fade out over the 50ms
+		val := 4.0*rand.Float64() - 1.0
 		env := 1.0 - float64(i)/float64(noiseEnd)
 		out[i] = float32(val * env)
 	}
 
-	// 2) Low frequency boom (exponential decay ~1s)
+	// 2) Low frequency boom
 	sineStart := 0
 	sineEnd := int(sineLen * float64(sampleRate)) // up to 1s
 	for i := sineStart; i < sineEnd && i < numSamples; i++ {
-		t := float64(i) / float64(sampleRate)
-		sample := math.Sin(2.0 * math.Pi * cannonFreq * t)
 
-		// exponential decay from 1 to 0 over 1s
-		decay := math.Exp(-3.0 * t)             // tweak the coefficient for faster/slower decay
-		out[i] += float32(sample * decay * 0.8) // scale down amplitude
+		t := float64(i) / float64(sampleRate)
+		cannonFreq := freq + (rand.Float64() / 3)
+		sample := math.Sin(2.0 * math.Pi * cannonFreq * t)
+		var sqrVal float64 = 1.0
+		if sample < 0 {
+			sqrVal = -1.0
+		}
+		decay := math.Exp(-3.0 * t)
+		waveBlend := 0.5
+		mix := waveBlend*sqrVal + (1.0-waveBlend)*sample
+		out[i] += float32(mix * decay * 2.0)
 	}
 
 	return out
