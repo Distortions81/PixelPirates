@@ -321,7 +321,7 @@ func PlayWave(g *Game, wave audioData) {
 			player.Close()
 			return
 		}
-		time.Sleep(time.Millisecond * 10)
+		time.Sleep(time.Millisecond * 100)
 	}
 }
 
