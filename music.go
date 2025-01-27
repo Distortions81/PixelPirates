@@ -33,7 +33,7 @@ func PlayTitleMusic(g *Game) {
 			runtime.GC()
 			fmt.Printf("Render took %v\nNow Playing: %v.\n\n", time.Since(startTime).Round(time.Millisecond), song.name)
 
-			PlayWave(g, output)
+			PlayWave(g, true, output)
 		}
 		fmt.Println("\nRestarting playlist...")
 	}
@@ -57,7 +57,7 @@ func PlayGameMusic(g *Game) {
 			runtime.GC()
 			fmt.Printf("Render took %v\nNow Playing: %v.\n\n", time.Since(startTime).Round(time.Millisecond), song.name)
 
-			PlayWave(g, output)
+			PlayWave(g, true, output)
 		}
 		fmt.Println("\nRestarting playlist...")
 	}
@@ -278,7 +278,7 @@ func MixWaves(waves ...audioData) audioData {
 	return mixed
 }
 
-func PlayWave(g *Game, wave audioData) {
+func PlayWave(g *Game, music bool, wave audioData) {
 
 	// 2) Convert float64 samples to raw bytes (16-bit PCM), with noise shaping
 	soundData := make([]byte, len(wave)*2)
@@ -316,7 +316,8 @@ func PlayWave(g *Game, wave audioData) {
 	player.Play()
 
 	for player.IsPlaying() {
-		if g.stopMusic {
+		//Handle 'stop music'
+		if music && g.stopMusic {
 			g.stopMusic = false
 
 			fadeout := 50

@@ -15,19 +15,19 @@ func PlayFx(g *Game) {
 
 	for {
 		for x := 0; x < repeats; x++ {
-			PlayWave(g, ApplyReverb(SeagullSound(fxTime), 0.1, 0.3, 0.9))
+			PlayWave(g, false, ApplyReverb(SeagullSound(fxTime), 0.1, 0.3, 0.9))
 			time.Sleep(repeatTime * time.Second)
 		}
 		time.Sleep(time.Second * nextTime)
 
 		for x := 0; x < repeats; x++ {
-			PlayWave(g, ApplyReverb(CannonSound(fxTime), 0.5, 0.4, 0.3))
+			PlayWave(g, false, ApplyReverb(CannonSound(fxTime), 0.5, 0.4, 0.3))
 			time.Sleep(repeatTime * time.Second)
 		}
 		time.Sleep(time.Second * nextTime)
 
 		for x := 0; x < repeats; x++ {
-			PlayWave(g, ApplyReverb(GoldCoinsSound(fxTime), 0.8, 0.03, 0.8))
+			PlayWave(g, false, ApplyReverb(GoldCoinsSound(fxTime), 0.8, 0.03, 0.8))
 			time.Sleep(repeatTime * time.Second)
 		}
 		time.Sleep(time.Second * nextTime)
