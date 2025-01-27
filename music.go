@@ -48,16 +48,12 @@ func DumpMusic() {
 	os.Mkdir("dump", 0755)
 
 	for _, song := range songList {
-		startTime := time.Now()
 		fmt.Printf("Rendering: '%v'\n", song.name)
 		output := PlaySong(song, sampleRate)
 
 		if song.reverb > 0 {
 			output = ApplyReverb(output, sampleRate, song.delay, song.feedback, song.reverb)
 		}
-		runtime.GC()
-		fmt.Printf("Render took %v\n", time.Since(startTime).Round(time.Millisecond), song.name)
-
 		SaveMono16BitWav("dump/"+song.name+".wav", sampleRate/oversampling, output)
 	}
 }
