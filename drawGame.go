@@ -21,16 +21,21 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 	vector.DrawFilledRect(screen, 0, dWinHeight/2-(1), dWinWidth, 1,
 		g.colors.day.horizon, false)
 
-	//Draw boat
+	// Island
 	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(dWinWidth-float64(g.boatPos.X), dWinHeight/6*3.25-float64(island1SP.image.Bounds().Dy())/2)
+	screen.DrawImage(island1SP.image, op)
+
+	//Draw boat
+	op = &ebiten.DrawImageOptions{}
 	offset := iPoint{}
 	if unix%3 == 0 {
 		offset.Y = 1
 	}
 	boatFrame := autoAnimatePingPong(boat2SP)
 	op.GeoM.Translate(
-		float64((dWinWidth/4)-(boatFrame.Bounds().Dx())/2+offset.X)+float64(g.boatPos.X),
-		float64((dWinHeight/6)*4.5-(boatFrame.Bounds().Dy())/2+offset.Y)+2+float64(g.boatPos.Y))
+		float64((dWinWidth/4)-(boatFrame.Bounds().Dx())/2+offset.X),
+		float64((dWinHeight/6)*4.5-(boatFrame.Bounds().Dy())/2+offset.Y)+float64(g.boatPos.Y))
 
 	screen.DrawImage(boatFrame, op)
 
