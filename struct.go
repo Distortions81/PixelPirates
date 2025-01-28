@@ -1,8 +1,12 @@
 package main
 
-import "image/color"
+import (
+	"image/color"
+	"time"
+)
 
 type Game struct {
+	fadeStart time.Time
 	gameMode  int
 	stopMusic bool
 	boatPos   fPoint

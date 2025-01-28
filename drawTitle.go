@@ -1,6 +1,7 @@
 package main
 
 import (
+	"image/color"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -58,4 +59,13 @@ func (g *Game) drawTitle(screen *ebiten.Image) {
 	screen.DrawImage(clickStartSP.image, op)
 
 	drawWaves(g, screen)
+
+	if g.gameMode == GAME_FADEOUT {
+		fadeDur := time.Second * 2
+		g.doFade(screen, fadeDur, color.NRGBA{R: 255, G: 255, B: 255}, false)
+		if time.Since(g.fadeStart) > fadeDur {
+			g.fadeStart = time.Now()
+			g.gameMode = GAME_PLAY
+		}
+	}
 }

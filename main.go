@@ -99,7 +99,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	if g.gameMode == GAME_TITLE {
+	if g.gameMode == GAME_TITLE || g.gameMode == GAME_FADEOUT {
 		g.drawTitle(screen)
 	} else if g.gameMode == GAME_PLAY {
 		g.drawGame(screen)

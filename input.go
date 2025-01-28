@@ -18,13 +18,14 @@ func (g *Game) Update() error {
 
 	pressedKeys := inpututil.AppendPressedKeys(nil)
 
-	if g.gameMode == GAME_TITLE {
+	if g.gameMode == GAME_FADEOUT {
+	} else if g.gameMode == GAME_TITLE {
 		if pressedKeys != nil ||
 			inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) ||
 			inpututil.IsMouseButtonJustPressed(ebiten.MouseButton1) {
 			g.stopMusic = true
-			g.gameMode = GAME_PLAY
-
+			g.gameMode = GAME_FADEOUT
+			g.fadeStart = time.Now()
 			go PlayGameMusic(g)
 		}
 		return nil

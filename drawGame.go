@@ -1,6 +1,7 @@
 package main
 
 import (
+	"image/color"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -39,4 +40,6 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 	screen.DrawImage(sunSP.image, op)
 
 	drawWaves(g, screen)
+
+	g.doFade(screen, time.Second*2, color.NRGBA{R: 255, G: 255, B: 255}, true)
 }
