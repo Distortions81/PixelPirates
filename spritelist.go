@@ -10,7 +10,7 @@ import (
 
 var spriteList map[string]*spriteItem = map[string]*spriteItem{
 	"boat1":      {Path: "boats/"},
-	"boat2":      {Path: "boats/"},
+	"boat2-wfx":  {Path: "boats/"},
 	"sun":        {Path: "world/"},
 	"title":      {Path: "title/"},
 	"clickstart": {Path: "title/"},
