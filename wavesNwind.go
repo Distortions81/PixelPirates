@@ -18,6 +18,7 @@ type waveData struct {
 
 const (
 	persVal           = 10 //Used for perspective
+	colorVal          = 10 //Used for perspective
 	maxWaves          = 4000
 	spawnPerFrame     = maxWaves / 60
 	minWaveLifeMS     = 100
@@ -33,7 +34,7 @@ func drawWaves(g *Game, screen *ebiten.Image) {
 
 	for _, wave := range waves {
 		//Lower alpha for waves that are farther away
-		alpha := uint8(10 * (1 + wave.logVal*persVal))
+		alpha := uint8(15 * (1 + wave.logVal*colorVal))
 		waveColor := color.NRGBA{R: 255, G: 255, B: 255, A: alpha}
 
 		bPos := g.boatPos.X * wave.logVal
