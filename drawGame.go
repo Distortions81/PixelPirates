@@ -41,5 +41,5 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 
 	drawWaves(g, screen)
 
-	g.doFade(screen, time.Second*2, color.NRGBA{R: 255, G: 255, B: 255}, true)
+	g.doFade(screen, time.Second, color.NRGBA{R: 255, G: 255, B: 255}, true)
 }
