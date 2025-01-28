@@ -1,7 +1,6 @@
 package main
 
 import (
-	"image/color"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -21,8 +20,13 @@ func (g *Game) drawTitle(screen *ebiten.Image) {
 	vector.DrawFilledRect(screen, 0, dWinHeight/2-(1), dWinWidth, 1,
 		g.colors.day.horizon, false)
 
-	//Draw boat
+	//Island
 	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(dWinWidth/5-float64(island1SP.image.Bounds().Dx())/23, dWinHeight/6*3.25-float64(island1SP.image.Bounds().Dy())/2)
+	screen.DrawImage(island1SP.image, op)
+
+	//Draw boat
+	op = &ebiten.DrawImageOptions{}
 	offset := iPoint{}
 	if unix%3 == 0 {
 		offset.Y = 1
@@ -30,21 +34,7 @@ func (g *Game) drawTitle(screen *ebiten.Image) {
 	boatFrame := autoAnimatePingPong(boat2SP)
 	op.GeoM.Translate(
 		float64((dWinWidth/2)-(boatFrame.Bounds().Dx())/2+offset.X),
-		float64((dWinHeight/1.8)-(boatFrame.Bounds().Dy())/2+offset.Y)+2)
-
-	screen.DrawImage(boatFrame, op)
-
-	//Draw re-color flag
-	op = &ebiten.DrawImageOptions{}
-	offset = iPoint{}
-	if unix%3 == 0 {
-		offset.Y = 1
-	}
-	boatFrame = autoAnimatePingPong(boat2SP_flag)
-	op.GeoM.Translate(
-		float64((dWinWidth/2)-(boatFrame.Bounds().Dx())/2+offset.X),
-		float64((dWinHeight/1.8)-(boatFrame.Bounds().Dy())/2+offset.Y)+2)
-	op.ColorScale.ScaleWithColor(color.RGBA{R: 255, G: 160, B: 0, A: 255})
+		float64((dWinHeight/6)*4.5-(boatFrame.Bounds().Dy())/2+offset.Y)+2)
 
 	screen.DrawImage(boatFrame, op)
 
@@ -65,7 +55,7 @@ func (g *Game) drawTitle(screen *ebiten.Image) {
 	op = &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(
 		float64((dWinWidth/2)-(clickStartSP.image.Bounds().Dx())/2),
-		float64((dWinHeight/4)*3-(clickStartSP.image.Bounds().Dy())/2))
+		float64((dWinHeight/6)*5.5-(clickStartSP.image.Bounds().Dy())/2))
 	op.ColorScale.ScaleAlpha(0.3)
 	screen.DrawImage(clickStartSP.image, op)
 
