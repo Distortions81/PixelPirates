@@ -7,8 +7,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
-const titleFadeTime = time.Minute * 2
-
 func (g *Game) drawTitle(screen *ebiten.Image) {
 
 	unix := time.Now().Unix()

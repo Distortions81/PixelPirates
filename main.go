@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	_ "net/http/pprof"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/audio"
@@ -71,9 +72,9 @@ func newGame() *Game {
 		gameMode: GAME_TITLE,
 		colors: colorData{
 			day: colors{
-				water:   hexToRGB("009688"),
+				water:   hexToRGB("00a0a7"),
 				horizon: hexToRGB("4fc3f7"),
-				sky:     hexToRGB("5b6ee1"),
+				sky:     hexToRGB("7c95dc"),
 			},
 			evening: colors{
 				water:   hexToRGB("006064"),
@@ -83,6 +84,7 @@ func newGame() *Game {
 		},
 	}
 
+	lastUpdate = time.Now()
 	if *fxtest {
 		go PlayFx(g)
 	} else {
