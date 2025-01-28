@@ -61,7 +61,7 @@ func (g *Game) drawTitle(screen *ebiten.Image) {
 	drawWaves(g, screen)
 
 	if g.gameMode == GAME_FADEOUT {
-		fadeDur := time.Second
+		fadeDur := time.Millisecond * 500
 		g.doFade(screen, fadeDur, color.NRGBA{R: 255, G: 255, B: 255}, false)
 		if time.Since(g.fadeStart) > fadeDur {
 			g.fadeStart = time.Now()
