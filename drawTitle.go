@@ -1,6 +1,7 @@
 package main
 
 import (
+	"image/color"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -30,6 +31,20 @@ func (g *Game) drawTitle(screen *ebiten.Image) {
 	op.GeoM.Translate(
 		float64((dWinWidth/2)-(boatFrame.Bounds().Dx())/2+offset.X),
 		float64((dWinHeight/1.8)-(boatFrame.Bounds().Dy())/2+offset.Y)+2)
+
+	screen.DrawImage(boatFrame, op)
+
+	//Draw re-color flag
+	op = &ebiten.DrawImageOptions{}
+	offset = iPoint{}
+	if unix%3 == 0 {
+		offset.Y = 1
+	}
+	boatFrame = autoAnimatePingPong(boat2SP_flag)
+	op.GeoM.Translate(
+		float64((dWinWidth/2)-(boatFrame.Bounds().Dx())/2+offset.X),
+		float64((dWinHeight/1.8)-(boatFrame.Bounds().Dy())/2+offset.Y)+2)
+	op.ColorScale.ScaleWithColor(color.RGBA{R: 255, G: 160, B: 0, A: 255})
 
 	screen.DrawImage(boatFrame, op)
 
