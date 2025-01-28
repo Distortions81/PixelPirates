@@ -22,7 +22,7 @@ func (g *Game) drawTitle(screen *ebiten.Image) {
 
 	//Island
 	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(dWinWidth/5-float64(island1SP.image.Bounds().Dx())/23, dWinHeight/6*3.25-float64(island1SP.image.Bounds().Dy())/2)
+	op.GeoM.Translate(dWinWidth/6-float64(island1SP.image.Bounds().Dx())/2, dWinHeight/6*3.25-float64(island1SP.image.Bounds().Dy())/2)
 	screen.DrawImage(island1SP.image, op)
 
 	//Draw boat
