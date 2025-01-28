@@ -10,8 +10,12 @@ import (
 )
 
 const (
-	colorLogVal = 3 //Used for color
+	colorLogVal = 4 //Used for color
 	cAmnt       = 80.0
+
+	refectionShrink     = 0.3
+	refectionBlurAmount = 2
+	refectionAlpha      = 0.15
 
 	waterStartColor   = 175
 	waterHueShift     = 25
@@ -63,9 +67,19 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 	// Island
 	op := &ebiten.DrawImageOptions{}
 	islandPos := g.boatPos.X*float64(islandVert/dWinWidth) - islandStart
-	op.GeoM.Translate(dWinWidth-float64(islandPos),
+	op.GeoM.Translate(
+		dWinWidth-float64(islandPos),
 		dWinHeightHalf-float64(island1SP.image.Bounds().Dy())+islandVert)
 	screen.DrawImage(island1SP.image, op)
+
+	//Island refection
+	op.GeoM.Reset()
+	op.GeoM.Scale(1, -(1 / refectionShrink))
+	op.ColorScale.ScaleAlpha(refectionAlpha)
+	op.GeoM.Translate(
+		dWinWidth-float64(islandPos),
+		dWinHeightHalf+float64(islandVert+island1SP.image.Bounds().Dy()-5)/refectionShrink)
+	screen.DrawImage(island1SP.blurred, op)
 
 	//Draw boat
 	op = &ebiten.DrawImageOptions{}
