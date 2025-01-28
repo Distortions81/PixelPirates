@@ -24,12 +24,14 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 	drawWaves(g, screen)
 
 	// Island
-	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(dWinWidth-float64(g.boatPos.X), dWinHeight/6*3.25-float64(island1SP.image.Bounds().Dy())/2)
-	screen.DrawImage(island1SP.image, op)
+	/*
+		op := &ebiten.DrawImageOptions{}
+		op.GeoM.Translate(dWinWidth-float64(g.boatPos.X), dWinHeight/6*3.25-float64(island1SP.image.Bounds().Dy())/2)
+		screen.DrawImage(island1SP.image, op)
+	*/
 
 	//Draw boat
-	op = &ebiten.DrawImageOptions{}
+	op := &ebiten.DrawImageOptions{}
 	offset := iPoint{}
 	if unix%3 == 0 {
 		offset.Y = 1
