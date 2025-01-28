@@ -13,6 +13,7 @@ import (
 const (
 	dWinWidth, dWinHeight = 1280 / magScale, 720 / magScale
 	dWinHeightHalf        = dWinHeight / 2
+	dWinWidthHalf         = dWinWidth / 2
 	magScale              = 4
 	sampleRate            = 48000
 	verbose               = false
