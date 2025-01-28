@@ -19,6 +19,8 @@ func (g *Game) drawTitle(screen *ebiten.Image) {
 	vector.DrawFilledRect(screen, 0, dWinHeight/2-(1), dWinWidth, 1,
 		g.colors.day.horizon, false)
 
+	drawWaves(g, screen)
+
 	//Island
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(dWinWidth/6-float64(island1SP.image.Bounds().Dx())/2, dWinHeight/6*3.25-float64(island1SP.image.Bounds().Dy())/2)
@@ -57,8 +59,6 @@ func (g *Game) drawTitle(screen *ebiten.Image) {
 		float64((dWinHeight/6)*5.5-(clickStartSP.image.Bounds().Dy())/2))
 	op.ColorScale.ScaleAlpha(0.3)
 	screen.DrawImage(clickStartSP.image, op)
-
-	drawWaves(g, screen)
 
 	if g.gameMode == GAME_FADEOUT {
 		fadeDur := time.Millisecond * 500

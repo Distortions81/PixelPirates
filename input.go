@@ -19,6 +19,7 @@ func (g *Game) Update() error {
 	pressedKeys := inpututil.AppendPressedKeys(nil)
 
 	if g.gameMode == GAME_FADEOUT {
+		return nil
 	} else if g.gameMode == GAME_TITLE {
 		if pressedKeys != nil ||
 			inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) ||

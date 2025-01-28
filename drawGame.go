@@ -21,6 +21,8 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 	vector.DrawFilledRect(screen, 0, dWinHeight/2-(1), dWinWidth, 1,
 		g.colors.day.horizon, false)
 
+	drawWaves(g, screen)
+
 	// Island
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(dWinWidth-float64(g.boatPos.X), dWinHeight/6*3.25-float64(island1SP.image.Bounds().Dy())/2)
@@ -43,8 +45,6 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 	op = &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(64, 24)
 	screen.DrawImage(sunSP.image, op)
-
-	drawWaves(g, screen)
 
 	g.doFade(screen, time.Millisecond*500, color.NRGBA{R: 255, G: 255, B: 255}, true)
 }

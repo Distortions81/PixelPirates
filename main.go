@@ -99,6 +99,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
+	g.makeWave()
 	if g.gameMode == GAME_TITLE || g.gameMode == GAME_FADEOUT {
 		g.drawTitle(screen)
 	}
