@@ -2,24 +2,58 @@ package main
 
 import (
 	"image/color"
+	"math"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
-const dayFadeTime = time.Minute * 3
+const (
+	colorLogVal = 3 //Used for color
+	cAmnt       = 80.0
+
+	waterStartColor   = 175
+	waterHueShift     = 25
+	waterBrightStart  = 0.9
+	waterDarkenDivide = 3
+	waterSaturate     = 0.8
+
+	skyStartColor   = 220
+	skyHueShift     = -40
+	skyBrightStart  = 1.0
+	skyDarkenDivide = 2.5
+	skySaturate     = 0.5
+)
 
 func (g *Game) drawGame(screen *ebiten.Image) {
 
 	unix := time.Now().Unix()
-	//Sky, water, horizon
-	vector.DrawFilledRect(screen, 0, 0, dWinWidth, dWinHeight/2-(1),
-		g.colors.day.sky, false)
-	vector.DrawFilledRect(screen, 0, dWinHeight/2, dWinWidth, dWinHeight/2,
-		g.colors.day.water, false)
-	vector.DrawFilledRect(screen, 0, dWinHeight/2-(1), dWinWidth, 1,
+
+	//Horizon
+	vector.DrawFilledRect(screen, 0, dWinHeightHalf-(1), dWinWidth, 1,
 		g.colors.day.horizon, false)
+
+	var y float32
+	for y = 0; y < dWinHeightHalf; y++ {
+		//Water
+		color := color.RGBA{}
+		vVal := (float64(y) / dWinHeightHalf)
+		color = HSVToRGB(HSV{
+			H: waterStartColor + (vVal * waterHueShift),
+			S: waterSaturate,
+			V: waterBrightStart - math.Min(vVal/waterDarkenDivide, 1.0)})
+		vector.DrawFilledRect(screen, 0, dWinHeightHalf+y,
+			dWinWidth, 1, color, false)
+
+		//Sky
+		//Water
+		color = HSVToRGB(HSV{
+			H: skyStartColor + (vVal * skyHueShift),
+			S: skySaturate,
+			V: skyBrightStart - math.Min(((1.0-vVal)/skyDarkenDivide), 1.0)})
+		vector.DrawFilledRect(screen, 0, y, dWinWidth, 1, color, false)
+	}
 
 	drawWaves(g, screen)
 

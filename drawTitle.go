@@ -12,11 +12,11 @@ func (g *Game) drawTitle(screen *ebiten.Image) {
 
 	unix := time.Now().Unix()
 	//Sky, water, horizon
-	vector.DrawFilledRect(screen, 0, 0, dWinWidth, dWinHeight/2-(1),
+	vector.DrawFilledRect(screen, 0, 0, dWinWidth, dWinHeightHalf-(1),
 		g.colors.day.sky, false)
-	vector.DrawFilledRect(screen, 0, dWinHeight/2, dWinWidth, dWinHeight/2,
+	vector.DrawFilledRect(screen, 0, dWinHeightHalf, dWinWidth, dWinHeightHalf,
 		g.colors.day.water, false)
-	vector.DrawFilledRect(screen, 0, dWinHeight/2-(1), dWinWidth, 1,
+	vector.DrawFilledRect(screen, 0, dWinHeightHalf-(1), dWinWidth, 1,
 		g.colors.day.horizon, false)
 
 	drawWaves(g, screen)

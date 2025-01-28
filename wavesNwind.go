@@ -45,7 +45,7 @@ func drawWaves(g *Game, screen *ebiten.Image) {
 		//Width is based on logVal
 		var width float32 = float32(1 + (wave.logVal * persVal))
 
-		vector.DrawFilledRect(screen, x, (dWinHeight/2)+y, width, 1, waveColor, false)
+		vector.DrawFilledRect(screen, x, (dWinHeightHalf)+y, width, 1, waveColor, false)
 	}
 }
 
