@@ -32,5 +32,5 @@ type iPoint struct {
 }
 
 type fPoint struct {
-	X, Y float32
+	X, Y float64
 }

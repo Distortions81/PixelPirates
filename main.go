@@ -69,7 +69,7 @@ func newGame() *Game {
 	clickStartSP = spriteList["clickstart"]
 
 	g := &Game{
-		gameMode: GAME_TITLE,
+		gameMode: GAME_PLAY,
 		colors: colorData{
 			day: colors{
 				water:   hexToRGB("00a0a7"),

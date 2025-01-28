@@ -32,8 +32,8 @@ func (g *Game) Update() error {
 		return nil
 	}
 
-	vspeed := float32(time.Since(lastUpdate).Milliseconds()) / 120.0
-	hspeed := float32(time.Since(lastUpdate).Milliseconds()) / 60.0
+	vspeed := float64(time.Since(lastUpdate).Milliseconds()) / 10.0
+	hspeed := float64(time.Since(lastUpdate).Milliseconds()) / 10.0
 
 	for _, key := range pressedKeys {
 		if key == ebiten.KeyW ||
