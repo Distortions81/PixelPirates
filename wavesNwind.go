@@ -17,9 +17,11 @@ type waveData struct {
 }
 
 const (
-	maxWaves          = 200
-	minWaveLifeMS     = 1000
-	maxWaveLifeRandMS = 200
+	logVal            = 8.0 //Used for perspective
+	spawnPerFrame     = 2000 / 60
+	maxWaves          = 2000
+	minWaveLifeMS     = 100
+	maxWaveLifeRandMS = 500
 )
 
 var (
@@ -28,11 +30,18 @@ var (
 )
 
 func drawWaves(g *Game, screen *ebiten.Image) {
-	testColor := color.NRGBA{R: 255, G: 255, B: 255, A: 64}
 
 	for _, wave := range waves {
-		var x, y, width float32 = dWinWidth - float32(math.Mod(wave.linVal+g.boatPos.X/dWinWidth, 1)*dWinWidth), float32((dWinHeight / 2) + (wave.logVal * (dWinHeight / 2))), float32(1 + (wave.logVal * logVal))
-		vector.DrawFilledRect(screen, x, y, width, 1, testColor, false)
+		waveColor := color.NRGBA{R: 255, G: 255, B: 255, A: uint8(15 * (1 + wave.logVal*math.Pi))}
+
+		//Inverse X for correct direction, then modulo1(wavex + boatx / winwidth), then * winWidth to re-expand
+		var x float32 = dWinWidth - float32(math.Mod(wave.linVal+g.boatPos.X/dWinWidth, 1)*dWinWidth)
+		//Start at horizon, add logVal * half winHeight
+		var y float32 = float32(wave.logVal * (dWinHeight / 2))
+		//Width is based on logVal
+		var width float32 = float32(1 + (wave.logVal * logVal))
+
+		vector.DrawFilledRect(screen, x, (dWinHeight/2)+y, width, 1, waveColor, false)
 	}
 }
 
@@ -44,7 +53,7 @@ func (g Game) makeWave() {
 			numWaves--
 		}
 	}
-	if numWaves < maxWaves {
+	for z := 0; z < spawnPerFrame && numWaves < maxWaves; z++ {
 		newWave := waveData{
 			logVal: logDist(rand.Float64()),
 			linVal: rand.Float64(),
@@ -54,8 +63,6 @@ func (g Game) makeWave() {
 		numWaves++
 	}
 }
-
-const logVal = 5.0
 
 func logDist(uniform float64) float64 {
 	biased := math.Abs(math.Log(1 - uniform))
