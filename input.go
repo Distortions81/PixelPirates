@@ -12,6 +12,10 @@ var lastUpdate time.Time
 // Ebiten input handler
 func (g *Game) Update() error {
 
+	defer func() {
+		lastUpdate = time.Now()
+	}()
+
 	pressedKeys := inpututil.AppendPressedKeys(nil)
 
 	if g.gameMode == GAME_TITLE {
@@ -28,7 +32,6 @@ func (g *Game) Update() error {
 
 	vspeed := float32(time.Since(lastUpdate).Milliseconds()) / 120.0
 	hspeed := float32(time.Since(lastUpdate).Milliseconds()) / 60.0
-	lastUpdate = time.Now()
 
 	for _, key := range pressedKeys {
 		if key == ebiten.KeyW ||
