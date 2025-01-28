@@ -20,6 +20,7 @@ const (
 var (
 	WASMMode     bool
 	fxtest       *bool
+	qtest        *bool
 	audioContext *audio.Context
 )
 
@@ -27,6 +28,7 @@ func main() {
 	fmt.Printf("Game res: %v,%v (%vx) : (%v, %v)\n", dWinWidth, dWinHeight, magScale, dWinWidth*magScale, dWinHeight*magScale)
 	dump := flag.Bool("dumpMusic", false, "Dump songs out as WAV and quit.")
 	fxtest = flag.Bool("fxtest", false, "test sound effects.")
+	qtest = flag.Bool("qtest", false, "skip title screen")
 	flag.Parse()
 
 	audioContext = audio.NewContext(sampleRate)
@@ -68,8 +70,12 @@ func newGame() *Game {
 	titleSP = spriteList["title"]
 	clickStartSP = spriteList["clickstart"]
 
+	gMode := GAME_TITLE
+	if *qtest {
+		gMode = GAME_PLAY
+	}
 	g := &Game{
-		gameMode: GAME_PLAY,
+		gameMode: gMode,
 		colors: colorData{
 			day: colors{
 				water:   hexToRGB("00a0a7"),

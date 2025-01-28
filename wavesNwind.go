@@ -31,11 +31,7 @@ func drawWaves(g *Game, screen *ebiten.Image) {
 	testColor := color.NRGBA{R: 255, G: 255, B: 255, A: 64}
 
 	for _, wave := range waves {
-		if wave.life > 0 {
-			//
-		}
-		var x, y, width float32 = dWinWidth - float32(math.Mod(wave.linVal+g.boatPos.X/dWinWidth, 1)*dWinWidth), float32((dWinHeight / 2) + (wave.logVal * (dWinHeight / 2))), 3
-
+		var x, y, width float32 = dWinWidth - float32(math.Mod(wave.linVal+g.boatPos.X/dWinWidth, 1)*dWinWidth), float32((dWinHeight / 2) + (wave.logVal * (dWinHeight / 2))), float32(1 + (wave.logVal * logVal))
 		vector.DrawFilledRect(screen, x, y, width, 1, testColor, false)
 	}
 }
