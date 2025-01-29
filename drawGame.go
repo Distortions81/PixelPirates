@@ -6,6 +6,7 @@ import (
 	"math"
 	"time"
 
+	"github.com/chewxy/math32"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/vector"
@@ -41,6 +42,8 @@ const (
 	islandStart = -dWinWidthHalf
 )
 
+var cloudbuf *ebiten.Image
+
 func (g *Game) drawGame(screen *ebiten.Image) {
 
 	unix := time.Now().Unix()
@@ -62,13 +65,24 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 			dWinWidth, 1, color, false)
 
 		//Sky
-		//Water
 		color = HSVToRGB(HSV{
 			H: skyStartColor + (vVal * skyHueShift),
 			S: skySaturate,
 			V: skyBrightStart - math.Min(((1.0-vVal)/skyDarkenDivide), 1.0)})
 		vector.DrawFilledRect(screen, 0, y, dWinWidth, 1, color, false)
 	}
+
+	xpos := g.boatPos.X * float64(islandVert/dWinWidth)
+	var cBuf []byte
+	for y := 0; y < dWinHeightHalf; y++ {
+		for x := 0; x < dWinWidth; x++ {
+			v := noiseMap(float32(x*2.0)+float32(xpos), float32(y*2.0), 6)
+			vi := byte(math32.Min(v, 1.0) * 255)
+			cBuf = append(cBuf, []byte{vi, vi, vi, vi}...)
+		}
+	}
+	cloudbuf.WritePixels(cBuf)
+	screen.DrawImage(cloudbuf, nil)
 
 	//Sun reflect -- Disabled until objects can block it
 	/*
@@ -129,4 +143,5 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 	g.doFade(screen, time.Millisecond*500, color.NRGBA{R: 255, G: 255, B: 255}, true)
 	buf := fmt.Sprintf("%4.0f,%3.0f (%3d,%3d)", g.boatPos.X, g.boatPos.Y, numWaves, numAirWaves)
 	ebitenutil.DebugPrint(screen, buf)
+
 }

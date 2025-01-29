@@ -56,6 +56,8 @@ func main() {
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	ebiten.SetWindowTitle("Pixel Pirates")
 
+	initNoise()
+	cloudbuf = ebiten.NewImage(dWinWidth, dWinHeightHalf)
 	loadSprites()
 
 	if err := ebiten.RunGameWithOptions(newGame(), &ebiten.RunGameOptions{GraphicsLibrary: ebiten.GraphicsLibraryOpenGL}); err != nil {
