@@ -4,6 +4,9 @@ import (
 	"flag"
 	"fmt"
 	_ "net/http/pprof"
+	"os"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -23,6 +26,7 @@ var (
 	WASMMode     bool
 	fxtest       *bool
 	qtest        *bool
+	beepfx       *bool
 	audioContext *audio.Context
 )
 
@@ -30,6 +34,7 @@ func main() {
 	fmt.Printf("Game res: %v,%v (%vx) : (%v, %v)\n", dWinWidth, dWinHeight, magScale, dWinWidth*magScale, dWinHeight*magScale)
 	dump := flag.Bool("dumpMusic", false, "Dump songs out as WAV and quit.")
 	fxtest = flag.Bool("fxtest", false, "test sound effects.")
+	beepfx = flag.Bool("beepfx", false, "beep sound effects.")
 	qtest = flag.Bool("qtest", false, "skip title screen")
 	flag.Parse()
 
@@ -95,6 +100,18 @@ func newGame() *Game {
 	lastUpdate = time.Now()
 	if *fxtest {
 		go PlayFx(g)
+	} else if *beepfx {
+		for {
+			data, _ := os.ReadFile("data.csv")
+			items := strings.Split(string(data), ",")
+			for _, item := range items {
+				hz, _ := strconv.ParseFloat(item, 64)
+				wave := GenerateWave(float32(hz), time.Millisecond*10, 1)
+				PlayWave(g, false, wave)
+				//fmt.Printf("%v\n", hz)
+			}
+		}
+
 	} else {
 		go PlayTitleMusic(g)
 	}
