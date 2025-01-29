@@ -9,11 +9,17 @@ import (
 
 var lastUpdate time.Time
 
+const (
+	MaxBoatY = 25
+	MinBoatY = -35
+)
+
 // Ebiten input handler
 func (g *Game) Update() error {
 
 	defer func() {
 		lastUpdate = time.Now()
+		g.clampBoatPos()
 	}()
 
 	pressedKeys := inpututil.AppendPressedKeys(nil)
@@ -55,4 +61,13 @@ func (g *Game) Update() error {
 	}
 
 	return nil
+}
+
+func (g *Game) clampBoatPos() {
+	if g.boatPos.Y > MaxBoatY {
+		g.boatPos.Y = MaxBoatY
+	}
+	if g.boatPos.Y < MinBoatY {
+		g.boatPos.Y = MinBoatY
+	}
 }
