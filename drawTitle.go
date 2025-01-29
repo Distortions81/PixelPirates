@@ -2,6 +2,7 @@ package main
 
 import (
 	"image/color"
+	"math"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -11,20 +12,50 @@ import (
 func (g *Game) drawTitle(screen *ebiten.Image) {
 
 	unix := time.Now().Unix()
-	//Sky, water, horizon
-	vector.DrawFilledRect(screen, 0, 0, dWinWidth, dWinHeightHalf-(1),
-		g.colors.day.sky, false)
-	vector.DrawFilledRect(screen, 0, dWinHeightHalf, dWinWidth, dWinHeightHalf,
-		g.colors.day.water, false)
+
+	//Horizon
 	vector.DrawFilledRect(screen, 0, dWinHeightHalf-(1), dWinWidth, 1,
 		g.colors.day.horizon, false)
 
+	var y float32
+	for y = 0; y < dWinHeightHalf; y++ {
+		//Water
+		color := color.RGBA{}
+		vVal := (float64(y) / dWinHeightHalf)
+		color = HSVToRGB(HSV{
+			H: waterStartColor + (vVal * waterHueShift),
+			S: waterSaturate,
+			V: waterBrightStart - math.Min(vVal/waterDarkenDivide, 1.0)})
+		vector.DrawFilledRect(screen, 0, dWinHeightHalf+y,
+			dWinWidth, 1, color, false)
+
+		//Sky
+		//Water
+		color = HSVToRGB(HSV{
+			H: skyStartColor + (vVal * skyHueShift),
+			S: skySaturate,
+			V: skyBrightStart - math.Min(((1.0-vVal)/skyDarkenDivide), 1.0)})
+		vector.DrawFilledRect(screen, 0, y, dWinWidth, 1, color, false)
+	}
+
 	drawWaves(g, screen)
 
-	//Island
+	// Island
 	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(dWinWidth/6-float64(island1SP.image.Bounds().Dx())/2, dWinHeight/6*3.25-float64(island1SP.image.Bounds().Dy())/2)
+	islandPos := dWinWidthHalf / 8
+	op.GeoM.Translate(
+		float64(islandPos),
+		dWinHeightHalf-float64(island1SP.image.Bounds().Dy())+islandVert)
 	screen.DrawImage(island1SP.image, op)
+
+	//Island refection
+	op.GeoM.Reset()
+	op.GeoM.Scale(1, -(1 / refectionShrink))
+	op.ColorScale.ScaleAlpha(refectionAlpha)
+	op.GeoM.Translate(
+		float64(islandPos),
+		dWinHeightHalf+float64(islandVert+island1SP.image.Bounds().Dy()-5)/refectionShrink)
+	screen.DrawImage(island1SP.blurred, op)
 
 	//Draw boat
 	op = &ebiten.DrawImageOptions{}
@@ -34,8 +65,8 @@ func (g *Game) drawTitle(screen *ebiten.Image) {
 	}
 	boatFrame := autoAnimatePingPong(boat2SP)
 	op.GeoM.Translate(
-		float64((dWinWidth/2)-(boatFrame.Bounds().Dx())/2+offset.X),
-		float64((dWinHeight/6)*4.5-(boatFrame.Bounds().Dy())/2+offset.Y)+2)
+		float64((dWinWidth/2)-(boatFrame.Bounds().Dx())/2),
+		float64((dWinHeight/6)*4-(boatFrame.Bounds().Dy())/2+offset.Y)+float64(g.boatPos.Y))
 
 	screen.DrawImage(boatFrame, op)
 
@@ -56,7 +87,7 @@ func (g *Game) drawTitle(screen *ebiten.Image) {
 	op = &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(
 		float64((dWinWidth/2)-(clickStartSP.image.Bounds().Dx())/2),
-		float64((dWinHeight/6)*5.5-(clickStartSP.image.Bounds().Dy())/2))
+		float64((dWinHeight/6)*5-(clickStartSP.image.Bounds().Dy())/2))
 	op.ColorScale.ScaleAlpha(0.3)
 	screen.DrawImage(clickStartSP.image, op)
 
@@ -68,4 +99,6 @@ func (g *Game) drawTitle(screen *ebiten.Image) {
 			g.gameMode = GAME_PLAY
 		}
 	}
+
+	g.doFade(screen, time.Millisecond*500, color.NRGBA{R: 255, G: 255, B: 255}, true)
 }

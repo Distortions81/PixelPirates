@@ -13,7 +13,7 @@ const (
 	colorLogVal = 4 //Used for color
 	cAmnt       = 80.0
 
-	refectionShrink     = 0.3
+	refectionShrink     = 0.4
 	refectionBlurAmount = 2
 	refectionAlpha      = 0.15
 
