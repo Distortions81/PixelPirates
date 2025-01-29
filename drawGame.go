@@ -42,8 +42,8 @@ const (
 
 	cloudBlurAmountX  = 32
 	cloudBlurAmountY  = 1
-	cloudBlurStrech   = 1.5
-	cloudReflectAlpha = 0.8
+	cloudBlurStrech   = 1
+	cloudReflectAlpha = 0.5
 )
 
 var (
@@ -101,8 +101,8 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 	//Cloud reflection
 	screen.DrawImage(cloudbuf, nil)
 	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Scale(cloudBlurAmountX, -cloudBlurAmountY*cloudBlurStrech)
-	op.GeoM.Translate(0, dWinHeight)
+	op.GeoM.Scale(cloudBlurAmountX, -cloudBlurAmountY/cloudBlurStrech)
+	op.GeoM.Translate(0, dWinHeight*cloudBlurAmountY)
 	op.ColorScale.ScaleAlpha(cloudReflectAlpha)
 	//op.Blend = ebiten.BlendLighter
 	op.Filter = ebiten.FilterLinear
