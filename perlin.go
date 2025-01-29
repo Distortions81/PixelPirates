@@ -40,7 +40,7 @@ func noiseMap(x, y float32, p int) float32 {
 const numResourceTypes = 7
 
 var noiseLayers = [numResourceTypes]noiseLayerData{
-	{name: "Ground",
+	{name: "Clouds1",
 		seedOffset: 5147,
 		scale:      64,
 		alpha:      2,
@@ -54,25 +54,6 @@ var noiseLayers = [numResourceTypes]noiseLayerData{
 		resourceMultiplier: 1,
 		redMulti:           1,
 		blueMulti:          1,
-		greenMulti:         1,
-	},
-
-	/* Resources */
-	{name: "Oil",
-		seedOffset: 6812,
-		scale:      256,
-		alpha:      2,
-		beta:       2.0,
-		n:          3,
-
-		contrast:   0.2,
-		brightness: -2.2,
-		maxValue:   5,
-		minValue:   0,
-
-		modGreen: true,
-
-		resourceMultiplier: 1,
 		greenMulti:         1,
 	},
 }
