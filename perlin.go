@@ -9,11 +9,8 @@ import (
 
 var MapSeed int64 = 0
 
-/* Init random seeds for the perlin noise layers */
 func initNoise() {
-	if MapSeed == 0 {
-		MapSeed = rand.Int63()
-	}
+	MapSeed = rand.Int63()
 
 	for p := range noiseLayers {
 		noiseLayers[p].randomSeed = MapSeed - noiseLayers[p].seedOffset
