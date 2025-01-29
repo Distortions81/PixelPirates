@@ -47,34 +47,55 @@ func drawAir(g *Game, screen *ebiten.Image) {
 
 		bPos := g.boatPos.X * wave.logVal
 
-		//Inverse X for correct direction, then modulo1(wavex + boatx / winwidth), then * winWidth to re-expand
-		var x float32 = dWinWidth - float32(math.Mod(wave.linVal+bPos/dWinWidth, 1)*dWinWidth)
-		//Start at horizon, add logVal * half winHeight
-		var y float32 = float32(wave.logVal * (dWinHeightHalf))
-		//Width is based on logVal
-		var width float32 = float32(1 + (wave.logVal * persVal))
+		// Calculate the raw modulo
+		rawMod := wave.linVal + bPos/dWinWidth
+		modVal := math.Mod(rawMod, 1)
+
+		// Ensure the modulo result is positive
+		if modVal < 0 {
+			modVal += 1
+		}
+
+		// Inverse X for correct direction, then apply the positive modulo, then re-expand
+		x := dWinWidth - float32(modVal*dWinWidth)
+
+		// Start at horizon, add logVal * half winHeight
+		y := float32(wave.logVal * dWinHeightHalf)
+
+		// Width is based on logVal
+		width := float32(1 + (wave.logVal * persVal))
 
 		vector.DrawFilledRect(screen, x, dWinHeightHalf-y+1, width, 1, waveColor, false)
 	}
 }
 
 func drawWaves(g *Game, screen *ebiten.Image) {
-
 	for _, wave := range waves {
-		//Lower alpha for waves that are farther away
+		// Lower alpha for waves that are farther away
 		alpha := uint8(15 * (1 + wave.logVal*colorVal))
 		waveColor := color.NRGBA{R: 255, G: 255, B: 255, A: alpha}
 
 		bPos := g.boatPos.X * wave.logVal
 
-		//Inverse X for correct direction, then modulo1(wavex + boatx / winwidth), then * winWidth to re-expand
-		var x float32 = dWinWidth - float32(math.Mod(wave.linVal+bPos/dWinWidth, 1)*dWinWidth)
-		//Start at horizon, add logVal * half winHeight
-		var y float32 = float32(wave.logVal * (dWinHeightHalf))
-		//Width is based on logVal
-		var width float32 = float32(1 + (wave.logVal * persVal))
+		// Calculate the raw modulo
+		rawMod := wave.linVal + bPos/dWinWidth
+		modVal := math.Mod(rawMod, 1)
 
-		vector.DrawFilledRect(screen, x, (dWinHeightHalf)+y, width, 1, waveColor, false)
+		// Ensure the modulo result is positive
+		if modVal < 0 {
+			modVal += 1
+		}
+
+		// Inverse X for correct direction, then apply the positive modulo, then re-expand
+		x := dWinWidth - float32(modVal*dWinWidth)
+
+		// Start at horizon, add logVal * half winHeight
+		y := float32(wave.logVal * dWinHeightHalf)
+
+		// Width is based on logVal
+		width := float32(1 + (wave.logVal * persVal))
+
+		vector.DrawFilledRect(screen, x, dWinHeightHalf+y, width, 1, waveColor, false)
 	}
 }
 
