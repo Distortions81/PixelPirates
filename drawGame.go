@@ -6,7 +6,6 @@ import (
 	"math"
 	"time"
 
-	"github.com/chewxy/math32"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/vector"
@@ -42,7 +41,10 @@ const (
 	islandStart = -dWinWidthHalf
 )
 
-var cloudbuf *ebiten.Image
+var (
+	cloudbuf     *ebiten.Image
+	lastCloudPos int = -1000
+)
 
 func (g *Game) drawGame(screen *ebiten.Image) {
 
@@ -72,16 +74,20 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 		vector.DrawFilledRect(screen, 0, y, dWinWidth, 1, color, false)
 	}
 
+	//Clouds -- TODO: render chunks and cache them
 	xpos := g.boatPos.X * float64(islandVert/dWinWidth)
-	var cBuf []byte
-	for y := 0; y < dWinHeightHalf; y++ {
-		for x := 0; x < dWinWidth; x++ {
-			v := noiseMap(float32(x*2.0)+float32(xpos), float32(y*2.0), 6)
-			vi := byte(math32.Min(v, 1.0) * 255)
-			cBuf = append(cBuf, []byte{vi, vi, vi, vi}...)
+	if int(xpos) != lastCloudPos {
+		lastCloudPos = int(xpos)
+		var cBuf []byte
+		for y := 0; y < dWinHeightHalf; y++ {
+			for x := 0; x < dWinWidth; x++ {
+				v := noiseMap(float32(x*2.0)+float32(xpos), float32(y-10*2.0), 0)
+				vi := byte(v / 5 * 255)
+				cBuf = append(cBuf, []byte{vi, vi, vi, vi}...)
+			}
 		}
+		cloudbuf.WritePixels(cBuf)
 	}
-	cloudbuf.WritePixels(cBuf)
 	screen.DrawImage(cloudbuf, nil)
 
 	//Sun reflect -- Disabled until objects can block it

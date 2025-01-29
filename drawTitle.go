@@ -38,6 +38,22 @@ func (g *Game) drawTitle(screen *ebiten.Image) {
 		vector.DrawFilledRect(screen, 0, y, dWinWidth, 1, color, false)
 	}
 
+	//Clouds -- TODO: render chunks and cache them
+	xpos := g.boatPos.X * float64(islandVert/dWinWidth)
+	if int(xpos) != lastCloudPos {
+		lastCloudPos = int(xpos)
+		var cBuf []byte
+		for y := 0; y < dWinHeightHalf; y++ {
+			for x := 0; x < dWinWidth; x++ {
+				v := noiseMap(float32(x*2.0)+float32(xpos), float32(y-10*2.0), 0)
+				vi := byte(v / 5 * 255)
+				cBuf = append(cBuf, []byte{vi, vi, vi, vi}...)
+			}
+		}
+		cloudbuf.WritePixels(cBuf)
+	}
+	screen.DrawImage(cloudbuf, nil)
+
 	drawWaves(g, screen)
 	drawAir(g, screen)
 
