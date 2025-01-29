@@ -18,15 +18,16 @@ type waveData struct {
 
 const (
 	persVal           = 10 //Used for perspective
+	skyPersVal        = 5  //Used for perspective (airwaves)
 	colorVal          = 10 //Used for perspective (waves)
 	maxWaves          = 4000
 	spawnPerFrame     = maxWaves / 60
 	minWaveLifeMS     = 100
 	maxWaveLifeRandMS = 500
 
-	maxAirWaves          = 40
+	maxAirWaves          = 10
 	minAirWaveLifeMS     = 2000
-	maxAirWaveLifeRandMS = 3000
+	maxAirWaveLifeRandMS = 4000
 )
 
 var (
@@ -42,7 +43,7 @@ func drawAir(g *Game, screen *ebiten.Image) {
 		lifeLeft := float64(wave.life-time.Since(wave.start)) / float64(wave.life) * 2
 		//Lower alpha for waves that are farther away
 		alpha := uint8(math.Min(math.Abs(255-lifeLeft*255), 255.0))
-		waveColor := color.NRGBA{R: 255, G: 255, B: 255, A: 255 - alpha}
+		waveColor := color.NRGBA{R: 255, G: 255, B: 255, A: 85 - alpha/3}
 
 		bPos := g.boatPos.X * wave.logVal
 
@@ -53,7 +54,7 @@ func drawAir(g *Game, screen *ebiten.Image) {
 		//Width is based on logVal
 		var width float32 = float32(1 + (wave.logVal * persVal))
 
-		vector.DrawFilledRect(screen, x, dWinHeightHalf-y, width, 1, waveColor, false)
+		vector.DrawFilledRect(screen, x, dWinHeightHalf-y+1, width, 1, waveColor, false)
 	}
 }
 
@@ -87,7 +88,7 @@ func (g Game) makeWave() {
 	}
 	for z := 0; z < spawnPerFrame && numWaves < maxWaves; z++ {
 		newWave := waveData{
-			logVal: logDist(rand.Float64()),
+			logVal: logDistWave(rand.Float64()),
 			linVal: rand.Float64(),
 			start:  time.Now(),
 			life:   time.Millisecond * time.Duration(minWaveLifeMS+(rand.Float64()*maxWaveLifeRandMS))}
@@ -106,7 +107,7 @@ func (g Game) makeAirWave() {
 	}
 	for z := 0; z < spawnPerFrame && numAirWaves < maxAirWaves; z++ {
 		newWave := waveData{
-			logVal: logDist(rand.Float64()),
+			logVal: logDistAirwave(rand.Float64()),
 			linVal: rand.Float64(),
 			start:  time.Now(),
 			life:   time.Millisecond * time.Duration(minAirWaveLifeMS+(rand.Float64()*maxAirWaveLifeRandMS))}
@@ -115,7 +116,12 @@ func (g Game) makeAirWave() {
 	}
 }
 
-func logDist(uniform float64) float64 {
+func logDistWave(uniform float64) float64 {
 	biased := math.Abs(math.Log(1 - uniform))
 	return math.Min(biased/persVal, 1.0)
+}
+
+func logDistAirwave(uniform float64) float64 {
+	biased := math.Abs(math.Log(1 - uniform))
+	return math.Min(biased/skyPersVal, 1.0)
 }
