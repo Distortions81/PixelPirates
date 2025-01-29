@@ -40,8 +40,9 @@ const (
 	islandVert  = 6.0
 	islandStart = -dWinWidthHalf
 
-	cloudBlurAmount   = 8
-	cloudBlurStrech   = 2
+	cloudBlurAmountX  = 32
+	cloudBlurAmountY  = 1
+	cloudBlurStrech   = 1.5
 	cloudReflectAlpha = 0.9
 )
 
@@ -92,14 +93,15 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 		}
 		cloudbuf.WritePixels(cBuf)
 		op := &ebiten.DrawImageOptions{}
-		op.GeoM.Scale(1.0/cloudBlurAmount, 1.0/cloudBlurAmount)
+		op.GeoM.Scale(1.0/cloudBlurAmountX, 1.0/cloudBlurAmountY)
+		op.Filter = ebiten.FilterLinear
 		cloudblur.Clear()
 		cloudblur.DrawImage(cloudbuf, op)
 	}
 	//Cloud reflection
 	screen.DrawImage(cloudbuf, nil)
 	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Scale(cloudBlurAmount, -cloudBlurAmount*cloudBlurStrech)
+	op.GeoM.Scale(cloudBlurAmountX, -cloudBlurAmountY*cloudBlurStrech)
 	op.GeoM.Translate(0, dWinHeight)
 	op.ColorScale.ScaleAlpha(cloudReflectAlpha)
 	//op.Blend = ebiten.BlendLighter
