@@ -12,8 +12,8 @@ var spriteList map[string]*spriteItem = map[string]*spriteItem{
 	"boat1":      {Path: "boats/"},
 	"boat2":      {Path: "boats/"},
 	"boat2-flag": {Path: "boats/"},
-	"sun":        {Path: "world/"},
-	"island1":    {Path: "world/", doBlur: true},
+	"sun":        {Path: "world/", doReflect: true},
+	"island1":    {Path: "world/", doReflect: true},
 	"title":      {Path: "title/"},
 	"clickstart": {Path: "title/"},
 }
@@ -21,7 +21,7 @@ var spriteList map[string]*spriteItem = map[string]*spriteItem{
 func loadSprites() {
 
 	for name, sprite := range spriteList {
-		image, blurImg, err := loadSprite(sprite.Path+name, false, sprite.doBlur)
+		image, blurImg, err := loadSprite(sprite.Path+name, false, sprite.doReflect)
 		if err == nil {
 			doLog(true, "loading sprite '"+name+"'")
 			spriteList[name].image = image
@@ -41,9 +41,9 @@ func loadSprites() {
 type spriteItem struct {
 	Name, Path string
 
-	image   *ebiten.Image
-	blurred *ebiten.Image
-	doBlur  bool
+	image     *ebiten.Image
+	blurred   *ebiten.Image
+	doReflect bool
 
 	animation *animationData
 	pingDir   bool

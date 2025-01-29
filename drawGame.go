@@ -1,6 +1,7 @@
 package main
 
 import (
+	"image"
 	"image/color"
 	"math"
 	"time"
@@ -10,25 +11,31 @@ import (
 )
 
 const (
-	colorLogVal = 4 //Used for color
-	cAmnt       = 80.0
-
+	//Object reflect
 	refectionShrink     = 0.4
 	refectionBlurAmount = 2
 	refectionAlpha      = 0.15
 
+	//Sun reflect
+	sunReflectHeight = 10.0
+	sunReflectAlpha  = 0.15
+	sunX             = 64.0
+
+	//Water gradient
 	waterStartColor   = 175
 	waterHueShift     = 25
 	waterBrightStart  = 0.9
 	waterDarkenDivide = 3
 	waterSaturate     = 0.8
 
+	//Sky gradient
 	skyStartColor   = 220
 	skyHueShift     = -40
 	skyBrightStart  = 1.0
 	skyDarkenDivide = 2.5
 	skySaturate     = 0.5
 
+	//Island settings
 	islandVert  = 6.0
 	islandStart = -dWinWidthHalf
 )
@@ -96,8 +103,25 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 
 	//Sun
 	op = &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(64, 24)
+	op.GeoM.Translate(float64(sunSP.image.Bounds().Dx())+sunX, 24)
 	screen.DrawImage(sunSP.image, op)
+
+	//Sun reflect
+	subRect := image.Rectangle{
+		Min: image.Point{X: 0, Y: sunSP.blurred.Bounds().Dy() / 2.0},
+		Max: image.Point{X: sunSP.blurred.Bounds().Dx(), Y: sunSP.blurred.Bounds().Dy()},
+	}
+	sub := sunSP.blurred.SubImage(subRect)
+
+	op.GeoM.Reset()
+	xScale, yScale := 1.0, sunReflectHeight
+	op.GeoM.Scale(xScale, yScale)
+	op.GeoM.Translate((float64(sub.Bounds().Dx())/xScale)+sunX, dWinHeightHalf)
+
+	op.Blend = ebiten.BlendLighter
+	op.ColorScale.ScaleAlpha(sunReflectAlpha)
+
+	screen.DrawImage(sub.(*ebiten.Image), op)
 
 	g.doFade(screen, time.Millisecond*500, color.NRGBA{R: 255, G: 255, B: 255}, true)
 }
