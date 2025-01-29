@@ -43,7 +43,7 @@ const (
 	cloudBlurAmountX  = 32
 	cloudBlurAmountY  = 1
 	cloudBlurStrech   = 1.5
-	cloudReflectAlpha = 0.9
+	cloudReflectAlpha = 0.8
 )
 
 var (
