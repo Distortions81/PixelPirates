@@ -49,7 +49,7 @@ var noiseLayers = [numResourceTypes]noiseLayerData{
 		alpha:      2,
 		beta:       2.0,
 		n:          4,
-		contrast:   0.4,
+		contrast:   0.8,
 		brightness: 0,
 		maxValue:   5,
 		minValue:   0,

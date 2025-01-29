@@ -39,11 +39,15 @@ const (
 	//Island settings
 	islandVert  = 6.0
 	islandStart = -dWinWidthHalf
+
+	cloudBlurAmount   = 8
+	cloudBlurStrech   = 2
+	cloudReflectAlpha = 0.9
 )
 
 var (
-	cloudbuf     *ebiten.Image
-	lastCloudPos int = -1000
+	cloudbuf, cloudblur *ebiten.Image
+	lastCloudPos        int = -1000
 )
 
 func (g *Game) drawGame(screen *ebiten.Image) {
@@ -81,14 +85,26 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 		var cBuf []byte
 		for y := 0; y < dWinHeightHalf; y++ {
 			for x := 0; x < dWinWidth; x++ {
-				v := noiseMap(float32(x*2.0)+float32(xpos), float32(y-10*2.0), 0)
+				v := noiseMap(float32(x)+float32(xpos), float32((y-10)*4.0), 0)
 				vi := byte(v / 5 * 255)
 				cBuf = append(cBuf, []byte{vi, vi, vi, vi}...)
 			}
 		}
 		cloudbuf.WritePixels(cBuf)
+		op := &ebiten.DrawImageOptions{}
+		op.GeoM.Scale(1.0/cloudBlurAmount, 1.0/cloudBlurAmount)
+		cloudblur.Clear()
+		cloudblur.DrawImage(cloudbuf, op)
 	}
+	//Cloud reflection
 	screen.DrawImage(cloudbuf, nil)
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Scale(cloudBlurAmount, -cloudBlurAmount*cloudBlurStrech)
+	op.GeoM.Translate(0, dWinHeight)
+	op.ColorScale.ScaleAlpha(cloudReflectAlpha)
+	//op.Blend = ebiten.BlendLighter
+	op.Filter = ebiten.FilterLinear
+	screen.DrawImage(cloudblur, op)
 
 	//Sun reflect -- Disabled until objects can block it
 	/*
@@ -112,7 +128,7 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 	drawAir(g, screen)
 
 	// Island
-	op := &ebiten.DrawImageOptions{}
+	op = &ebiten.DrawImageOptions{}
 	islandPos := g.boatPos.X*float64(islandVert/dWinWidth) - islandStart
 	op.GeoM.Translate(
 		dWinWidth-float64(islandPos),
@@ -148,6 +164,8 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 
 	g.doFade(screen, time.Millisecond*500, color.NRGBA{R: 255, G: 255, B: 255}, true)
 	buf := fmt.Sprintf("%4.0f,%3.0f (%3d,%3d)", g.boatPos.X, g.boatPos.Y, numWaves, numAirWaves)
-	ebitenutil.DebugPrint(screen, buf)
 
+	if *debug {
+		ebitenutil.DebugPrint(screen, buf)
+	}
 }

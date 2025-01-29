@@ -23,11 +23,9 @@ const (
 )
 
 var (
-	WASMMode     bool
-	fxtest       *bool
-	qtest        *bool
-	beepfx       *bool
-	audioContext *audio.Context
+	WASMMode                     bool
+	fxtest, qtest, beepfx, debug *bool
+	audioContext                 *audio.Context
 )
 
 func main() {
@@ -36,6 +34,7 @@ func main() {
 	fxtest = flag.Bool("fxtest", false, "test sound effects.")
 	beepfx = flag.Bool("beepfx", false, "beep sound effects.")
 	qtest = flag.Bool("qtest", false, "skip title screen")
+	debug = flag.Bool("debug", false, "debug info")
 	flag.Parse()
 
 	audioContext = audio.NewContext(sampleRate)
@@ -58,6 +57,7 @@ func main() {
 
 	initNoise()
 	cloudbuf = ebiten.NewImage(dWinWidth, dWinHeightHalf)
+	cloudblur = ebiten.NewImage(dWinWidth/cloudBlurAmount, dWinHeightHalf/cloudBlurAmount)
 	loadSprites()
 
 	if err := ebiten.RunGameWithOptions(newGame(), &ebiten.RunGameOptions{GraphicsLibrary: ebiten.GraphicsLibraryOpenGL}); err != nil {
