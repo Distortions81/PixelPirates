@@ -20,8 +20,8 @@ const (
 	persVal           = 10 //Used for perspective
 	skyPersVal        = 5  //Used for perspective (airwaves)
 	colorVal          = 10 //Used for perspective (waves)
-	maxWaves          = 4000
-	spawnPerFrame     = maxWaves / 60
+	maxWaves          = 2000
+	spawnPerFrame     = 66
 	minWaveLifeMS     = 100
 	maxWaveLifeRandMS = 500
 
