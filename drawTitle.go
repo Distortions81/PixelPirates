@@ -45,20 +45,33 @@ func (g *Game) drawTitle(screen *ebiten.Image) {
 		var cBuf []byte
 		for y := 0; y < dWinHeightHalf; y++ {
 			for x := 0; x < dWinWidth; x++ {
-				v := noiseMap(float32(x*2.0)+float32(xpos), float32(y-10*2.0), 0)
+				v := noiseMap(float32(x)+float32(xpos), float32((y-10)*4.0), 0)
 				vi := byte(v / 5 * 255)
 				cBuf = append(cBuf, []byte{vi, vi, vi, vi}...)
 			}
 		}
 		cloudbuf.WritePixels(cBuf)
+		op := &ebiten.DrawImageOptions{}
+		op.GeoM.Scale(1.0/cloudBlurAmountX, 1.0/cloudBlurAmountY)
+		op.Filter = ebiten.FilterLinear
+		cloudblur.Clear()
+		cloudblur.DrawImage(cloudbuf, op)
 	}
+	//Cloud reflection
 	screen.DrawImage(cloudbuf, nil)
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Scale(cloudBlurAmountX, -cloudBlurAmountY*cloudBlurStrech)
+	op.GeoM.Translate(0, dWinHeight)
+	op.ColorScale.ScaleAlpha(cloudReflectAlpha)
+	//op.Blend = ebiten.BlendLighter
+	op.Filter = ebiten.FilterLinear
+	screen.DrawImage(cloudblur, op)
 
 	drawWaves(g, screen)
 	drawAir(g, screen)
 
 	// Island
-	op := &ebiten.DrawImageOptions{}
+	op = &ebiten.DrawImageOptions{}
 	islandPos := dWinWidthHalf / 8
 	op.GeoM.Translate(
 		float64(islandPos),
