@@ -1,11 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"image/color"
 	"math"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
@@ -125,4 +127,6 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 	screen.DrawImage(sunSP.image, op)
 
 	g.doFade(screen, time.Millisecond*500, color.NRGBA{R: 255, G: 255, B: 255}, true)
+	buf := fmt.Sprintf("%4.0f,%3.0f (%3d,%3d)", g.boatPos.X, g.boatPos.Y, numWaves, numAirWaves)
+	ebitenutil.DebugPrint(screen, buf)
 }
