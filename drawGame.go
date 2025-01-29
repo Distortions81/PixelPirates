@@ -1,7 +1,6 @@
 package main
 
 import (
-	"image"
 	"image/color"
 	"math"
 	"time"
@@ -16,9 +15,9 @@ const (
 	refectionBlurAmount = 2
 	refectionAlpha      = 0.15
 
-	//Sun reflect
+	//Sun reflect -- disabled
 	sunReflectHeight = 10.0
-	sunReflectAlpha  = 0.15
+	sunReflectAlpha  = 0.8
 	sunX             = 64.0
 
 	//Water gradient
@@ -69,7 +68,26 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 		vector.DrawFilledRect(screen, 0, y, dWinWidth, 1, color, false)
 	}
 
+	//Sun reflect -- Disabled until objects can block it
+	/*
+		subRect := image.Rectangle{
+			Min: image.Point{X: 0, Y: sunSP.blurred.Bounds().Dy() / 2.0},
+			Max: image.Point{X: sunSP.blurred.Bounds().Dx(), Y: sunSP.blurred.Bounds().Dy()},
+		}
+		op := &ebiten.DrawImageOptions{}
+		op.Filter = ebiten.FilterLinear
+		sub := sunSP.blurred.SubImage(subRect)
+		op.GeoM.Reset()
+		xScale, yScale := 1.0, sunReflectHeight
+		op.GeoM.Scale(xScale, yScale)
+		op.GeoM.Translate((float64(sub.Bounds().Dx())/xScale)+sunX, dWinHeightHalf)
+		op.Blend = ebiten.BlendLighter
+		op.ColorScale.ScaleAlpha(sunReflectAlpha)
+		screen.DrawImage(sub.(*ebiten.Image), op)
+	*/
+
 	drawWaves(g, screen)
+	drawAir(g, screen)
 
 	// Island
 	op := &ebiten.DrawImageOptions{}
@@ -105,23 +123,6 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 	op = &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(float64(sunSP.image.Bounds().Dx())+sunX, 24)
 	screen.DrawImage(sunSP.image, op)
-
-	//Sun reflect
-	subRect := image.Rectangle{
-		Min: image.Point{X: 0, Y: sunSP.blurred.Bounds().Dy() / 2.0},
-		Max: image.Point{X: sunSP.blurred.Bounds().Dx(), Y: sunSP.blurred.Bounds().Dy()},
-	}
-	sub := sunSP.blurred.SubImage(subRect)
-
-	op.GeoM.Reset()
-	xScale, yScale := 1.0, sunReflectHeight
-	op.GeoM.Scale(xScale, yScale)
-	op.GeoM.Translate((float64(sub.Bounds().Dx())/xScale)+sunX, dWinHeightHalf)
-
-	op.Blend = ebiten.BlendLighter
-	op.ColorScale.ScaleAlpha(sunReflectAlpha)
-
-	screen.DrawImage(sub.(*ebiten.Image), op)
 
 	g.doFade(screen, time.Millisecond*500, color.NRGBA{R: 255, G: 255, B: 255}, true)
 }

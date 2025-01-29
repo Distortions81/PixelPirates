@@ -18,17 +18,44 @@ type waveData struct {
 
 const (
 	persVal           = 10 //Used for perspective
-	colorVal          = 10 //Used for perspective
+	colorVal          = 10 //Used for perspective (waves)
 	maxWaves          = 4000
 	spawnPerFrame     = maxWaves / 60
 	minWaveLifeMS     = 100
 	maxWaveLifeRandMS = 500
+
+	maxAirWaves          = 40
+	minAirWaveLifeMS     = 2000
+	maxAirWaveLifeRandMS = 3000
 )
 
 var (
-	waves    []waveData
-	numWaves int
+	waves                 []waveData
+	airwave               []waveData
+	numWaves, numAirWaves int
 )
+
+func drawAir(g *Game, screen *ebiten.Image) {
+
+	for _, wave := range airwave {
+		//Dim alpha with time
+		lifeLeft := float64(wave.life-time.Since(wave.start)) / float64(wave.life) * 2
+		//Lower alpha for waves that are farther away
+		alpha := uint8(math.Min(math.Abs(255-lifeLeft*255), 255.0))
+		waveColor := color.NRGBA{R: 255, G: 255, B: 255, A: 255 - alpha}
+
+		bPos := g.boatPos.X * wave.logVal
+
+		//Inverse X for correct direction, then modulo1(wavex + boatx / winwidth), then * winWidth to re-expand
+		var x float32 = dWinWidth - float32(math.Mod(wave.linVal+bPos/dWinWidth, 1)*dWinWidth)
+		//Start at horizon, add logVal * half winHeight
+		var y float32 = float32(wave.logVal * (dWinHeightHalf))
+		//Width is based on logVal
+		var width float32 = float32(1 + (wave.logVal * persVal))
+
+		vector.DrawFilledRect(screen, x, dWinHeightHalf-y, width, 1, waveColor, false)
+	}
+}
 
 func drawWaves(g *Game, screen *ebiten.Image) {
 
@@ -42,7 +69,7 @@ func drawWaves(g *Game, screen *ebiten.Image) {
 		//Inverse X for correct direction, then modulo1(wavex + boatx / winwidth), then * winWidth to re-expand
 		var x float32 = dWinWidth - float32(math.Mod(wave.linVal+bPos/dWinWidth, 1)*dWinWidth)
 		//Start at horizon, add logVal * half winHeight
-		var y float32 = float32(wave.logVal * (dWinHeight / 2))
+		var y float32 = float32(wave.logVal * (dWinHeightHalf))
 		//Width is based on logVal
 		var width float32 = float32(1 + (wave.logVal * persVal))
 
@@ -66,6 +93,25 @@ func (g Game) makeWave() {
 			life:   time.Millisecond * time.Duration(minWaveLifeMS+(rand.Float64()*maxWaveLifeRandMS))}
 		waves = append(waves, newWave)
 		numWaves++
+	}
+}
+
+func (g Game) makeAirWave() {
+	for i := numAirWaves - 1; i >= 0; i-- {
+		if time.Since(airwave[i].start) > airwave[i].life {
+			// Remove the element at index i
+			airwave = append(airwave[:i], airwave[i+1:]...)
+			numAirWaves--
+		}
+	}
+	for z := 0; z < spawnPerFrame && numAirWaves < maxAirWaves; z++ {
+		newWave := waveData{
+			logVal: logDist(rand.Float64()),
+			linVal: rand.Float64(),
+			start:  time.Now(),
+			life:   time.Millisecond * time.Duration(minAirWaveLifeMS+(rand.Float64()*maxAirWaveLifeRandMS))}
+		airwave = append(airwave, newWave)
+		numAirWaves++
 	}
 }
 

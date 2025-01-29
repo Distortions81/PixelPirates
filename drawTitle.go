@@ -39,6 +39,7 @@ func (g *Game) drawTitle(screen *ebiten.Image) {
 	}
 
 	drawWaves(g, screen)
+	drawAir(g, screen)
 
 	// Island
 	op := &ebiten.DrawImageOptions{}
