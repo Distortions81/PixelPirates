@@ -12,7 +12,7 @@ import (
 var spriteList map[string]*spriteItem = map[string]*spriteItem{
 	"boat2":      {Path: "boats/"},
 	"boat2-flag": {Path: "boats/"},
-	"sun":        {Path: "world/", doReflect: true},
+	"sun":        {Path: "world/"},
 	"island1":    {Path: "world/", doReflect: true},
 	"title":      {Path: "title/"},
 	"clickstart": {Path: "title/"},

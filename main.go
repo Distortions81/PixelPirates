@@ -4,9 +4,6 @@ import (
 	"flag"
 	"fmt"
 	_ "net/http/pprof"
-	"os"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -19,20 +16,20 @@ const (
 	dWinWidthHalf         = dWinWidth / 2
 	magScale              = 4
 	sampleRate            = 48000
-	verbose               = false
+
+	dataDir    = "data/"
+	spritesDir = dataDir + "sprites/"
+	txtDir     = dataDir + "txt/"
 )
 
 var (
-	WASMMode                     bool
-	fxtest, qtest, beepfx, debug *bool
-	audioContext                 *audio.Context
+	WASMMode     bool
+	qtest, debug *bool
 )
 
 func main() {
 	fmt.Printf("Game res: %v,%v (%vx) : (%v, %v)\n", dWinWidth, dWinHeight, magScale, dWinWidth*magScale, dWinHeight*magScale)
 	dump := flag.Bool("dumpMusic", false, "Dump songs out as WAV and quit.")
-	fxtest = flag.Bool("fxtest", false, "test sound effects.")
-	beepfx = flag.Bool("beepfx", false, "beep sound effects.")
 	qtest = flag.Bool("qtest", false, "skip title screen")
 	debug = flag.Bool("debug", false, "debug info")
 	flag.Parse()
@@ -67,12 +64,11 @@ func main() {
 }
 
 var (
-	boat1SP, boat2SP, boat2SP_flag, sunSP, island1SP, titleSP, clickStartSP *spriteItem
+	boat2SP, boat2SP_flag, sunSP, island1SP, titleSP, clickStartSP *spriteItem
 )
 
 func newGame() *Game {
 
-	boat1SP = spriteList["boat1"]
 	boat2SP = spriteList["boat2"]
 	boat2SP_flag = spriteList["boat2-flag"]
 	sunSP = spriteList["sun"]
@@ -101,23 +97,7 @@ func newGame() *Game {
 	}
 
 	lastUpdate = time.Now()
-	if *fxtest {
-		go PlayFx(g)
-	} else if *beepfx {
-		for {
-			data, _ := os.ReadFile("data.csv")
-			items := strings.Split(string(data), ",")
-			for _, item := range items {
-				hz, _ := strconv.ParseFloat(item, 64)
-				wave := GenerateWave(float32(hz), time.Millisecond*10, 1)
-				PlayWave(g, false, wave)
-				//fmt.Printf("%v\n", hz)
-			}
-		}
-
-	} else {
-		go PlayTitleMusic(g)
-	}
+	go PlayTitleMusic(g)
 	return g
 
 }

@@ -54,7 +54,7 @@ func loadSprite(name string, unmanaged bool, doBlur bool) (*ebiten.Image, *ebite
 	var img, blurImg *ebiten.Image
 	var newBlur image.Image
 	if doBlur {
-		newBlur = blur.Box(m, refectionBlurAmount)
+		newBlur = blur.Box(m, islandReflectionBlur)
 	}
 
 	if unmanaged {
@@ -125,7 +125,7 @@ func decodeAniJSON(data []byte) (animationData, error) {
 	root.SortedFrames = sorted
 	root.NumFrames = int64(len(sorted))
 
-	if verbose {
+	if *debug {
 		fmt.Println("Frames:")
 		for _, fKey := range root.SortedFrames {
 			frameData := root.Frames[fKey]

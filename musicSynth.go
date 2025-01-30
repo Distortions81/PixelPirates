@@ -12,10 +12,6 @@ import (
 	"github.com/chewxy/math32"
 )
 
-// Render takes longer, but higher quality output.
-// 1 (fast, none), 2 (low), 4 (medium), 8 (high) (slow, even in 2025), 16 (very high), 32 (extreme)
-// https://theproaudiofiles.com/oversampling/
-
 func PlayTitleMusic(g *Game) {
 
 	for {
@@ -24,7 +20,7 @@ func PlayTitleMusic(g *Game) {
 				return
 			}
 			startTime := time.Now()
-			if verbose {
+			if *debug {
 				fmt.Printf("Rendering: '%v'\n", song.name)
 			}
 			output := PlaySong(song)
@@ -50,7 +46,7 @@ func PlayGameMusic(g *Game) {
 				return
 			}
 			startTime := time.Now()
-			if verbose {
+			if *debug {
 				fmt.Printf("Rendering: '%v'\n", song.name)
 			}
 			output := PlaySong(song)
@@ -72,7 +68,7 @@ func DumpMusic() {
 	os.Mkdir("dump", 0755)
 
 	for _, song := range titleSongList {
-		if verbose {
+		if *debug {
 			fmt.Printf("Rendering: '%v'\n", song.name)
 		}
 		output := PlaySong(song)
@@ -115,7 +111,7 @@ func GenerateFromText(song *songData, ins *insData) audioData {
 	beatDuration := time.Minute / time.Duration(song.bpm)
 	var finalWave audioData
 
-	if verbose {
+	if *debug {
 		fmt.Printf("Rendering: %v\n", ins.name)
 	}
 	for _, noteStr := range strings.Split(ins.data, ",") {

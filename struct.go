@@ -5,6 +5,12 @@ import (
 	"time"
 )
 
+const (
+	GAME_TITLE = iota
+	GAME_FADEOUT
+	GAME_PLAY
+)
+
 type Game struct {
 	fadeStart time.Time
 	gameMode  int

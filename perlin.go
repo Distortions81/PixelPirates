@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 
 	"github.com/aquilax/go-perlin"
@@ -11,7 +12,7 @@ var MapSeed int64 = 0
 
 func initNoise() {
 	MapSeed = rand.Int63()
-	lastCloudPos = -1000
+	lastCloudPos = math.MinInt
 
 	for p := range noiseLayers {
 		noiseLayers[p].randomSeed = MapSeed - noiseLayers[p].seedOffset
@@ -38,7 +39,7 @@ func noiseMap(x, y float32, p int) float32 {
 }
 
 /* Resource layers */
-const numResourceTypes = 7
+const numResourceTypes = 1
 
 var noiseLayers = [numResourceTypes]noiseLayerData{
 	{name: "Clouds1",

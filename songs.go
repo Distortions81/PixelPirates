@@ -19,8 +19,6 @@ type insData struct {
 	attack, decay, sustain, release float32
 }
 
-type audioData []float32
-
 var titleSongList = []songData{
 	EbonyGaleEx,
 }
