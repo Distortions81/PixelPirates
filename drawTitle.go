@@ -2,41 +2,23 @@ package main
 
 import (
 	"image/color"
-	"math"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
 func (g *Game) drawTitle(screen *ebiten.Image) {
 
 	unix := time.Now().Unix()
 
-	//Horizon
-	vector.DrawFilledRect(screen, 0, dWinHeightHalf-(1), dWinWidth, 1,
-		g.colors.day.horizon, false)
-
-	var y float32
-	for y = 0; y < dWinHeightHalf; y++ {
-		//Water
-		color := color.RGBA{}
-		vVal := (float64(y) / dWinHeightHalf)
-		color = HSVToRGB(HSV{
-			H: waterStartColor + (vVal * waterHueShift),
-			S: waterSaturate,
-			V: waterBrightStart - math.Min(vVal/waterDarkenDivide, 1.0)})
-		vector.DrawFilledRect(screen, 0, dWinHeightHalf+y,
-			dWinWidth, 1, color, false)
-
-		//Sky
-		//Water
-		color = HSVToRGB(HSV{
-			H: skyStartColor + (vVal * skyHueShift),
-			S: skySaturate,
-			V: skyBrightStart - math.Min(((1.0-vVal)/skyDarkenDivide), 1.0)})
-		vector.DrawFilledRect(screen, 0, y, dWinWidth, 1, color, false)
+	//Draw world grads
+	if worldGradDirty {
+		worldGradDirty = false
+		g.drawWorldGrad()
 	}
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Scale(dWinWidth, 1)
+	screen.DrawImage(worldGradImg, op)
 
 	//Clouds -- TODO: render chunks and cache them
 	xpos := g.boatPos.X * float64(islandVert/dWinWidth)
@@ -59,7 +41,7 @@ func (g *Game) drawTitle(screen *ebiten.Image) {
 	}
 	//Cloud reflection
 	screen.DrawImage(cloudbuf, nil)
-	op := &ebiten.DrawImageOptions{}
+	op = &ebiten.DrawImageOptions{}
 	op.GeoM.Scale(cloudBlurAmountX, -cloudBlurAmountY*cloudBlurStrech)
 	op.GeoM.Translate(0, dWinHeight)
 	op.ColorScale.ScaleAlpha(cloudReflectAlpha)

@@ -58,6 +58,7 @@ func main() {
 	initNoise()
 	cloudbuf = ebiten.NewImage(dWinWidth, dWinHeightHalf)
 	cloudblur = ebiten.NewImage(dWinWidth/cloudBlurAmountX, dWinHeightHalf/cloudBlurAmountY)
+	worldGradImg = ebiten.NewImage(1, dWinHeight)
 	loadSprites()
 
 	if err := ebiten.RunGameWithOptions(newGame(), &ebiten.RunGameOptions{GraphicsLibrary: ebiten.GraphicsLibraryOpenGL}); err != nil {

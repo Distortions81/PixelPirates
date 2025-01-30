@@ -47,16 +47,18 @@ const (
 )
 
 var (
+	worldGradImg        *ebiten.Image
 	cloudbuf, cloudblur *ebiten.Image
 	lastCloudPos        int = -1000
+
+	worldGradDirty bool = true
 )
 
-func (g *Game) drawGame(screen *ebiten.Image) {
-
-	unix := time.Now().Unix()
+func (g *Game) drawWorldGrad() {
+	worldGradImg.Clear()
 
 	//Horizon
-	vector.DrawFilledRect(screen, 0, dWinHeightHalf-(1), dWinWidth, 1,
+	vector.DrawFilledRect(worldGradImg, 0, dWinHeightHalf-(1), dWinWidth, 1,
 		g.colors.day.horizon, false)
 
 	var y float32
@@ -68,16 +70,30 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 			H: waterStartColor + (vVal * waterHueShift),
 			S: waterSaturate,
 			V: waterBrightStart - math.Min(vVal/waterDarkenDivide, 1.0)})
-		vector.DrawFilledRect(screen, 0, dWinHeightHalf+y,
-			dWinWidth, 1, color, false)
+		vector.DrawFilledRect(worldGradImg, 0, dWinHeightHalf+y,
+			1, 1, color, false)
 
 		//Sky
 		color = HSVToRGB(HSV{
 			H: skyStartColor + (vVal * skyHueShift),
 			S: skySaturate,
 			V: skyBrightStart - math.Min(((1.0-vVal)/skyDarkenDivide), 1.0)})
-		vector.DrawFilledRect(screen, 0, y, dWinWidth, 1, color, false)
+		vector.DrawFilledRect(worldGradImg, 0, y, 1, 1, color, false)
 	}
+}
+
+func (g *Game) drawGame(screen *ebiten.Image) {
+
+	unix := time.Now().Unix()
+
+	//Draw world grads
+	if worldGradDirty {
+		worldGradDirty = false
+		g.drawWorldGrad()
+	}
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Scale(dWinWidth, 1)
+	screen.DrawImage(worldGradImg, op)
 
 	//Clouds -- TODO: render chunks and cache them
 	xpos := g.boatPos.X * float64(islandVert/dWinWidth)
@@ -100,7 +116,7 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 	}
 	//Cloud reflection
 	screen.DrawImage(cloudbuf, nil)
-	op := &ebiten.DrawImageOptions{}
+	op = &ebiten.DrawImageOptions{}
 	op.GeoM.Scale(cloudBlurAmountX, -cloudBlurAmountY/cloudBlurStrech)
 	op.GeoM.Translate(0, dWinHeight*cloudBlurAmountY)
 	op.ColorScale.ScaleAlpha(cloudReflectAlpha)
@@ -165,7 +181,7 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 	screen.DrawImage(sunSP.image, op)
 
 	g.doFade(screen, time.Millisecond*500, color.NRGBA{R: 255, G: 255, B: 255}, true)
-	buf := fmt.Sprintf("boat: %4.0f,%3.0f w: %3d, a: %3d, c: %v", g.boatPos.X, g.boatPos.Y, numWaves, numAirWaves, collisions)
+	buf := fmt.Sprintf("boat: %4.0f,%3.0f w: %3d, a: %3d", g.boatPos.X, g.boatPos.Y, numWaves, numAirWaves)
 
 	if *debug {
 		ebitenutil.DebugPrint(screen, buf)
