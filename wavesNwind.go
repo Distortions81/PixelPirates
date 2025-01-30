@@ -31,6 +31,7 @@ const (
 	minWaveLifeMS     = 100
 	maxWaveLifeRandMS = 500
 
+	windSpeed            = 7 //mph-like
 	maxAirWaves          = 10
 	minAirWaveLifeMS     = 2000
 	maxAirWaveLifeRandMS = 4000
@@ -45,36 +46,30 @@ var (
 
 func drawAir(g *Game, screen *ebiten.Image) {
 
-	/*
-		for _, wave := range airwave {
-			//Fade in and out
-			lifeLeft := float64(wave.life-time.Since(wave.start)) / float64(wave.life) * 2
-			alpha := uint8(math.Min(math.Abs(255-lifeLeft*255), 255.0))
-			waveColor := color.NRGBA{R: 255, G: 255, B: 255, A: 85 - alpha/3}
+	for y, line := range airWaveLines {
+		for _, wave := range line.waves {
+			// Lower alpha for waves that are farther away
+			alpha := uint8(math32.Min(30+(float32(y)*2.5), 255))
+			waveColor := color.NRGBA{R: 255, G: 255, B: 255, A: alpha}
 
-			bPos := g.boatPos.X * wave.logVal
+			//Expand wave.x 2x to screen, add boat pos.x, multiply by Y for parallax.
+			timeOff := float64(time.Now().UnixMilli()) / (1 / (windSpeed / 300.0))
+			preMod := (float64((wave.x)*2)+(g.boatPos.X*float64(3.0/dWinWidth))+1)*float64(y) + timeOff
+			//Modulo to wrap around the screen
+			modPos := math.Mod(preMod, dWinWidth)
 
-			// Calculate the raw modulo
-			rawMod := wave.linVal + bPos/dWinWidth
-			modVal := math.Mod(rawMod, 1)
-
-			// Ensure the modulo result is positive
-			if modVal < 0 {
-				modVal += 1d
+			//Fix negative coordinates
+			if modPos < 0 {
+				modPos += dWinWidth
 			}
 
-			// Inverse X for correct direction, then apply the positive modulo, then re-expand
-			x := dWinWidth - float32(modVal*dWinWidth)
+			//Wave width based on distance
+			width := float32(y) / 11.0
+			width = max(width, 2)
 
-			// Start at horizon, add logVal * half winHeight
-			y := float32(wave.logVal * dWinHeightHalf)
-
-			// Width is based on logVal
-			width := float32(1 + (wave.logVal * persVal))
-
-			vector.DrawFilledRect(screen, x, dWinHeightHalf-y+1, width, 1, waveColor, false)
+			vector.DrawFilledRect(screen, float32(dWinWidth-modPos), float32(dWinHeightHalf-y), width, 1, waveColor, false)
 		}
-	*/
+	}
 }
 
 func drawWaves(g *Game, screen *ebiten.Image) {
@@ -89,6 +84,7 @@ func drawWaves(g *Game, screen *ebiten.Image) {
 			//Modulo to wrap around the screen
 			modPos := math.Mod(preMod, dWinWidth)
 
+			//Fix negative coordinates
 			if modPos < 0 {
 				modPos += dWinWidth
 			}
@@ -140,24 +136,38 @@ func (g Game) makeWave() {
 }
 
 func (g Game) makeAirWave() {
-	/*
-		for i := numAirWaves - 1; i >= 0; i-- {
-			if time.Since(airwave[i].start) > airwave[i].life {
-				// Remove the element at index i
-				airwave = append(airwave[:i], airwave[i+1:]...)
-				numAirWaves--
+	if numAirWaves > 0 {
+		for l, line := range airWaveLines {
+			for w, wave := range line.waves {
+				if time.Since(wave.start) > wave.life {
+					// Remove the element at index i
+					airWaveLines[l].waves = append(airWaveLines[l].waves[:w], airWaveLines[l].waves[w+1:]...)
+					numAirWaves--
+					airWaveLines[l].count--
+					break
+				}
 			}
 		}
-		for z := 0; z < spawnPerFrame && numAirWaves < maxAirWaves; z++ {
-			newWave := waveData{
-				logVal: logDistAirwave(rand.Float64()),
-				linVal: rand.Float64(),
-				start:  time.Now(),
-				life:   time.Millisecond * time.Duration(minAirWaveLifeMS+(rand.Float64()*maxAirWaveLifeRandMS))}
-			airwave = append(airwave, newWave)
-			numAirWaves++
+	}
+	spawns := 0
+	for spawns < spawnPerFrame && numAirWaves < maxAirWaves && collisions < maxCollisions {
+		y := int(logDistAirwave(rand.Float64()) * dWinHeightHalf)
+		y = min(y, dWinHeightHalf-1)
+		y = max(y, 0)
+
+		var newWave waveData
+
+		newWave = waveData{
+			x:     rand.Intn(dWinWidth / 2),
+			start: time.Now(),
+			life:  time.Millisecond * time.Duration(minAirWaveLifeMS+(rand.Float64()*maxAirWaveLifeRandMS)),
 		}
-	*/
+
+		airWaveLines[y].waves = append(airWaveLines[y].waves, newWave)
+		airWaveLines[y].count++
+		numAirWaves++
+		spawns++
+	}
 }
 
 func logDistWave(uniform float64) float64 {
