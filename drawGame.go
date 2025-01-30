@@ -175,19 +175,21 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 
 	screen.DrawImage(boatFrame, op)
 
-	//Draw test boat
-	op = &ebiten.DrawImageOptions{}
-	offset = iPoint{}
-	if unix%3 == 0 {
-		offset.Y = 1
-	}
-	boatFrame = autoAnimatePingPong(boat2SP, 2)
-	tboaty := float64((dWinHeight/6)*4.5-(boatFrame.Bounds().Dy())/2) + g.boatPos.Y
-	op.GeoM.Translate(
-		float64((dWinWidth/4)-(boatFrame.Bounds().Dx())/2+offset.X)+(-g.boatPos.X*float64(6.0/dWinWidth)+1)*float64(tboaty-dWinHeightHalf),
-		tboaty+float64(offset.Y)+g.boatPos.Y)
+	/*
+		//Draw test boat
+		op = &ebiten.DrawImageOptions{}
+		offset = iPoint{}
+		if unix%3 == 0 {
+			offset.Y = 1
+		}
+		boatFrame = autoAnimatePingPong(boat2SP, 2)
+		tboaty := float64((dWinHeight/6)*4.5-(boatFrame.Bounds().Dy())/2) + g.boatPos.Y
+		op.GeoM.Translate(
+			float64((dWinWidth/4)-(boatFrame.Bounds().Dx())/2+offset.X)+(-g.boatPos.X*float64(6.0/dWinWidth)+1)*float64(tboaty-dWinHeightHalf),
+			tboaty+float64(offset.Y)+g.boatPos.Y)
 
-	screen.DrawImage(boatFrame, op)
+		screen.DrawImage(boatFrame, op)
+	*/
 
 	//Sun
 	op = &ebiten.DrawImageOptions{}
