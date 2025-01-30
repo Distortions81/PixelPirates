@@ -26,15 +26,15 @@ const (
 	persVal           = 10 //Used for perspective
 	skyPersVal        = 5  //Used for perspective (airwaves)
 	colorVal          = 10 //Used for perspective (waves)
-	maxWaves          = 500
-	spawnPerFrame     = 60
+	maxWaves          = 350
+	spawnPerFrame     = 66
 	minWaveLifeMS     = 100
 	maxWaveLifeRandMS = 500
 
 	maxAirWaves          = 10
 	minAirWaveLifeMS     = 2000
 	maxAirWaveLifeRandMS = 4000
-	maxCollisions        = 9
+	maxCollisions        = spawnPerFrame / 4
 )
 
 var (
@@ -81,7 +81,7 @@ func drawWaves(g *Game, screen *ebiten.Image) {
 	for y, line := range wavesLines {
 		for _, wave := range line.waves {
 			// Lower alpha for waves that are farther away
-			alpha := uint8(math32.Min(64+(float32(y)*2.5), 255))
+			alpha := uint8(math32.Min(30+(float32(y)*2.5), 255))
 			waveColor := color.NRGBA{R: 255, G: 255, B: 255, A: alpha}
 
 			bPos := float64(wave.x * 2) //g.boatPos.X*float64(y)
@@ -94,6 +94,8 @@ func drawWaves(g *Game, screen *ebiten.Image) {
 		}
 	}
 }
+
+var collisions int
 
 func (g Game) makeWave() {
 	if numWaves > 0 {
@@ -110,7 +112,9 @@ func (g Game) makeWave() {
 		}
 	}
 	spawns := 0
-	for spawns < spawnPerFrame && numWaves < maxWaves {
+	collisions = 0
+spawn:
+	for spawns < spawnPerFrame && numWaves < maxWaves && collisions < maxCollisions {
 		y := int(logDistWave(rand.Float64()) * dWinHeightHalf)
 		y = min(y, dWinHeightHalf-1)
 		y = max(y, 0)
@@ -124,7 +128,8 @@ func (g Game) makeWave() {
 		}
 		for _, check := range wavesLines[y].waves {
 			if check.x == newWave.x {
-				return
+				collisions++
+				goto spawn
 			}
 		}
 
