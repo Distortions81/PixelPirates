@@ -182,10 +182,10 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 		offset.Y = 1
 	}
 	boatFrame = autoAnimatePingPong(boat2SP, 2)
-	tboaty := float64((dWinHeight/6)*4.5 - (boatFrame.Bounds().Dy())/2)
+	tboaty := float64((dWinHeight/6)*4.5-(boatFrame.Bounds().Dy())/2) + g.boatPos.Y
 	op.GeoM.Translate(
 		float64((dWinWidth/4)-(boatFrame.Bounds().Dx())/2+offset.X)+(-g.boatPos.X*float64(6.0/dWinWidth)+1)*float64(tboaty-dWinHeightHalf),
-		tboaty+float64(offset.Y))
+		tboaty+float64(offset.Y)+g.boatPos.Y)
 
 	screen.DrawImage(boatFrame, op)
 
