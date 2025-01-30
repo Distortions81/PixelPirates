@@ -11,6 +11,7 @@ var MapSeed int64 = 0
 
 func initNoise() {
 	MapSeed = rand.Int63()
+	lastCloudPos = -1000
 
 	for p := range noiseLayers {
 		noiseLayers[p].randomSeed = MapSeed - noiseLayers[p].seedOffset
