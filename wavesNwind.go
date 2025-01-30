@@ -23,7 +23,7 @@ type waveData struct {
 }
 
 const (
-	persVal           = 10 //Used for perspective
+	persVal           = 8  //Used for perspective
 	skyPersVal        = 5  //Used for perspective (airwaves)
 	colorVal          = 10 //Used for perspective (waves)
 	maxWaves          = 600
@@ -60,7 +60,7 @@ func drawAir(g *Game, screen *ebiten.Image) {
 
 			// Ensure the modulo result is positive
 			if modVal < 0 {
-				modVal += 1
+				modVal += 1d
 			}
 
 			// Inverse X for correct direction, then apply the positive modulo, then re-expand
@@ -84,13 +84,20 @@ func drawWaves(g *Game, screen *ebiten.Image) {
 			alpha := uint8(math32.Min(30+(float32(y)*2.5), 255))
 			waveColor := color.NRGBA{R: 255, G: 255, B: 255, A: alpha}
 
-			bPos := float64(wave.x * 2) //g.boatPos.X*float64(y)
+			//Expand wave.x 2x to screen, add boat pos.x, multiply by Y for parallax.
+			preMod := (float64((wave.x)*2) + (g.boatPos.X * float64(3.0/dWinWidth)) + 1) * float64(y)
+			//Modulo to wrap around the screen
+			modPos := math.Mod(preMod, dWinWidth)
 
-			// Width is based on logVal
+			if modPos < 0 {
+				modPos += dWinWidth
+			}
+
+			//Wave width based on distance
 			width := float32(y) / 11.0
 			width = max(width, 2)
 
-			vector.DrawFilledRect(screen, float32(bPos), float32(dWinHeightHalf+y), width, 1, waveColor, false)
+			vector.DrawFilledRect(screen, float32(dWinWidth-modPos), float32(dWinHeightHalf+y), width, 1, waveColor, false)
 		}
 	}
 }

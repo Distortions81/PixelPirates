@@ -86,7 +86,7 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 
 	unix := time.Now().Unix()
 
-	//Draw world grads
+	//Draw world grads (cached)
 	if worldGradDirty {
 		worldGradDirty = false
 		g.drawWorldGrad()
@@ -168,10 +168,24 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 	if unix%3 == 0 {
 		offset.Y = 1
 	}
-	boatFrame := autoAnimatePingPong(boat2SP)
+	boatFrame := autoAnimatePingPong(boat2SP, 0)
 	op.GeoM.Translate(
 		float64((dWinWidth/4)-(boatFrame.Bounds().Dx())/2+offset.X),
 		float64((dWinHeight/6)*4.5-(boatFrame.Bounds().Dy())/2+offset.Y)+float64(g.boatPos.Y))
+
+	screen.DrawImage(boatFrame, op)
+
+	//Draw test boat
+	op = &ebiten.DrawImageOptions{}
+	offset = iPoint{}
+	if unix%3 == 0 {
+		offset.Y = 1
+	}
+	boatFrame = autoAnimatePingPong(boat2SP, 2)
+	tboaty := float64((dWinHeight/6)*4.5 - (boatFrame.Bounds().Dy())/2)
+	op.GeoM.Translate(
+		float64((dWinWidth/4)-(boatFrame.Bounds().Dx())/2+offset.X)+(-g.boatPos.X*float64(6.0/dWinWidth)+1)*float64(tboaty-dWinHeightHalf),
+		tboaty+float64(offset.Y))
 
 	screen.DrawImage(boatFrame, op)
 

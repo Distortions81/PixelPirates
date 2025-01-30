@@ -3,13 +3,13 @@ package main
 import (
 	"fmt"
 	"image"
+	"math"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
 var spriteList map[string]*spriteItem = map[string]*spriteItem{
-	"boat1":      {Path: "boats/"},
 	"boat2":      {Path: "boats/"},
 	"boat2-flag": {Path: "boats/"},
 	"sun":        {Path: "world/", doReflect: true},
@@ -49,7 +49,7 @@ type spriteItem struct {
 	pingDir   bool
 }
 
-func getAniFrame(frame int64, ani *spriteItem) *ebiten.Image {
+func getAniFrame(frame int64, ani *spriteItem, offset int) *ebiten.Image {
 	numFrames := int64(len(ani.animation.Frames))
 	if frame < 0 || frame >= numFrames {
 		fmt.Printf("%v: invalid frame number: %v\n", ani.Name, frame)
@@ -60,6 +60,11 @@ func getAniFrame(frame int64, ani *spriteItem) *ebiten.Image {
 		}
 	}
 
+	//Frame offset
+	if offset != 0 {
+		frame = int64(math.Mod(float64(frame+int64(offset)), float64(numFrames)))
+	}
+
 	fKey := ani.animation.SortedFrames[frame]
 	fRect := ani.animation.Frames[fKey].Frame
 	rect := image.Rectangle{Min: image.Point{X: fRect.X, Y: fRect.Y}, Max: image.Point{X: fRect.X + fRect.W, Y: fRect.Y + fRect.H}}
@@ -67,17 +72,18 @@ func getAniFrame(frame int64, ani *spriteItem) *ebiten.Image {
 	return subFrame
 }
 
-func autoAnimate(ani *spriteItem) *ebiten.Image {
+func autoAnimate(ani *spriteItem, offset int) *ebiten.Image {
 	firstFrame := ani.animation.SortedFrames[0]
 	speed := ani.animation.Frames[firstFrame].Duration
 	time := time.Now().UnixMilli() / int64(speed)
 	frameNum := time % (ani.animation.NumFrames)
-	return getAniFrame(frameNum, ani)
+
+	return getAniFrame(frameNum, ani, offset)
 }
 
-func autoAnimatePingPong(ani *spriteItem) *ebiten.Image {
+func autoAnimatePingPong(ani *spriteItem, offset int) *ebiten.Image {
 
-	period := 2*ani.animation.NumFrames - 1
+	period := 2*ani.animation.NumFrames - 2
 	firstFrame := ani.animation.SortedFrames[0]
 	speed := ani.animation.Frames[firstFrame].Duration
 	time := time.Now().UnixMilli() / int64(speed)
@@ -89,8 +95,8 @@ func autoAnimatePingPong(ani *spriteItem) *ebiten.Image {
 		frameNum = int64(framePosition)
 	} else {
 		// Backward direction
-		frameNum = int64(period - framePosition - 1)
+		frameNum = int64(period - framePosition)
 	}
 
-	return getAniFrame(frameNum, ani)
+	return getAniFrame(frameNum, ani, offset)
 }

@@ -75,7 +75,7 @@ func (g *Game) drawTitle(screen *ebiten.Image) {
 	if unix%3 == 0 {
 		offset.Y = 1
 	}
-	boatFrame := autoAnimatePingPong(boat2SP)
+	boatFrame := autoAnimatePingPong(boat2SP, 0)
 	op.GeoM.Translate(
 		float64((dWinWidth/2)-(boatFrame.Bounds().Dx())/2),
 		float64((dWinHeight/6)*4-(boatFrame.Bounds().Dy())/2+offset.Y)+float64(g.boatPos.Y))
