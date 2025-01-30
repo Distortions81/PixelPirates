@@ -26,7 +26,7 @@ const (
 	persVal           = 10 //Used for perspective
 	skyPersVal        = 5  //Used for perspective (airwaves)
 	colorVal          = 10 //Used for perspective (waves)
-	maxWaves          = 350
+	maxWaves          = 600
 	spawnPerFrame     = 66
 	minWaveLifeMS     = 100
 	maxWaveLifeRandMS = 500
@@ -112,8 +112,6 @@ func (g Game) makeWave() {
 		}
 	}
 	spawns := 0
-	collisions = 0
-spawn:
 	for spawns < spawnPerFrame && numWaves < maxWaves && collisions < maxCollisions {
 		y := int(logDistWave(rand.Float64()) * dWinHeightHalf)
 		y = min(y, dWinHeightHalf-1)
@@ -126,19 +124,12 @@ spawn:
 			start: time.Now(),
 			life:  time.Millisecond * time.Duration(minWaveLifeMS+(rand.Float64()*maxWaveLifeRandMS)),
 		}
-		for _, check := range wavesLines[y].waves {
-			if check.x == newWave.x {
-				collisions++
-				goto spawn
-			}
-		}
 
 		wavesLines[y].waves = append(wavesLines[y].waves, newWave)
 		wavesLines[y].count++
 		numWaves++
 		spawns++
 	}
-	//fmt.Printf("C: %v\n", collisions)
 }
 
 func (g Game) makeAirWave() {
