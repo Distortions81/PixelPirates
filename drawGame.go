@@ -165,7 +165,7 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 	screen.DrawImage(sunSP.image, op)
 
 	g.doFade(screen, time.Millisecond*500, color.NRGBA{R: 255, G: 255, B: 255}, true)
-	buf := fmt.Sprintf("%4.0f,%3.0f (%3d,%3d)", g.boatPos.X, g.boatPos.Y, numWaves, numAirWaves)
+	buf := fmt.Sprintf("boat: %4.0f,%3.0f w: %3d, a: %3d", g.boatPos.X, g.boatPos.Y, numWaves, numAirWaves)
 
 	if *debug {
 		ebitenutil.DebugPrint(screen, buf)
