@@ -52,6 +52,7 @@ func main() {
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	ebiten.SetWindowTitle("Pixel Pirates")
 
+	cloudChunks = map[int]*cloudData{}
 	initNoise()
 	cloudbuf = ebiten.NewImage(dWinWidth, dWinHeightHalf)
 	cloudblur = ebiten.NewImage(dWinWidth/cloudBlurAmountX, dWinHeightHalf/cloudBlurAmountY)

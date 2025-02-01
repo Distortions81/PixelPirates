@@ -12,6 +12,7 @@ import (
 const (
 	//Island settings
 	islandY      = 6.0
+	cloudY       = 6.0
 	islandStartX = -dWinWidthHalf
 
 	//Object reflect
@@ -24,7 +25,7 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 
 	drawWorldGrad(g, screen)
 	drawSun(screen)
-	drawClouds(g, screen)
+	drawCloudsNew(g, screen)
 	drawWaves(g, screen)
 	drawIsland(g, screen)
 	drawAir(g, screen)

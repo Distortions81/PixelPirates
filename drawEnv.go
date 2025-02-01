@@ -124,40 +124,6 @@ func drawWorldGrad(g *Game, screen *ebiten.Image) {
 	screen.DrawImage(worldGradImg, op)
 }
 
-func drawClouds(g *Game, screen *ebiten.Image) {
-	xpos := g.boatPos.X * float64(islandY/dWinWidth)
-	if int(xpos) != lastCloudPos {
-		lastCloudPos = int(xpos)
-		var cBuf []byte
-		for y := 0; y < dWinHeightHalf; y++ {
-			for x := 0; x < dWinWidth; x++ {
-				v := noiseMap(float32(x)+float32(xpos), float32((y-10)*4.0), 0)
-				vi := byte(v / 5 * 255)
-				cBuf = append(cBuf, []byte{vi, vi, vi, vi}...)
-			}
-		}
-		cloudbuf.WritePixels(cBuf)
-		op := &ebiten.DrawImageOptions{}
-		op.GeoM.Scale(1.0/cloudBlurAmountX, 1.0/cloudBlurAmountY)
-		op.Filter = ebiten.FilterLinear
-		cloudblur.Clear()
-		cloudblur.DrawImage(cloudbuf, op)
-	}
-	drawCloudsReflect(screen)
-}
-
-func drawCloudsReflect(screen *ebiten.Image) {
-	//Cloud reflection
-	screen.DrawImage(cloudbuf, nil)
-	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Scale(cloudBlurAmountX, -cloudBlurAmountY/cloudBlurStrech)
-	op.GeoM.Translate(0, dWinHeight*cloudBlurAmountY)
-	op.ColorScale.ScaleAlpha(cloudReflectAlpha)
-	//op.Blend = ebiten.BlendLighter
-	op.Filter = ebiten.FilterLinear
-	screen.DrawImage(cloudblur, op)
-}
-
 func drawSunReflect(screen *ebiten.Image) {
 	subRect := image.Rectangle{
 		Min: image.Point{X: 0, Y: sunSP.blurred.Bounds().Dy() / 2.0},
