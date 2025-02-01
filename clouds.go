@@ -4,28 +4,31 @@ import (
 	"fmt"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
 const (
-	cloudExpire = 30
+	cloudExpire = 60 * 10
 	cloudChunkX = dWinHeightHalf
 	cloudChunkY = dWinHeightHalf
 )
 
 type cloudData struct {
+	id             int
 	image, blurImg *ebiten.Image
 	lastUsed       uint64
 }
 
 var (
-	cloudChunks map[int]*cloudData
-	cloudsDirty bool
-	cloudFrame  uint64
+	cloudChunks    map[int]*cloudData
+	recycledChunks []*cloudData
+	cloudsDirty    bool
+	cloudFrame     uint64
+	chunkIDTop     int
 )
 
 func drawCloudsNew(g *Game, screen *ebiten.Image) {
 	cloudFrame++
-	renderCount := 0
 
 	numChunks := dWinWidth/cloudChunkX + 1
 	for x := 0; x < numChunks+1; x++ {
@@ -34,15 +37,31 @@ func drawCloudsNew(g *Game, screen *ebiten.Image) {
 		cloud := cloudChunks[chunkNum]
 
 		if cloud == nil {
-			newCloud := &cloudData{}
-			newCloud.image = ebiten.NewImage(cloudChunkX, cloudChunkY)
-			fmt.Printf("Created new cloud chunk: %v (%v,%v)\n",
-				chunkNum, cloudChunkX, cloudChunkY)
+			var newCloud *cloudData
+
+			//New or recycle chunk
+			nc := len(recycledChunks)
+			if nc == 0 {
+				newCloud = &cloudData{id: chunkIDTop}
+				chunkIDTop++
+				newCloud.image = ebiten.NewImage(cloudChunkX, cloudChunkY)
+				fmt.Printf("Created new cloud chunk: %v (%v,%v)\n",
+					newCloud.id, cloudChunkX, cloudChunkY)
+			} else {
+				newCloud = recycledChunks[0]
+				fmt.Printf("Reused cloud chunk: %v (%v,%v)\n",
+					newCloud.id, cloudChunkX, cloudChunkY)
+
+				if nc > 1 {
+					recycledChunks = recycledChunks[1:]
+				} else {
+					recycledChunks = []*cloudData{}
+				}
+			}
 
 			renderCloudChunk(chunkNum, newCloud)
 			cloudChunks[chunkNum] = newCloud
 			cloud = newCloud
-			renderCount++
 
 		} else if cloudsDirty {
 			//Rerender everything
@@ -61,12 +80,12 @@ func drawCloudsNew(g *Game, screen *ebiten.Image) {
 	}
 
 	//Get rid of old cloud chunks
-	for z := 0; z < renderCount; z++ {
+	if cloudFrame%60 == 0 {
 		for xc, xCloud := range cloudChunks {
 			if cloudFrame-xCloud.lastUsed > cloudExpire {
-				fmt.Printf("Deleted chunk: %v\n", xc)
+				fmt.Printf("Recycled chunk: %v\n", xCloud.id)
+				recycledChunks = append(recycledChunks, xCloud)
 				delete(cloudChunks, xc)
-				break
 			}
 		}
 	}
@@ -86,10 +105,9 @@ func renderCloudChunk(chunkNum int, cloud *cloudData) {
 			cBuf = append(cBuf, []byte{vi, vi, vi, vi}...)
 		}
 	}
-	cloud.image.Clear()
 	cloud.image.WritePixels(cBuf)
-	//buf := fmt.Sprintf("%v", chunkNum)
-	//ebitenutil.DebugPrint(cloud.image, buf)
+	buf := fmt.Sprintf("%v: %v", chunkNum, cloud.id)
+	ebitenutil.DebugPrint(cloud.image, buf)
 
 	//reflection
 	/*
