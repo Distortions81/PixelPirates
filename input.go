@@ -13,7 +13,7 @@ const (
 	MaxBoatY = 25
 	MinBoatY = -35
 	vspeed   = 60.0
-	xspeed   = 1.0
+	xspeed   = 10
 )
 
 // Ebiten input handler

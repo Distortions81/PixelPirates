@@ -2,30 +2,33 @@ package main
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
 const (
-	cloudExpire = time.Second * 30
+	cloudExpire = 30
 	cloudChunkX = dWinHeightHalf
 	cloudChunkY = dWinHeightHalf
 )
 
 type cloudData struct {
 	image, blurImg *ebiten.Image
-	lastUsed       time.Time
+	lastUsed       uint64
 }
 
-var cloudChunks map[int]*cloudData
-var cloudsDirty bool
+var (
+	cloudChunks map[int]*cloudData
+	cloudsDirty bool
+	cloudFrame  uint64
+)
 
 func drawCloudsNew(g *Game, screen *ebiten.Image) {
-	numChunks := dWinWidth/cloudChunkX + 2
-	dbuf := ""
-	for x := 0; x < numChunks; x++ {
+	cloudFrame++
+	renderCount := 0
+
+	numChunks := dWinWidth/cloudChunkX + 1
+	for x := 0; x < numChunks+1; x++ {
 		pos := int((g.boatPos.X) * float64(cloudY/dWinWidth))
 		chunkNum := (pos / cloudChunkX) - x
 		cloud := cloudChunks[chunkNum]
@@ -39,39 +42,34 @@ func drawCloudsNew(g *Game, screen *ebiten.Image) {
 			renderCloudChunk(chunkNum, newCloud)
 			cloudChunks[chunkNum] = newCloud
 			cloud = newCloud
+			renderCount++
 
 		} else if cloudsDirty {
 			//Rerender everything
 			cloudsDirty = false
-			for _, fCloud := range cloudChunks {
-				renderCloudChunk(chunkNum, fCloud)
+			for cn, fCloud := range cloudChunks {
+				renderCloudChunk(cn, fCloud)
 			}
-		}
-
-		if cloud == nil {
-			fmt.Printf("Fuck: %v\n", chunkNum)
-			return
 		}
 		//Just show the cached chunk
-		cloud.lastUsed = time.Now()
+		cloud.lastUsed = cloudFrame
 
 		op := &ebiten.DrawImageOptions{}
-		xtrans := float64(((x - 4) * cloudChunkX) + pos%cloudChunkX)
+		xtrans := float64(((x - numChunks) * cloudChunkX) + pos%cloudChunkX)
 		op.GeoM.Translate(-xtrans, 0)
 		screen.DrawImage(cloud.image, op)
-		dbuf = dbuf + fmt.Sprintf("%v, ", xtrans)
 	}
-	//fmt.Println(dbuf)
 
 	//Get rid of old cloud chunks
-	/*
+	for z := 0; z < renderCount; z++ {
 		for xc, xCloud := range cloudChunks {
-			if time.Since(xCloud.lastUsed) > cloudExpire {
+			if cloudFrame-xCloud.lastUsed > cloudExpire {
 				fmt.Printf("Deleted chunk: %v\n", xc)
 				delete(cloudChunks, xc)
+				break
 			}
 		}
-	*/
+	}
 }
 
 func drawCloudsReflectNew(screen *ebiten.Image) {
@@ -90,8 +88,8 @@ func renderCloudChunk(chunkNum int, cloud *cloudData) {
 	}
 	cloud.image.Clear()
 	cloud.image.WritePixels(cBuf)
-	buf := fmt.Sprintf("%v", chunkNum)
-	ebitenutil.DebugPrint(cloud.image, buf)
+	//buf := fmt.Sprintf("%v", chunkNum)
+	//ebitenutil.DebugPrint(cloud.image, buf)
 
 	//reflection
 	/*
