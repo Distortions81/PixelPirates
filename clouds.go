@@ -8,9 +8,10 @@ import (
 )
 
 const (
-	cloudExpire = 60 * 10
-	cloudChunkX = dWinHeightHalf
-	cloudChunkY = dWinHeightHalf
+	cloudExpire  = 60 * 60 // about a minute
+	checkRecycle = 60 * 10 // about ten seconds
+	cloudChunkX  = dWinHeightHalf
+	cloudChunkY  = dWinHeightHalf
 )
 
 type cloudData struct {
@@ -80,7 +81,7 @@ func drawCloudsNew(g *Game, screen *ebiten.Image) {
 	}
 
 	//Get rid of old cloud chunks
-	if cloudFrame%60 == 0 {
+	if cloudFrame%checkRecycle == 0 {
 		for xc, xCloud := range cloudChunks {
 			if cloudFrame-xCloud.lastUsed > cloudExpire {
 				fmt.Printf("Recycled chunk: %v\n", xCloud.id)
