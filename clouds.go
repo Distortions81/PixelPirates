@@ -106,8 +106,10 @@ func renderCloudChunk(chunkNum int, cloud *cloudData) {
 		}
 	}
 	cloud.image.WritePixels(cBuf)
-	buf := fmt.Sprintf("%v: %v", chunkNum, cloud.id)
-	ebitenutil.DebugPrint(cloud.image, buf)
+	if *debug {
+		buf := fmt.Sprintf("%v: %v", chunkNum, cloud.id)
+		ebitenutil.DebugPrint(cloud.image, buf)
+	}
 
 	//reflection
 	/*
