@@ -34,7 +34,7 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 	g.doFade(screen, time.Millisecond*500, color.NRGBA{R: 255, G: 255, B: 255}, true)
 	if *debug {
 		buf := fmt.Sprintf("boat: %4.0f,%3.0f w: %3d, a: %3d", g.boatPos.X, g.boatPos.Y, numWaves, numAirWaves)
-		ebitenutil.DebugPrint(screen, buf)
+		ebitenutil.DebugPrintAt(screen, buf, 0, dWinHeight-16)
 	}
 }
 
