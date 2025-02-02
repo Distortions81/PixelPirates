@@ -2,7 +2,10 @@ package main
 
 import "github.com/hajimehoshi/ebiten/v2"
 
-const islandChunkSize = dWinWidth
+const (
+	islandChunkSize = dWinWidth
+	checkChunks     = 1
+)
 
 var islandChunks map[int]*islandChunkData
 
@@ -56,12 +59,13 @@ func drawIslands(g *Game, screen *ebiten.Image) {
 func getIslands(pos int) []islandData {
 	var islandsFound []islandData
 
-	minpos, maxpos := pos-dWinWidth, pos+(dWinWidth*2)
-	for x := minpos; x < maxpos; x++ {
-		if islandChunks[x/islandChunkSize] == nil {
+	cPos := pos / islandChunkSize
+
+	for x := cPos - checkChunks; x < cPos+checkChunks; x++ {
+		if islandChunks[x] == nil {
 			continue
 		}
-		islandsFound = append(islandsFound, islandChunks[x/islandChunkSize].islands...)
+		islandsFound = append(islandsFound, islandChunks[x].islands...)
 	}
 
 	return islandsFound
