@@ -70,6 +70,12 @@ func (g *Game) Update() error {
 				return nil
 			}
 		}
+	} else if g.gameMode == GAME_ISLAND {
+		for _, key := range pressedKeys {
+			if key == ebiten.KeyE {
+				g.startFade(GAME_PLAY, time.Second, true, COLOR_WHITE, FADE_CROSSFADE)
+			}
+		}
 	}
 
 	return nil

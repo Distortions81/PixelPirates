@@ -100,5 +100,5 @@ var islands []islandData = []islandData{
 }
 
 func (g *Game) drawIsland(screen *ebiten.Image) {
-	//
+	ebitenutil.DebugPrint(screen, "Island scene, E to Exit.")
 }
