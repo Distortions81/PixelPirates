@@ -100,8 +100,6 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	g.makeWave()
-	g.makeAirWave()
 
 	switch g.gameMode {
 	case GAME_TITLE:

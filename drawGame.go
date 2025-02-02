@@ -31,6 +31,9 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 	frameNumber++
 	startTime := time.Now()
 
+	g.makeWave()
+	g.makeAirWave()
+
 	drawWorldGrad(g, screen)
 	drawSun(screen)
 	drawCloudsNew(g, screen)

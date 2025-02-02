@@ -5,6 +5,8 @@ import (
 )
 
 func (g *Game) drawTitle(screen *ebiten.Image) {
+	g.makeWave()
+	g.makeAirWave()
 
 	drawWorldGrad(g, screen)
 	drawSun(screen)
