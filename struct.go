@@ -5,19 +5,34 @@ import (
 	"time"
 )
 
+// Game mode
 const (
 	GAME_TITLE = iota
-	GAME_FADEOUT
 	GAME_PLAY
+	GAME_ISLAND
 )
 
-type Game struct {
-	fadeStart time.Time
-	gameMode  int
-	stopMusic bool
-	boatPos   fPoint
+type fadeData struct {
+	fadeToMode int
 
-	colors colorData
+	fadeStarted   time.Time
+	duration      time.Duration
+	fadeDirection bool
+
+	color color.NRGBA
+}
+
+type Game struct {
+	gameMode       int
+	modeTransition bool
+	fade           fadeData
+
+	stopMusic bool
+
+	boatPos   fPoint
+	envColors colorData
+
+	visiting, canVisit *islandData
 }
 
 // hsv represents a color in hsv space

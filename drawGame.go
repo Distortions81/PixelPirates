@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"image/color"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -40,7 +39,6 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 	drawAir(g, screen)
 	drawBoat(g, screen)
 
-	g.doFade(screen, time.Millisecond*500, color.NRGBA{R: 255, G: 255, B: 255}, true)
 	if *debug {
 
 		if frameNumber%60 == 0 {

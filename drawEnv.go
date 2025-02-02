@@ -106,7 +106,7 @@ func (g *Game) updateWorldGrad() {
 
 	//Horizon
 	vector.DrawFilledRect(worldGradImg, 0, dWinHeightHalf-(1), dWinWidth, 1,
-		g.colors.day.horizon, false)
+		g.envColors.day.horizon, false)
 }
 
 func drawSun(screen *ebiten.Image) {

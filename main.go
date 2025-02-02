@@ -74,7 +74,7 @@ func newGame() *Game {
 	}
 	g := &Game{
 		gameMode: gMode,
-		colors: colorData{
+		envColors: colorData{
 			day: colors{
 				water:   hexToRGB("00a0a7"),
 				horizon: hexToRGB("cdffff"),
@@ -101,10 +101,15 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 func (g *Game) Draw(screen *ebiten.Image) {
 	g.makeWave()
 	g.makeAirWave()
-	if g.gameMode == GAME_TITLE || g.gameMode == GAME_FADEOUT {
+	if g.gameMode == GAME_TITLE {
 		g.drawTitle(screen)
-	}
-	if g.gameMode == GAME_PLAY {
+	} else if g.gameMode == GAME_PLAY {
 		g.drawGame(screen)
+	} else if g.gameMode == GAME_ISLAND {
+		g.drawIsland(screen)
+	}
+
+	if g.modeTransition {
+		g.drawFade(screen)
 	}
 }

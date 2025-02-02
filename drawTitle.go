@@ -1,9 +1,6 @@
 package main
 
 import (
-	"image/color"
-	"time"
-
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -33,15 +30,4 @@ func (g *Game) drawTitle(screen *ebiten.Image) {
 	op.ColorScale.ScaleAlpha(0.3)
 	screen.DrawImage(clickStartSP.image, op)
 
-	if g.gameMode == GAME_FADEOUT {
-		fadeDur := time.Millisecond * 500
-		g.doFade(screen, fadeDur, color.NRGBA{R: 255, G: 255, B: 255}, false)
-		if time.Since(g.fadeStart) > fadeDur {
-			g.fadeStart = time.Now()
-			g.boatPos = fPoint{X: 0, Y: 0}
-			g.gameMode = GAME_PLAY
-		}
-	}
-
-	g.doFade(screen, time.Millisecond*500, color.NRGBA{R: 255, G: 255, B: 255}, true)
 }

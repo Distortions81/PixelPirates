@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+var COLOR_WHITE = color.NRGBA{R: 255, G: 255, B: 255}
+
 func hexToRGB(hex string) color.RGBA {
 	// Remove the '#' if present
 	hex = strings.TrimPrefix(hex, "#")

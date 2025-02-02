@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
 const (
@@ -38,26 +39,30 @@ func init() {
 }
 
 func drawIslands(g *Game, screen *ebiten.Image) {
+
 	paralaxPos := g.boatPos.X * float64(islandY/dWinWidth)
 
 	islands := getIslands(int(paralaxPos))
+	drewSign := false
 
 	for _, island := range islands {
-		islandPos := dWinWidth - (paralaxPos + float64(island.pos))
+		islandPosX := dWinWidth - (paralaxPos + float64(island.pos))
+		islandPosY := dWinHeightHalf - float64(island1SP.image.Bounds().Dy()) + islandY
 
 		//Island
 		op := &ebiten.DrawImageOptions{}
 		op.GeoM.Translate(
-			islandPos,
-			dWinHeightHalf-float64(island1SP.image.Bounds().Dy())+islandY)
+			islandPosX,
+			islandPosY,
+		)
 		screen.DrawImage(island1SP.image, op)
 
 		//Visit sign
 		spriteSize := float64(island1SP.image.Bounds().Dx())
-		if paralaxPos > islandPos-(spriteSize*2) && paralaxPos < islandPos+spriteSize {
-			op.GeoM.Translate(-3, -25)
-			op.ColorScale.ScaleAlpha(0.2)
-			//screen.DrawImage(visitSP.image, op)
+		if !drewSign && islandPosX > 0 && islandPosX < spriteSize {
+			ebitenutil.DebugPrintAt(screen, "E: Visit", int(islandPosX)+28, int(islandPosY)-32)
+			drewSign = true
+			g.canVisit = &island
 		}
 
 		//Island refection
@@ -65,10 +70,13 @@ func drawIslands(g *Game, screen *ebiten.Image) {
 		op.GeoM.Scale(1, -(1 / islandRefectionShrink))
 		op.ColorScale.ScaleAlpha(islandReflectionAlpha)
 		op.GeoM.Translate(
-			islandPos,
+			islandPosX,
 			dWinHeightHalf+float64(islandY+island1SP.image.Bounds().Dy()-5)/islandRefectionShrink)
 		screen.DrawImage(island1SP.blurred, op)
-
+	}
+	//Clear target
+	if !drewSign {
+		g.canVisit = nil
 	}
 }
 
@@ -89,4 +97,8 @@ func getIslands(pos int) []islandData {
 
 var islands []islandData = []islandData{
 	{name: "Welcome island", desc: "Learn the basics here!", pos: dWinWidthHalf, spriteName: "island1"},
+}
+
+func (g *Game) drawIsland(screen *ebiten.Image) {
+	//
 }

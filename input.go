@@ -13,7 +13,6 @@ const (
 	MaxBoatY = 25
 	MinBoatY = -35
 
-	//larger numbers are slower
 	vspeed = 60.0 * 1000
 	xspeed = 10 * 1000
 )
@@ -28,40 +27,48 @@ func (g *Game) Update() error {
 
 	pressedKeys := inpututil.AppendPressedKeys(nil)
 
-	if g.gameMode == GAME_FADEOUT {
-		return nil
-	} else if g.gameMode == GAME_TITLE {
+	if g.gameMode == GAME_TITLE {
 		if pressedKeys != nil ||
 			inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) ||
 			inpututil.IsMouseButtonJustPressed(ebiten.MouseButton1) {
-			g.stopMusic = true
-			g.gameMode = GAME_FADEOUT
-			g.fadeStart = time.Now()
-			initNoise()
-			go playGameMusic(g)
+			g.startFade(GAME_PLAY, time.Second, COLOR_WHITE)
 		}
 		return nil
-	}
+	} else if g.gameMode == GAME_PLAY {
 
-	vspeed := float64(time.Since(lastUpdate).Microseconds()) / vspeed
-	hspeed := float64(time.Since(lastUpdate).Microseconds()) / xspeed
+		vspeed := float64(time.Since(lastUpdate).Microseconds()) / vspeed
+		hspeed := float64(time.Since(lastUpdate).Microseconds()) / xspeed
 
-	for _, key := range pressedKeys {
-		if key == ebiten.KeyW ||
-			key == ebiten.KeyArrowUp {
-			g.boatPos.Y -= vspeed
+		xs := hspeed
+		for _, key := range pressedKeys {
+			if key == ebiten.KeyShiftLeft || key == ebiten.KeyShiftRight {
+				xs = hspeed * 50
+			}
 		}
-		if key == ebiten.KeyA ||
-			key == ebiten.KeyArrowLeft {
-			g.boatPos.X -= hspeed
-		}
-		if key == ebiten.KeyS ||
-			key == ebiten.KeyArrowDown {
-			g.boatPos.Y += vspeed
-		}
-		if key == ebiten.KeyD ||
-			key == ebiten.KeyArrowRight {
-			g.boatPos.X += hspeed
+		for _, key := range pressedKeys {
+			if key == ebiten.KeyW ||
+				key == ebiten.KeyArrowUp {
+				g.boatPos.Y -= vspeed
+			}
+			if key == ebiten.KeyA ||
+				key == ebiten.KeyArrowLeft {
+				g.boatPos.X -= xs
+			}
+			if key == ebiten.KeyS ||
+				key == ebiten.KeyArrowDown {
+				g.boatPos.Y += vspeed
+			}
+			if key == ebiten.KeyD ||
+				key == ebiten.KeyArrowRight {
+				g.boatPos.X += xs
+			}
+			if key == ebiten.KeyE {
+				if g.canVisit != nil {
+					g.visiting = g.canVisit
+					g.startFade(GAME_ISLAND, time.Second, COLOR_WHITE)
+				}
+				return nil
+			}
 		}
 	}
 
