@@ -8,8 +8,8 @@ import (
 	"github.com/go-audio/wav"
 )
 
-// SaveMono16BitWav uses go-audio/wav to write a single-channel 16-bit WAV.
-func SaveMono16BitWav(filename string, samples []float32) error {
+// saveMono16BitWav uses go-audio/wav to write a single-channel 16-bit WAV.
+func saveMono16BitWav(filename string, samples []float32) error {
 
 	// 1. Create the output file
 	f, err := os.Create(filename)

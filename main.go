@@ -23,7 +23,7 @@ const (
 )
 
 var (
-	WASMMode     bool
+	wasmMode     bool
 	qtest, debug *bool
 )
 
@@ -37,7 +37,7 @@ func main() {
 	audioContext = audio.NewContext(sampleRate)
 
 	if *dump {
-		DumpMusic()
+		dumpMusic()
 		fmt.Println("Music dump complete.")
 		return
 	}
@@ -89,7 +89,7 @@ func newGame() *Game {
 	}
 
 	lastUpdate = time.Now()
-	go PlayTitleMusic(g)
+	go playTitleMusic(g)
 	return g
 
 }

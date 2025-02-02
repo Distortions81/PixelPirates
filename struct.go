@@ -20,8 +20,8 @@ type Game struct {
 	colors colorData
 }
 
-// HSV represents a color in HSV space
-type HSV struct {
+// hsv represents a color in hsv space
+type hsv struct {
 	H, S, V float64
 }
 

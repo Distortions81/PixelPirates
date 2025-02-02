@@ -25,7 +25,7 @@ var (
  */
 func doLog(withTrace bool, format string, args ...interface{}) {
 
-	if WASMMode {
+	if wasmMode {
 		return
 	}
 
@@ -65,9 +65,9 @@ func doLog(withTrace bool, format string, args ...interface{}) {
 	logBufLock.Unlock()
 }
 
-func LogDaemon() {
+func logDaemon() {
 
-	if WASMMode {
+	if wasmMode {
 		return
 	}
 
@@ -101,8 +101,8 @@ func LogDaemon() {
 }
 
 // Prep logger
-func StartLog() {
-	if WASMMode {
+func startLog() {
+	if wasmMode {
 		return
 	}
 

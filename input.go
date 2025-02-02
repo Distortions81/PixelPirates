@@ -38,7 +38,7 @@ func (g *Game) Update() error {
 			g.gameMode = GAME_FADEOUT
 			g.fadeStart = time.Now()
 			initNoise()
-			go PlayGameMusic(g)
+			go playGameMusic(g)
 		}
 		return nil
 	}

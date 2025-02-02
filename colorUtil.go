@@ -35,8 +35,8 @@ func hexToRGB(hex string) color.RGBA {
 	return color.RGBA{R: uint8(r), G: uint8(g), B: uint8(b), A: 255}
 }
 
-// LerpHSV linearly interpolates between two HSV values
-func LerpHSV(h1, h2 HSV, t float64) HSV {
+// lerpHSV linearly interpolates between two HSV values
+func lerpHSV(h1, h2 hsv, t float64) hsv {
 	h := h1.H + (h2.H-h1.H)*t
 	// Ensure hue wraps around 360 degrees
 	if h < 0 {
@@ -44,7 +44,7 @@ func LerpHSV(h1, h2 HSV, t float64) HSV {
 	} else if h > 360 {
 		h -= 360
 	}
-	return HSV{
+	return hsv{
 		H: h,
 		S: h1.S + (h2.S-h1.S)*t,
 		V: h1.V + (h2.V-h1.V)*t,
@@ -52,10 +52,10 @@ func LerpHSV(h1, h2 HSV, t float64) HSV {
 }
 
 // GetFadeColorHSV returns the current color based on wall time, interpolating in HSV
-func GetFadeColor(start, end color.RGBA, duration time.Duration) color.RGBA {
+func getFadeColor(start, end color.RGBA, duration time.Duration) color.RGBA {
 	// Convert RGB colors to HSV
-	startHSV := RGBToHSV(start)
-	endHSV := RGBToHSV(end)
+	startHSV := rgbToHSV(start)
+	endHSV := rgbToHSV(end)
 
 	// Get the current time
 	currentTime := time.Now()
@@ -73,16 +73,16 @@ func GetFadeColor(start, end color.RGBA, duration time.Duration) color.RGBA {
 	t = 2 * t // Scale for full forward and back transition
 
 	// Interpolate in HSV space
-	currentHSV := LerpHSV(startHSV, endHSV, t)
+	currentHSV := lerpHSV(startHSV, endHSV, t)
 
 	// Convert the interpolated HSV back to RGB (uint8)
-	outColor := HSVToRGB(currentHSV)
+	outColor := hsvToRGB(currentHSV)
 	outColor.A = 255
 	return outColor
 }
 
-// RGBToHSV converts an RGB color to HSV
-func RGBToHSV(c color.RGBA) HSV {
+// rgbToHSV converts an RGB color to HSV
+func rgbToHSV(c color.RGBA) hsv {
 	r := float64(c.R) / 255
 	g := float64(c.G) / 255
 	b := float64(c.B) / 255
@@ -114,11 +114,11 @@ func RGBToHSV(c color.RGBA) HSV {
 
 	v := max
 
-	return HSV{H: h, S: s, V: v}
+	return hsv{H: h, S: s, V: v}
 }
 
-// HSVToRGB converts an HSV color back to RGB (uint8)
-func HSVToRGB(hsv HSV) color.RGBA {
+// hsvToRGB converts an HSV color back to RGB (uint8)
+func hsvToRGB(hsv hsv) color.RGBA {
 	h := hsv.H
 	s := hsv.S
 	v := hsv.V

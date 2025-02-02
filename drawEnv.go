@@ -84,7 +84,7 @@ func (g *Game) updateWorldGrad() {
 		//Water
 		color := color.RGBA{}
 		vVal := (float64(y) / dWinHeightHalf)
-		color = HSVToRGB(HSV{
+		color = hsvToRGB(hsv{
 			H: waterStartColor + (vVal * waterHueShift),
 			S: waterSaturate,
 			V: waterBrightStart - math.Min(vVal/waterDarkenDivide, 1.0)})
@@ -92,7 +92,7 @@ func (g *Game) updateWorldGrad() {
 			1, 1, color, false)
 
 		//Sky
-		color = HSVToRGB(HSV{
+		color = hsvToRGB(hsv{
 			H: skyStartColor + (vVal * skyHueShift),
 			S: skySaturate,
 			V: skyBrightStart - math.Min(((1.0-vVal)/skyDarkenDivide), 1.0)})

@@ -20,19 +20,19 @@ type insData struct {
 }
 
 var titleSongList = []songData{
-	EbonyGaleEx,
+	ebonyGaleEx,
 }
 
 var gameSongList = []songData{
-	MidnightDepthsPercussion,
+	midnightDepthsPercussion,
 	introspectiveTheme,
-	MerrySailingTheme,
-	EbonyGale,
-	PirateDramaticTheme,
-	PirateEpicTheme,
+	merrySailingTheme,
+	ebonyGale,
+	pirateDramaticTheme,
+	pirateEpicTheme,
 }
 
-var EbonyGaleEx = songData{
+var ebonyGaleEx = songData{
 	name:     "Aboard the Ebony Gale (Extended)",
 	bpm:      70,
 	reverb:   0.4,  // Slightly cavernous
@@ -364,7 +364,7 @@ Eb2 4
 	},
 }
 
-var EbonyGale = songData{
+var ebonyGale = songData{
 	name:     "Aboard the Ebony Gale",
 	bpm:      70,
 	reverb:   0.4,  // Slightly cavernous
@@ -678,7 +678,7 @@ Eb4 2, Eb3 2,
 	},
 }
 
-var MidnightDepthsPercussion = songData{
+var midnightDepthsPercussion = songData{
 	name:     "Midnight Depths",
 	bpm:      70,
 	reverb:   0.6, // Larger reverb for a darker, echoic atmosphere
@@ -834,7 +834,7 @@ Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75
 	},
 }
 
-var PirateEpicTheme = songData{
+var pirateEpicTheme = songData{
 	name:     "Epic Pirate Saga",
 	bpm:      100, // ~64 measures => ~2.5 minutes
 	reverb:   0.6,
@@ -1065,7 +1065,7 @@ Bb4 1, Gb5 1, Eb5 1, Eb5 1,
 }
 
 // Dramatic, sweeping ~3:12 pirate theme at 80 BPM, 64 measures total.
-var PirateDramaticTheme = songData{
+var pirateDramaticTheme = songData{
 	name:     "Dramatic Sweeping Pirate Theme",
 	bpm:      80,  // 80 BPM => 1 measure (4 beats) ~ 3 seconds => 64 measures ~ 192s = 3m12s
 	reverb:   0.8, // Large reverb
@@ -1323,7 +1323,7 @@ Eb5 1, Gb4 1, Bb4 1, Eb4 1,
 }
 
 // Merry, playful sea-sailing tune (~2 min) in "Bb major" spelled enharmonically
-var MerrySailingTheme = songData{
+var merrySailingTheme = songData{
 	name: "Merry Sea Shanty",
 	bpm:  120,
 	// Subtle, pleasant space

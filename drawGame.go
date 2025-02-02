@@ -23,13 +23,13 @@ const (
 
 var (
 	displayStamp time.Time
-	FrameNumber  uint64
+	frameNumber  uint64
 
 	debugBuf string
 )
 
 func (g *Game) drawGame(screen *ebiten.Image) {
-	FrameNumber++
+	frameNumber++
 	startTime := time.Now()
 
 	drawWorldGrad(g, screen)
@@ -43,7 +43,7 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 	g.doFade(screen, time.Millisecond*500, color.NRGBA{R: 255, G: 255, B: 255}, true)
 	if *debug {
 
-		if FrameNumber%60 == 0 {
+		if frameNumber%60 == 0 {
 			renderTime := time.Since(startTime).Microseconds()
 			displayTime := time.Since(displayStamp).Microseconds()
 

@@ -12,7 +12,7 @@ import (
 	"github.com/chewxy/math32"
 )
 
-func PlayTitleMusic(g *Game) {
+func playTitleMusic(g *Game) {
 
 	for {
 		for _, song := range titleSongList {
@@ -23,21 +23,21 @@ func PlayTitleMusic(g *Game) {
 			if *debug {
 				fmt.Printf("Rendering: '%v'\n", song.name)
 			}
-			output := PlaySong(song)
+			output := playSong(song)
 
 			if song.reverb > 0 {
-				output = ApplyReverb(output, song.delay, song.feedback, song.reverb)
+				output = applyReverb(output, song.delay, song.feedback, song.reverb)
 			}
 			runtime.GC()
 			fmt.Printf("Render took %v\nNow Playing: %v.\n\n", time.Since(startTime).Round(time.Millisecond), song.name)
 
-			PlayWave(g, true, output)
+			playWave(g, true, output)
 		}
 		fmt.Println("\nRestarting playlist...")
 	}
 }
 
-func PlayGameMusic(g *Game) {
+func playGameMusic(g *Game) {
 	time.Sleep(time.Millisecond * 1000)
 
 	for {
@@ -49,21 +49,21 @@ func PlayGameMusic(g *Game) {
 			if *debug {
 				fmt.Printf("Rendering: '%v'\n", song.name)
 			}
-			output := PlaySong(song)
+			output := playSong(song)
 
 			if song.reverb > 0 {
-				output = ApplyReverb(output, song.delay, song.feedback, song.reverb)
+				output = applyReverb(output, song.delay, song.feedback, song.reverb)
 			}
 			runtime.GC()
 			fmt.Printf("Render took %v\nNow Playing: %v.\n\n", time.Since(startTime).Round(time.Millisecond), song.name)
 
-			PlayWave(g, true, output)
+			playWave(g, true, output)
 		}
 		fmt.Println("\nRestarting playlist...")
 	}
 }
 
-func DumpMusic() {
+func dumpMusic() {
 
 	os.Mkdir("dump", 0755)
 
@@ -71,16 +71,16 @@ func DumpMusic() {
 		if *debug {
 			fmt.Printf("Rendering: '%v'\n", song.name)
 		}
-		output := PlaySong(song)
+		output := playSong(song)
 
 		if song.reverb > 0 {
-			output = ApplyReverb(output, song.delay, song.feedback, song.reverb)
+			output = applyReverb(output, song.delay, song.feedback, song.reverb)
 		}
-		SaveMono16BitWav("dump/"+song.name+".wav", output)
+		saveMono16BitWav("dump/"+song.name+".wav", output)
 	}
 }
 
-func PlaySong(song songData) audioData {
+func playSong(song songData) audioData {
 	var waves []audioData
 	var waveLock sync.Mutex
 
@@ -92,7 +92,7 @@ func PlaySong(song songData) audioData {
 
 		wg.Add(1)
 		go func(ins insData) {
-			insWave := GenerateFromText(
+			insWave := generateFromText(
 				&song,
 				&ins,
 			)
@@ -104,10 +104,10 @@ func PlaySong(song songData) audioData {
 	}
 	wg.Wait()
 
-	return MixWaves(waves...)
+	return mixWaves(waves...)
 }
 
-func GenerateFromText(song *songData, ins *insData) audioData {
+func generateFromText(song *songData, ins *insData) audioData {
 	beatDuration := time.Minute / time.Duration(song.bpm)
 	var finalWave audioData
 
@@ -115,7 +115,7 @@ func GenerateFromText(song *songData, ins *insData) audioData {
 		fmt.Printf("Rendering: %v\n", ins.name)
 	}
 	for _, noteStr := range strings.Split(ins.data, ",") {
-		note, duration := ParseNote(noteStr)
+		note, duration := parseNote(noteStr)
 		if note == "" {
 			continue
 		}
@@ -124,11 +124,11 @@ func GenerateFromText(song *songData, ins *insData) audioData {
 		// Check for chord
 		chordNotes := strings.Split(note, "/")
 		if len(chordNotes) > 1 {
-			chordWave := PlayChord(chordNotes, noteDuration, ins)
+			chordWave := playChord(chordNotes, noteDuration, ins)
 			finalWave = append(finalWave, chordWave...)
 		} else {
-			freq := CalculateFrequency(note)
-			noteWave := PlayNote(freq, noteDuration, ins)
+			freq := calculateFrequency(note)
+			noteWave := playNote(freq, noteDuration, ins)
 			finalWave = append(finalWave, noteWave...)
 		}
 	}
@@ -136,7 +136,7 @@ func GenerateFromText(song *songData, ins *insData) audioData {
 	return finalWave
 }
 
-func PlayNote(freq float32, duration time.Duration, ins *insData) audioData {
+func playNote(freq float32, duration time.Duration, ins *insData) audioData {
 	// Handle rest
 	if freq == 0 {
 		return make(audioData, int(float64(sampleRate)*duration.Seconds()))
@@ -144,11 +144,11 @@ func PlayNote(freq float32, duration time.Duration, ins *insData) audioData {
 
 	var wave audioData
 	if freq == -1 {
-		wave = GenerateNoise(duration)
+		wave = generateNoise(duration)
 	} else {
-		wave = GenerateWave(freq, duration, ins.square)
+		wave = generateWave(freq, duration, ins.square)
 	}
-	wave = ApplyADSR(wave, ins)
+	wave = applyADSR(wave, ins)
 
 	// Apply per-instrument volume
 	for i := range wave {
@@ -158,7 +158,7 @@ func PlayNote(freq float32, duration time.Duration, ins *insData) audioData {
 	return wave
 }
 
-func GenerateNoise(duration time.Duration) audioData {
+func generateNoise(duration time.Duration) audioData {
 	numSamples := int(float64(sampleRate) * duration.Seconds())
 	wave := make(audioData, numSamples)
 
@@ -179,7 +179,7 @@ func GenerateNoise(duration time.Duration) audioData {
 	return wave
 }
 
-func GenerateWave(freq float32, duration time.Duration, waveBlend float32) audioData {
+func generateWave(freq float32, duration time.Duration, waveBlend float32) audioData {
 	samples := int(float64(sampleRate) * duration.Seconds())
 	wave := make(audioData, samples)
 	for i := 0; i < samples; i++ {
@@ -200,13 +200,13 @@ func GenerateWave(freq float32, duration time.Duration, waveBlend float32) audio
 	return wave
 }
 
-func PlayChord(chord []string, duration time.Duration, ins *insData) audioData {
+func playChord(chord []string, duration time.Duration, ins *insData) audioData {
 	// Generate wave for each note in the chord
 	var waves []audioData
 	for _, note := range chord {
-		freq := CalculateFrequency(note)
-		noteWave := GenerateWave(freq, duration, ins.square)
-		noteWave = ApplyADSR(noteWave, ins)
+		freq := calculateFrequency(note)
+		noteWave := generateWave(freq, duration, ins.square)
+		noteWave = applyADSR(noteWave, ins)
 		// Apply volume
 		for i := range noteWave {
 			noteWave[i] *= float32(ins.volume)
@@ -228,10 +228,10 @@ func PlayChord(chord []string, duration time.Duration, ins *insData) audioData {
 	return chordWave
 }
 
-// MixWaves sums multiple mono wave slices (all same sample rate)
+// mixWaves sums multiple mono wave slices (all same sample rate)
 // 1) Averages by number of wave inputs
 // 2) Scales further only if needed to prevent clipping
-func MixWaves(waves ...audioData) audioData {
+func mixWaves(waves ...audioData) audioData {
 
 	// 1. Determine the maximum length among all input waves
 	var maxLen int
@@ -282,7 +282,7 @@ func MixWaves(waves ...audioData) audioData {
 	return mixed
 }
 
-func PlayWave(g *Game, music bool, wave audioData) {
+func playWave(g *Game, music bool, wave audioData) {
 
 	// 2) Convert float64 samples to raw bytes (16-bit PCM), with noise shaping
 	soundData := make([]byte, len(wave)*2)
@@ -337,7 +337,7 @@ func PlayWave(g *Game, music bool, wave audioData) {
 	}
 }
 
-func CalculateFrequency(note string) float32 {
+func calculateFrequency(note string) float32 {
 	// Base note A4
 	var baseFrequency float32 = 440.0
 	// Note names (A-G), standard equal temperament tuning
@@ -367,7 +367,7 @@ func CalculateFrequency(note string) float32 {
 	return frequency
 }
 
-func ApplyADSR(wave audioData, ins *insData) audioData {
+func applyADSR(wave audioData, ins *insData) audioData {
 	length := len(wave)
 	adsrWave := make(audioData, length)
 
@@ -434,8 +434,8 @@ func ApplyADSR(wave audioData, ins *insData) audioData {
 	return adsrWave
 }
 
-// ParseNote parses the note and its duration from a string like "A4 1".
-func ParseNote(noteStr string) (string, float64) {
+// parseNote parses the note and its duration from a string like "A4 1".
+func parseNote(noteStr string) (string, float64) {
 	parts := strings.Fields(noteStr)
 	if len(parts) != 2 {
 		return "", 0 // Invalid input
