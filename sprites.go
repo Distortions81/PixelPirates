@@ -17,20 +17,25 @@ var spriteList map[string]*spriteItem = map[string]*spriteItem{
 	"title":      {Path: "title/"},
 	"clickstart": {Path: "title/"},
 	"visit":      {Path: "ui/"},
+	"testScene1": {Path: "islands/"},
 }
 
 var (
-	visitSP, boat2SP, boat2SP_flag, sunSP, island1SP, titleSP, clickStartSP *spriteItem
+	testScene1SP, visitSP, boat2SP, boat2SP_flag, sunSP, island1SP, titleSP, clickStartSP *spriteItem
 )
 
 func initSprites() {
-	visitSP = spriteList["visit"]
-	boat2SP = spriteList["boat2"]
-	boat2SP_flag = spriteList["boat2-flag"]
-	sunSP = spriteList["sun"]
-	island1SP = spriteList["island1"]
 	titleSP = spriteList["title"]
 	clickStartSP = spriteList["clickstart"]
+
+	sunSP = spriteList["sun"]
+	boat2SP = spriteList["boat2"]
+	boat2SP_flag = spriteList["boat2-flag"]
+	visitSP = spriteList["visit"]
+	island1SP = spriteList["island1"]
+
+	testScene1SP = spriteList["testScene1"]
+
 }
 
 func loadSprites() {

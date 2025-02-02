@@ -108,7 +108,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	case GAME_PLAY:
 		g.drawGame(screen)
 	case GAME_ISLAND:
-		screen.Fill(COLOR_BLACK)
 		g.drawIsland(screen)
 	default:
 		screen.Fill(COLOR_BLACK)
