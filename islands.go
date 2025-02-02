@@ -57,7 +57,7 @@ func drawIslands(g *Game, screen *ebiten.Image) {
 		if paralaxPos > islandPos-(spriteSize*2) && paralaxPos < islandPos+spriteSize {
 			op.GeoM.Translate(-3, -25)
 			op.ColorScale.ScaleAlpha(0.2)
-			screen.DrawImage(visitSP.image, op)
+			//screen.DrawImage(visitSP.image, op)
 		}
 
 		//Island refection

@@ -21,42 +21,41 @@ const (
 	islandReflectionAlpha = 0.15
 )
 
+var (
+	displayStamp time.Time
+	FrameNumber  uint64
+
+	debugBuf string
+)
+
 func (g *Game) drawGame(screen *ebiten.Image) {
+	FrameNumber++
+	startTime := time.Now()
 
 	drawWorldGrad(g, screen)
 	drawSun(screen)
 	drawCloudsNew(g, screen)
 	drawWaves(g, screen)
-	//drawIsland(g, screen)
 	drawIslands(g, screen)
 	drawAir(g, screen)
 	drawBoat(g, screen)
 
 	g.doFade(screen, time.Millisecond*500, color.NRGBA{R: 255, G: 255, B: 255}, true)
 	if *debug {
-		buf := fmt.Sprintf("boat: %4.0f,%3.0f w: %3d, a: %3d", g.boatPos.X, g.boatPos.Y, numWaves, numAirWaves)
-		ebitenutil.DebugPrintAt(screen, buf, 0, dWinHeight-16)
+
+		if FrameNumber%60 == 0 {
+			renderTime := time.Since(startTime).Microseconds()
+			displayTime := time.Since(displayStamp).Microseconds()
+
+			debugBuf = fmt.Sprintf("Render: %4du, Display: %0.2fms, %%%0.2f",
+				renderTime,
+				float64(displayTime)/1000,
+				float64(renderTime)/float64(displayTime)*100)
+		}
+
+		ebitenutil.DebugPrintAt(screen, debugBuf, 0, dWinHeight-16)
+		displayStamp = time.Now()
 	}
-}
-
-func drawIsland(g *Game, screen *ebiten.Image) {
-	// Island
-	op := &ebiten.DrawImageOptions{}
-	islandPos := g.boatPos.X*float64(islandY/dWinWidth) - islandStartX
-	op.GeoM.Translate(
-		dWinWidth-float64(islandPos),
-		dWinHeightHalf-float64(island1SP.image.Bounds().Dy())+islandY)
-	screen.DrawImage(island1SP.image, op)
-
-	//Island refection
-	op.GeoM.Reset()
-	op.GeoM.Scale(1, -(1 / islandRefectionShrink))
-	op.ColorScale.ScaleAlpha(islandReflectionAlpha)
-	op.GeoM.Translate(
-		dWinWidth-float64(islandPos),
-		dWinHeightHalf+float64(islandY+island1SP.image.Bounds().Dy()-5)/islandRefectionShrink)
-	screen.DrawImage(island1SP.blurred, op)
-
 }
 
 func drawBoat(g *Game, screen *ebiten.Image) {
