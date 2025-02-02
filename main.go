@@ -89,8 +89,9 @@ func newGame() *Game {
 		},
 	}
 
+	g.startFade(g.gameMode, time.Second*2, false, COLOR_BLACK, FADE_IN)
+
 	lastUpdate = time.Now()
-	go playTitleMusic(g)
 	return g
 
 }

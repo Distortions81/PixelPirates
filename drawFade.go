@@ -8,13 +8,18 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
-func (g *Game) startFade(toMode int, duration time.Duration, color color.NRGBA) {
+func (g *Game) startFade(toMode int, duration time.Duration, stopMusic bool, color color.NRGBA, fadeType int) {
 	if g.modeTransition {
 		return
 	}
+	fadeStart := time.Now()
+	if fadeType == FADE_IN {
+		fadeStart = fadeStart.Add(-(duration / 2))
+	}
 	g.fade = fadeData{
-		fadeToMode: toMode, fadeStarted: time.Now(),
-		duration: duration, color: color}
+		fadeToMode: toMode, fadeStarted: fadeStart,
+		duration: duration, color: color, stopMusic: stopMusic}
+
 	g.modeTransition = true
 }
 
@@ -38,7 +43,16 @@ func (g *Game) drawFade(screen *ebiten.Image) {
 		//Fade in
 		if g.fade.fadeDirection {
 			g.fade.fadeDirection = false
+
+			if g.fade.stopMusic {
+				g.stopMusic = true
+			}
+
 			g.gameMode = g.fade.fadeToMode
+			go func(g *Game) {
+				time.Sleep(g.fade.duration / 2)
+				playMusicPlaylist(g, g.gameMode, gameModePlaylists[g.gameMode])
+			}(g)
 		}
 		amount = uint8(254 - (value * 255.0))
 	}

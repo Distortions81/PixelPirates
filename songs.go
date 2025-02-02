@@ -1,5 +1,7 @@
 package main
 
+type playlistData []songData
+
 type songData struct {
 	name                    string
 	ins                     []insData
@@ -17,6 +19,11 @@ type insData struct {
 		Release: The time it takes for the sound to fade from the sustain level to silence when the key is released.
 	*/
 	attack, decay, sustain, release float32
+}
+
+var gameModePlaylists = [GAME_MAX]playlistData{
+	GAME_TITLE: titleSongList,
+	GAME_PLAY:  gameSongList,
 }
 
 var titleSongList = []songData{

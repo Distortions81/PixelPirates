@@ -31,7 +31,7 @@ func (g *Game) Update() error {
 		if pressedKeys != nil ||
 			inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) ||
 			inpututil.IsMouseButtonJustPressed(ebiten.MouseButton1) {
-			g.startFade(GAME_PLAY, time.Second, COLOR_WHITE)
+			g.startFade(GAME_PLAY, time.Second, true, COLOR_WHITE, FADE_CROSSFADE)
 		}
 		return nil
 	} else if g.gameMode == GAME_PLAY {
@@ -65,7 +65,7 @@ func (g *Game) Update() error {
 			if key == ebiten.KeyE {
 				if g.canVisit != nil {
 					g.visiting = g.canVisit
-					g.startFade(GAME_ISLAND, time.Second, COLOR_WHITE)
+					g.startFade(GAME_ISLAND, time.Second, true, COLOR_WHITE, FADE_CROSSFADE)
 				}
 				return nil
 			}

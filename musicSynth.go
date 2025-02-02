@@ -12,37 +12,10 @@ import (
 	"github.com/chewxy/math32"
 )
 
-func playTitleMusic(g *Game) {
-
+func playMusicPlaylist(g *Game, gameMode int, songList []songData) {
 	for {
-		for _, song := range titleSongList {
-			if g.gameMode != GAME_TITLE {
-				return
-			}
-			startTime := time.Now()
-			if *debug {
-				fmt.Printf("Rendering: '%v'\n", song.name)
-			}
-			output := playSong(song)
-
-			if song.reverb > 0 {
-				output = applyReverb(output, song.delay, song.feedback, song.reverb)
-			}
-			runtime.GC()
-			fmt.Printf("Render took %v\nNow Playing: %v.\n\n", time.Since(startTime).Round(time.Millisecond), song.name)
-
-			playWave(g, true, output)
-		}
-		fmt.Println("\nRestarting playlist...")
-	}
-}
-
-func playGameMusic(g *Game) {
-	time.Sleep(time.Millisecond * 1000)
-
-	for {
-		for _, song := range gameSongList {
-			if g.gameMode != GAME_PLAY {
+		for _, song := range songList {
+			if g.gameMode != gameMode {
 				return
 			}
 			startTime := time.Now()

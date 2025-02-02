@@ -10,6 +10,13 @@ const (
 	GAME_TITLE = iota
 	GAME_PLAY
 	GAME_ISLAND
+	GAME_MAX //Don't use
+)
+
+const (
+	FADE_CROSSFADE = iota
+	FADE_IN
+	FADE_OUT
 )
 
 type fadeData struct {
@@ -18,6 +25,7 @@ type fadeData struct {
 	fadeStarted   time.Time
 	duration      time.Duration
 	fadeDirection bool
+	stopMusic     bool
 
 	color color.NRGBA
 }
