@@ -8,6 +8,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/audio"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
 const (
@@ -101,12 +102,19 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 func (g *Game) Draw(screen *ebiten.Image) {
 	g.makeWave()
 	g.makeAirWave()
-	if g.gameMode == GAME_TITLE {
+
+	switch g.gameMode {
+	case GAME_TITLE:
 		g.drawTitle(screen)
-	} else if g.gameMode == GAME_PLAY {
+	case GAME_PLAY:
 		g.drawGame(screen)
-	} else if g.gameMode == GAME_ISLAND {
+	case GAME_ISLAND:
+		screen.Fill(COLOR_BLACK)
 		g.drawIsland(screen)
+	default:
+		screen.Fill(COLOR_BLACK)
+		ebitenutil.DebugPrint(screen, "Inavlid Game Mode")
+		return
 	}
 
 	if g.modeTransition {

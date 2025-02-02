@@ -9,6 +9,7 @@ import (
 )
 
 var COLOR_WHITE = color.NRGBA{R: 255, G: 255, B: 255}
+var COLOR_BLACK = color.NRGBA{R: 0, G: 0, B: 0}
 
 func hexToRGB(hex string) color.RGBA {
 	// Remove the '#' if present
