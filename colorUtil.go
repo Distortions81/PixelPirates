@@ -147,5 +147,6 @@ func HSVToRGB(hsv HSV) color.RGBA {
 		R: uint8((r + m) * 255),
 		G: uint8((g + m) * 255),
 		B: uint8((b + m) * 255),
+		A: 255,
 	}
 }

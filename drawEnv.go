@@ -82,10 +82,6 @@ var (
 func (g *Game) updateWorldGrad() {
 	worldGradImg.Clear()
 
-	//Horizon
-	vector.DrawFilledRect(worldGradImg, 0, dWinHeightHalf-(1), dWinWidth, 1,
-		g.colors.day.horizon, false)
-
 	var y float32
 	for y = 0; y < dWinHeightHalf; y++ {
 		//Water
@@ -104,7 +100,12 @@ func (g *Game) updateWorldGrad() {
 			S: skySaturate,
 			V: skyBrightStart - math.Min(((1.0-vVal)/skyDarkenDivide), 1.0)})
 		vector.DrawFilledRect(worldGradImg, 0, y, 1, 1, color, false)
+
 	}
+
+	//Horizon
+	vector.DrawFilledRect(worldGradImg, 0, dWinHeightHalf-(1), dWinWidth, 1,
+		g.colors.day.horizon, false)
 }
 
 func drawSun(screen *ebiten.Image) {

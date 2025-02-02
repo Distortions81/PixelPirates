@@ -50,6 +50,8 @@ func main() {
 	ebiten.SetTPS(ebiten.SyncWithFPS)
 	ebiten.SetWindowSize(dWinWidth*magScale, dWinHeight*magScale)
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
+	ebiten.SetVsyncEnabled(true)
+	ebiten.SetScreenClearedEveryFrame(false)
 	ebiten.SetWindowTitle("Pixel Pirates")
 
 	cloudChunks = map[int]*cloudData{}
@@ -77,7 +79,7 @@ func newGame() *Game {
 		colors: colorData{
 			day: colors{
 				water:   hexToRGB("00a0a7"),
-				horizon: hexToRGB("4fc3f7"),
+				horizon: hexToRGB("cdffff"),
 				sky:     hexToRGB("7c95dc"),
 			},
 			evening: colors{
