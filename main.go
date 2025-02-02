@@ -64,18 +64,9 @@ func main() {
 	}
 }
 
-var (
-	boat2SP, boat2SP_flag, sunSP, island1SP, titleSP, clickStartSP *spriteItem
-)
-
 func newGame() *Game {
 
-	boat2SP = spriteList["boat2"]
-	boat2SP_flag = spriteList["boat2-flag"]
-	sunSP = spriteList["sun"]
-	island1SP = spriteList["island1"]
-	titleSP = spriteList["title"]
-	clickStartSP = spriteList["clickstart"]
+	initSprites()
 
 	gMode := GAME_TITLE
 	if *qtest {

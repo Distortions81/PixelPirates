@@ -43,21 +43,32 @@ func drawIslands(g *Game, screen *ebiten.Image) {
 	islands := getIslands(int(paralaxPos))
 
 	for _, island := range islands {
-		islandPos := (paralaxPos + float64(island.pos))
+		islandPos := dWinWidth - (paralaxPos + float64(island.pos))
+
+		//Island
 		op := &ebiten.DrawImageOptions{}
 		op.GeoM.Translate(
-			dWinWidth-islandPos,
+			islandPos,
 			dWinHeightHalf-float64(island1SP.image.Bounds().Dy())+islandY)
 		screen.DrawImage(island1SP.image, op)
 
+		//Visit sign
+		spriteSize := float64(island1SP.image.Bounds().Dx())
+		if paralaxPos > islandPos-(spriteSize*2) && paralaxPos < islandPos+spriteSize {
+			op.GeoM.Translate(-3, -25)
+			op.ColorScale.ScaleAlpha(0.2)
+			screen.DrawImage(visitSP.image, op)
+		}
+
 		//Island refection
-		op.GeoM.Reset()
+		op = &ebiten.DrawImageOptions{}
 		op.GeoM.Scale(1, -(1 / islandRefectionShrink))
 		op.ColorScale.ScaleAlpha(islandReflectionAlpha)
 		op.GeoM.Translate(
-			dWinWidth-islandPos,
+			islandPos,
 			dWinHeightHalf+float64(islandY+island1SP.image.Bounds().Dy()-5)/islandRefectionShrink)
 		screen.DrawImage(island1SP.blurred, op)
+
 	}
 }
 
