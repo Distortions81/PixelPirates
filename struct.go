@@ -23,6 +23,7 @@ type fadeData struct {
 	fadeToMode int
 
 	fadeStarted   time.Time
+	fadeType      int
 	duration      time.Duration
 	fadeDirection bool
 	stopMusic     bool

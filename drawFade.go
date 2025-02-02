@@ -17,7 +17,7 @@ func (g *Game) startFade(toMode int, duration time.Duration, stopMusic bool, col
 		fadeStart = fadeStart.Add(-(duration / 2))
 	}
 	g.fade = fadeData{
-		fadeToMode: toMode, fadeStarted: fadeStart,
+		fadeToMode: toMode, fadeStarted: fadeStart, fadeType: fadeType,
 		duration: duration, color: color, stopMusic: stopMusic}
 
 	g.modeTransition = true
@@ -32,10 +32,15 @@ func (g *Game) drawFade(screen *ebiten.Image) {
 	durMS := float64(g.fade.duration.Milliseconds())
 	sinceMS := float64(sinceStart.Milliseconds())
 
-	value := min((sinceMS/durMS), 1.0) * 2
+	var value float64
+	if g.fade.fadeType != FADE_OUT {
+		value = min((sinceMS/durMS), 1.0) * 2
+	} else {
+		value = min((sinceMS / durMS), 1.0)
+	}
 
 	var amount uint8
-	if sinceStart < g.fade.duration/2 {
+	if sinceStart < g.fade.duration/2 || g.fade.fadeType == FADE_OUT {
 		//Fade out
 		g.fade.fadeDirection = true
 		amount = uint8(value * 255.0)
@@ -58,4 +63,5 @@ func (g *Game) drawFade(screen *ebiten.Image) {
 	}
 	fadeColor := color.NRGBA{R: g.fade.color.R, G: g.fade.color.G, B: g.fade.color.B, A: amount}
 	vector.DrawFilledRect(screen, 0, 0, dWinWidth, dWinWidth, fadeColor, false)
+
 }
