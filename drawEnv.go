@@ -28,13 +28,17 @@ const (
 	skyPersVal = 5 //AirWaves perspective
 
 	//Waves
+	// This helps prevent the waves from getting into visually noticable cycles.
 	spawnPerFrame = 66
+	//Performance safeguard
 	maxCollisions = spawnPerFrame / 4
 
 	//Sea
 	maxWaves          = 600
 	minWaveLifeMS     = 100
 	maxWaveLifeRandMS = 500
+	waveAlpha         = 25
+	waveDistanceMulti = 1.5
 
 	//Air
 	windSpeed            = 7 //mph-like
@@ -172,7 +176,7 @@ func drawWaves(g *Game, screen *ebiten.Image) {
 	for y, line := range wavesLines {
 		for _, wave := range line.waves {
 			// Lower alpha for waves that are farther away
-			alpha := uint8(math32.Min(30+(float32(y)*2.5), 255))
+			alpha := uint8(math32.Min(waveAlpha+(float32(y)*waveDistanceMulti), 255))
 			waveColor := color.NRGBA{R: 255, G: 255, B: 255, A: alpha}
 
 			//Expand wave.x 2x to screen, add boat pos.x, multiply by Y for parallax.
