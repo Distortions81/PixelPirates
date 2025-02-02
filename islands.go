@@ -1,10 +1,14 @@
 package main
 
-import "github.com/hajimehoshi/ebiten/v2"
+import (
+	"fmt"
+
+	"github.com/hajimehoshi/ebiten/v2"
+)
 
 const (
-	islandChunkSize = dWinWidth
-	checkChunks     = 1
+	islandChunkSize = dWinWidthHalf
+	checkChunks     = 4
 )
 
 var islandChunks map[int]*islandChunkData
@@ -23,11 +27,12 @@ type islandChunkData struct {
 
 func init() {
 	islandChunks = map[int]*islandChunkData{}
-	for _, island := range islands {
+	for i, island := range islands {
 		islandChunkPos := island.pos / islandChunkSize
 		if islandChunks[islandChunkPos] == nil {
 			islandChunks[islandChunkPos] = &islandChunkData{}
 		}
+		fmt.Printf("Storing island: #%v '%v' in block %v.\n", i+1, island.name, islandChunkPos)
 		islandChunks[islandChunkPos].islands = append(islandChunks[islandChunkPos].islands, island)
 	}
 }
