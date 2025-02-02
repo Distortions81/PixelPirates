@@ -61,9 +61,6 @@ const (
 	skyDarkenDivide = 2.5
 	skySaturate     = 0.5
 
-	cloudBlurAmountX  = 32
-	cloudBlurAmountY  = 1
-	cloudBlurStrech   = 1
 	cloudReflectAlpha = 0.5
 )
 

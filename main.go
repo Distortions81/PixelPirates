@@ -56,8 +56,6 @@ func main() {
 
 	cloudChunks = map[int]*cloudData{}
 	initNoise()
-	cloudbuf = ebiten.NewImage(dWinWidth, dWinHeightHalf)
-	cloudblur = ebiten.NewImage(dWinWidth/cloudBlurAmountX, dWinHeightHalf/cloudBlurAmountY)
 	worldGradImg = ebiten.NewImage(1, dWinHeight)
 	loadSprites()
 
