@@ -47,10 +47,12 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 			renderTime := time.Since(startTime).Microseconds()
 			displayTime := time.Since(displayStamp).Microseconds()
 
-			debugBuf = fmt.Sprintf("Render: %4du, Display: %0.2fms, %%%0.2f",
+			debugBuf = fmt.Sprintf("Render: %4du, Display: %0.2fms, %%%0.2f, FPS: %3d",
 				renderTime,
 				float64(displayTime)/1000,
-				float64(renderTime)/float64(displayTime)*100)
+				float64(renderTime)/float64(displayTime)*100,
+				int(1000/(float64(displayTime)/1000)))
+
 		}
 
 		ebitenutil.DebugPrintAt(screen, debugBuf, 0, dWinHeight-16)

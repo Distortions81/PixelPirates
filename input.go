@@ -12,8 +12,10 @@ var lastUpdate time.Time
 const (
 	MaxBoatY = 25
 	MinBoatY = -35
-	vspeed   = 60.0
-	xspeed   = 10
+
+	//larger numbers are slower
+	vspeed = 60.0 * 1000
+	xspeed = 10 * 1000
 )
 
 // Ebiten input handler
@@ -41,8 +43,8 @@ func (g *Game) Update() error {
 		return nil
 	}
 
-	vspeed := float64(time.Since(lastUpdate).Milliseconds()) / vspeed
-	hspeed := float64(time.Since(lastUpdate).Milliseconds()) / xspeed
+	vspeed := float64(time.Since(lastUpdate).Microseconds()) / vspeed
+	hspeed := float64(time.Since(lastUpdate).Microseconds()) / xspeed
 
 	for _, key := range pressedKeys {
 		if key == ebiten.KeyW ||
