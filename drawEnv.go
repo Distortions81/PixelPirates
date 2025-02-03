@@ -24,8 +24,9 @@ type waveData struct {
 }
 
 const (
-	persVal    = 8 //Used for perspective
-	skyPersVal = 5 //AirWaves perspective
+	persVal      = 8 //Used for perspective
+	skyPersVal   = 5 //AirWaves perspective
+	distParallax = 0.01
 
 	//Waves
 	// This helps prevent the waves from getting into visually noticable cycles.
@@ -38,7 +39,7 @@ const (
 	minWaveLifeMS     = 100
 	maxWaveLifeRandMS = 500
 	waveAlpha         = 25
-	waveDistanceMulti = 1.5
+	waveDistAlpha     = 1.5
 
 	//Air
 	windSpeed            = 7 //mph-like
@@ -154,7 +155,7 @@ func drawAir(g *Game, screen *ebiten.Image) {
 
 			//Expand wave.x 2x to screen, add boat pos.x, multiply by Y for parallax.
 			timeOff := float64(time.Now().UnixMilli()) / (1 / (windSpeed / 300.0))
-			preMod := (float64((wave.x)*2)+(g.boatPos.X*float64(3.0/dWinWidth))+1)*float64(y) + timeOff
+			preMod := float64(wave.x*2) + g.boatPos.X*(float64(y)*distParallax) + timeOff
 			//Modulo to wrap around the screen
 			modPos := math.Mod(preMod, dWinWidth)
 
@@ -176,11 +177,11 @@ func drawWaves(g *Game, screen *ebiten.Image) {
 	for y, line := range wavesLines {
 		for _, wave := range line.waves {
 			// Lower alpha for waves that are farther away
-			alpha := uint8(math32.Min(waveAlpha+(float32(y)*waveDistanceMulti), 255))
+			alpha := uint8(math32.Min(waveAlpha+(float32(y)*waveDistAlpha), 255))
 			waveColor := color.NRGBA{R: 255, G: 255, B: 255, A: alpha}
 
 			//Expand wave.x 2x to screen, add boat pos.x, multiply by Y for parallax.
-			preMod := (float64((wave.x)*2) + (g.boatPos.X * float64(3.0/dWinWidth)) + 1) * float64(y)
+			preMod := float64((wave.x)*2) + (g.boatPos.X)*(float64(y)*distParallax)
 			//Modulo to wrap around the screen
 			modPos := math.Mod(preMod, dWinWidth)
 

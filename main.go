@@ -114,7 +114,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		ebitenutil.DebugPrint(screen, "Inavlid Game Mode")
 		return
 	}
-
 	if g.modeTransition {
 		g.drawFade(screen)
 	}

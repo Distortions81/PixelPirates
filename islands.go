@@ -40,13 +40,13 @@ func init() {
 
 func drawIslands(g *Game, screen *ebiten.Image) {
 
-	paralaxPos := g.boatPos.X * float64(islandY/dWinWidth)
+	paralaxPos := g.boatPos.X * (islandY * distParallax)
 
 	islands := getIslands(int(paralaxPos))
 	drewSign := false
 
 	for _, island := range islands {
-		islandPosX := dWinWidth - (paralaxPos + float64(island.pos))
+		islandPosX := -(paralaxPos + float64(-island.pos))
 		islandPosY := dWinHeightHalf - float64(island1SP.image.Bounds().Dy()) + islandY
 
 		//Island
@@ -71,7 +71,8 @@ func drawIslands(g *Game, screen *ebiten.Image) {
 		op.ColorScale.ScaleAlpha(islandReflectionAlpha)
 		op.GeoM.Translate(
 			islandPosX,
-			dWinHeightHalf+float64(islandY+island1SP.image.Bounds().Dy()-5)/islandRefectionShrink)
+			islandPosY*1.5,
+		)
 		screen.DrawImage(island1SP.blurred, op)
 	}
 	//Clear target
@@ -96,7 +97,7 @@ func getIslands(pos int) []islandData {
 }
 
 var islands []islandData = []islandData{
-	{name: "Welcome island", desc: "Learn the basics here!", pos: dWinWidthHalf, spriteName: "island1"},
+	{name: "Welcome island", desc: "Learn the basics here!", pos: dWinWidth, spriteName: "island1"},
 }
 
 func (g *Game) drawIsland(screen *ebiten.Image) {

@@ -10,7 +10,7 @@ import (
 
 const (
 	//Island settings
-	islandY      = 6.0
+	islandY      = 18.0
 	cloudY       = 6.0
 	islandStartX = -dWinWidthHalf
 
@@ -53,9 +53,10 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 				float64(displayTime)/1000,
 				float64(renderTime)/float64(displayTime)*100,
 				int(1000/(float64(displayTime)/1000)))
-
 		}
 
+		buf := fmt.Sprintf("x: %d", int(g.boatPos.X))
+		ebitenutil.DebugPrint(screen, buf)
 		ebitenutil.DebugPrintAt(screen, debugBuf, 0, dWinHeight-16)
 		displayStamp = time.Now()
 	}
