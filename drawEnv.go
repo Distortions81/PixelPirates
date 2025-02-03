@@ -156,7 +156,7 @@ func drawAir(g *Game, screen *ebiten.Image) {
 
 			//Expand wave.x 2x to screen, add boat pos.x, multiply by Y for parallax.
 			timeOff := float64(time.Now().UnixMilli()) / (1 / (windSpeed / 300.0))
-			preMod := float64(wave.x*2) + g.boatPos.X*(float64(y)*distParallax) + timeOff
+			preMod := float64(wave.x*2) + g.boatPos.X*(float64(y+1)*distParallax) + timeOff
 			//Modulo to wrap around the screen
 			modPos := math.Mod(preMod, dWinWidth)
 
@@ -182,7 +182,7 @@ func drawWaves(g *Game, screen *ebiten.Image) {
 			waveColor := color.NRGBA{R: 255, G: 255, B: 255, A: alpha}
 
 			//Expand wave.x 2x to screen, add boat pos.x, multiply by Y for parallax.
-			preMod := float64((wave.x)*2) + (g.boatPos.X)*(float64(y)*distParallax)
+			preMod := float64((wave.x)*2) + (g.boatPos.X)*(float64(y+1)*distParallax)
 			//Modulo to wrap around the screen
 			modPos := math.Mod(preMod, dWinWidth)
 
