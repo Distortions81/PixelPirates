@@ -10,15 +10,16 @@ import (
 )
 
 var spriteList map[string]*spriteItem = map[string]*spriteItem{
-	"boat2":         {Path: "boats/"},
-	"boat2-flag":    {Path: "boats/"},
-	"sun":           {Path: "world/"},
-	"island1":       {Path: "world/", doReflect: true},
-	"title":         {Path: "title/"},
-	"clickstart":    {Path: "title/"},
-	"visit":         {Path: "ui/"},
-	"testScene1":    {Path: "islands/"},
-	"island-scene1": {Path: "islands/"},
+	"boat2":          {Path: "boats/"},
+	"boat2-flag":     {Path: "boats/"},
+	"sun":            {Path: "world/"},
+	"island1":        {Path: "world/", doReflect: true},
+	"title":          {Path: "title/"},
+	"clickstart":     {Path: "title/"},
+	"visit":          {Path: "ui/"},
+	"testScene1":     {Path: "islands/"},
+	"island-scene1":  {Path: "islands/"},
+	"default-player": {Path: "characters/"},
 }
 
 var (
