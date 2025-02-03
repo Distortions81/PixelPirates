@@ -18,8 +18,7 @@ var spriteList map[string]*spriteItem = map[string]*spriteItem{
 
 	"default-player": {Path: "characters/"},
 
-	"boat2":      {Path: "boats/"},
-	"boat2-flag": {Path: "boats/"},
+	"boat2": {Path: "boats/"},
 
 	"testScene1":    {Path: "islands/"},
 	"island-scene1": {Path: "islands/"},
@@ -89,32 +88,46 @@ func getAniFrame(frame int64, ani *spriteItem, offset int) *ebiten.Image {
 		frame = int64(math.Mod(float64(frame+int64(offset)), float64(numFrames)))
 	}
 
-	fKey := ani.animation.SortedFrames[frame]
+	fKey := ani.animation.sortedFrames[frame]
 	fRect := ani.animation.Frames[fKey].Frame
 	rect := image.Rectangle{Min: image.Point{X: fRect.X, Y: fRect.Y}, Max: image.Point{X: fRect.X + fRect.W, Y: fRect.Y + fRect.H}}
 	subFrame := ani.image.SubImage(rect).(*ebiten.Image)
 	return subFrame
 }
 
-func autoAnimate(ani *spriteItem, offset int) *ebiten.Image {
-	firstFrame := ani.animation.SortedFrames[0]
+func autoAnimate(ani *spriteItem, offset int, tag string) *ebiten.Image {
+	firstFrame := ani.animation.sortedFrames[0]
 	speed := ani.animation.Frames[firstFrame].Duration
 	time := time.Now().UnixMilli() / int64(speed)
-	frameNum := time % (ani.animation.NumFrames)
 
+	frameRange := ani.animation.animations[tag]
+	numFrames := int64(frameRange.end - frameRange.start)
+	if numFrames <= 0 {
+		fmt.Printf("** %v: NO FRAMES: %v -> %v\n\n", ani.Name, frameRange.start, frameRange.end)
+		return nil
+	}
+	frameNum := (time % numFrames) + int64(frameRange.start)
 	return getAniFrame(frameNum, ani, offset)
 }
 
-func autoAnimatePingPong(ani *spriteItem, offset int) *ebiten.Image {
+func autoAnimatePingPong(ani *spriteItem, offset int, tag string) *ebiten.Image {
 
-	period := 2*ani.animation.NumFrames - 2
-	firstFrame := ani.animation.SortedFrames[0]
+	frameRange := ani.animation.animations[tag]
+	numFrames := int64(frameRange.end - frameRange.start)
+	if numFrames <= 0 {
+		fmt.Printf("** %v: NO FRAMES: %v -> %v\n\n", ani.Name, frameRange.start, frameRange.end)
+		return nil
+	}
+
+	period := 2*numFrames - 2
+	firstFrame := ani.animation.sortedFrames[0]
 	speed := ani.animation.Frames[firstFrame].Duration
+
 	time := time.Now().UnixMilli() / int64(speed)
 	framePosition := time % period
 
 	var frameNum int64
-	if framePosition < int64(ani.animation.NumFrames) {
+	if framePosition < int64(numFrames) {
 		// Forward direction
 		frameNum = int64(framePosition)
 	} else {
@@ -122,5 +135,5 @@ func autoAnimatePingPong(ani *spriteItem, offset int) *ebiten.Image {
 		frameNum = int64(period - framePosition)
 	}
 
-	return getAniFrame(frameNum, ani, offset)
+	return getAniFrame(frameNum+int64(frameRange.start), ani, offset)
 }

@@ -13,10 +13,11 @@ const (
 	MaxBoatY = 25
 	MinBoatY = -35
 
-	boatYSpeed = 60.0 * 1000
+	boatYSpeed = 60 * 1000
 	boatXSpeed = 10 * 1000
 
 	playerSpeed = 1
+	turboSpeed  = 25
 )
 
 // Ebiten input handler
@@ -38,31 +39,32 @@ func (g *Game) Update() error {
 		return nil
 	} else if g.gameMode == GAME_PLAY {
 
-		vspeed := float64(time.Since(lastUpdate).Microseconds()) / boatYSpeed
-		hspeed := float64(time.Since(lastUpdate).Microseconds()) / boatXSpeed
+		xBase := float64(time.Since(lastUpdate).Microseconds()) / boatYSpeed
+		yBase := float64(time.Since(lastUpdate).Microseconds()) / boatXSpeed
 
-		xs := hspeed
+		xSpeed, ySpeed := yBase, xBase
 		for _, key := range pressedKeys {
 			if key == ebiten.KeyShiftLeft || key == ebiten.KeyShiftRight {
-				xs = hspeed * 50
+				xSpeed = yBase * turboSpeed
+				ySpeed = xBase * turboSpeed
 			}
 		}
 		for _, key := range pressedKeys {
 			if key == ebiten.KeyW ||
 				key == ebiten.KeyArrowUp {
-				g.boatPos.Y -= vspeed
+				g.boatPos.Y -= ySpeed
 			}
 			if key == ebiten.KeyA ||
 				key == ebiten.KeyArrowLeft {
-				g.boatPos.X -= xs
+				g.boatPos.X -= xSpeed
 			}
 			if key == ebiten.KeyS ||
 				key == ebiten.KeyArrowDown {
-				g.boatPos.Y += vspeed
+				g.boatPos.Y += ySpeed
 			}
 			if key == ebiten.KeyD ||
 				key == ebiten.KeyArrowRight {
-				g.boatPos.X += xs
+				g.boatPos.X += xSpeed
 			}
 			if key == ebiten.KeyE {
 				if g.canVisit != nil {
@@ -73,31 +75,46 @@ func (g *Game) Update() error {
 			}
 		}
 	} else if g.gameMode == GAME_ISLAND {
-		ps := float64(playerSpeed)
+		pSpeed := float64(playerSpeed)
 		for _, key := range pressedKeys {
 			if key == ebiten.KeyShiftLeft || key == ebiten.KeyShiftRight {
-				ps = playerSpeed * 50
+				pSpeed = playerSpeed * turboSpeed
 			}
 		}
+		sceneX, sceneY := float64(testScene1SP.image.Bounds().Dx()), float64(testScene1SP.image.Bounds().Dy())
+		sceneX, sceneY = sceneX-dWinWidth, sceneY-dWinHeight
 		for _, key := range pressedKeys {
 			if key == ebiten.KeyE {
 				g.startFade(GAME_PLAY, time.Second, true, COLOR_WHITE, FADE_CROSSFADE)
+				return nil
 			}
 			if key == ebiten.KeyW ||
 				key == ebiten.KeyArrowUp {
-				g.playerPos.Y -= ps
+				g.playerPos.Y -= pSpeed
+				if g.playerPos.Y < 0 {
+					g.playerPos.Y = 0
+				}
 			}
 			if key == ebiten.KeyA ||
 				key == ebiten.KeyArrowLeft {
-				g.playerPos.X -= ps
+				g.playerPos.X -= pSpeed
+				if g.playerPos.X < 0 {
+					g.playerPos.X = 0
+				}
 			}
 			if key == ebiten.KeyS ||
 				key == ebiten.KeyArrowDown {
-				g.playerPos.Y += ps
+				g.playerPos.Y += pSpeed
+				if g.playerPos.Y > sceneY {
+					g.playerPos.Y = sceneY
+				}
 			}
 			if key == ebiten.KeyD ||
 				key == ebiten.KeyArrowRight {
-				g.playerPos.X += ps
+				g.playerPos.X += pSpeed
+				if g.playerPos.X > sceneX {
+					g.playerPos.X = sceneX
+				}
 			}
 		}
 	}

@@ -24,14 +24,16 @@ const (
 )
 
 var (
-	wasmMode     bool
-	qtest, debug *bool
+	wasmMode                     bool
+	qtest, qlive, qisland, debug *bool
 )
 
 func main() {
 	fmt.Printf("Game res: %v,%v (%vx) : (%v, %v)\n", dWinWidth, dWinHeight, magScale, dWinWidth*magScale, dWinHeight*magScale)
 	dump := flag.Bool("dumpMusic", false, "Dump songs out as WAV and quit.")
 	qtest = flag.Bool("qtest", false, "skip title screen")
+	qisland = flag.Bool("qisland", false, "go directly to welcome island")
+	qlive = flag.Bool("qlive", false, "live reload textures (slow)")
 	debug = flag.Bool("debug", false, "debug info")
 	flag.Parse()
 
@@ -60,6 +62,16 @@ func main() {
 	worldGradImg = ebiten.NewImage(1, dWinHeight)
 	loadSprites()
 
+	if *qlive {
+		go func() {
+			for {
+				loadSprites()
+				time.Sleep(time.Second * 1)
+				fmt.Printf("Reloading textures.")
+			}
+		}()
+	}
+
 	if err := ebiten.RunGameWithOptions(newGame(), &ebiten.RunGameOptions{GraphicsLibrary: ebiten.GraphicsLibraryOpenGL}); err != nil {
 		return
 	}
@@ -70,7 +82,9 @@ func newGame() *Game {
 	initSprites()
 
 	gMode := GAME_TITLE
-	if *qtest {
+	if *qisland {
+		gMode = GAME_ISLAND
+	} else if *qtest {
 		gMode = GAME_PLAY
 	}
 	g := &Game{

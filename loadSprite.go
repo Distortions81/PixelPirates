@@ -22,7 +22,7 @@ import (
 
 var efs embed.FS
 
-const loadEmbedSprites = true
+const loadEmbedSprites = false
 
 // Load sprites
 func loadSprite(name string, unmanaged bool, doBlur bool) (*ebiten.Image, *ebiten.Image, error) {
@@ -36,7 +36,7 @@ func loadSprite(name string, unmanaged bool, doBlur bool) (*ebiten.Image, *ebite
 	if loadEmbedSprites {
 		pngData, err = efs.Open(spritesDir + name + ".png")
 	} else {
-		pngData, err = os.Open(dataDir + spritesDir + name + ".png")
+		pngData, err = os.Open(spritesDir + name + ".png")
 	}
 	if err != nil {
 		doLog(true, "loadSprite: Open Embedded: %v", err)
@@ -117,17 +117,30 @@ func decodeAniJSON(data []byte) (animationData, error) {
 		return animationData{}, err
 	}
 
+	root.animations = map[string]frameRange{}
+
+	for _, item := range root.Meta.FrameTags {
+		if item.From+item.To == 0 {
+			fmt.Printf("Empty Animation: '%v', %v->%v\n", item.Name, item.From, item.To)
+			continue
+		}
+		if *debug {
+			fmt.Printf("Animation: %v, %v->%v\n", item.Name, item.From, item.To)
+		}
+		root.animations[item.Name] = frameRange{start: item.From, end: item.To}
+	}
+
 	// Extract and sort frame names based on the numerical part.
 	sorted, err := getSortedFrameNames(root.Frames)
 	if err != nil {
 		log.Fatalf("Error sorting frame names: %v", err)
 	}
-	root.SortedFrames = sorted
-	root.NumFrames = int64(len(sorted))
+	root.sortedFrames = sorted
+	root.numFrames = int64(len(sorted))
 
 	if *debug {
 		fmt.Println("Frames:")
-		for _, fKey := range root.SortedFrames {
+		for _, fKey := range root.sortedFrames {
 			frameData := root.Frames[fKey]
 			fmt.Printf("Frame Name: %s\n", fKey)
 			fmt.Printf("  Position: (%d, %d)\n", frameData.Frame.X, frameData.Frame.Y)
@@ -144,58 +157,6 @@ func decodeAniJSON(data []byte) (animationData, error) {
 	}
 
 	return root, nil
-}
-
-// animationData represents the top-level structure of the JSON.
-type animationData struct {
-	Frames       map[string]aniFrame `json:"frames"`
-	SortedFrames []string            `json:"-"`
-	NumFrames    int64               `json:"-"`
-	Meta         aniMeta             `json:"meta"`
-}
-
-// aniFrame represents each individual frame in the "frames" object.
-type aniFrame struct {
-	Frame            aniRect `json:"frame"`
-	Rotated          bool    `json:"rotated"`
-	Trimmed          bool    `json:"trimmed"`
-	SpriteSourceSize aniRect `json:"spriteSourceSize"`
-	SourceSize       aniSize `json:"sourceSize"`
-	Duration         int     `json:"duration"`
-}
-
-// aniRect represents a rectangle with position and size.
-type aniRect struct {
-	X int `json:"x"`
-	Y int `json:"y"`
-	W int `json:"w"`
-	H int `json:"h"`
-}
-
-// aniSize represents width and height.
-type aniSize struct {
-	W int `json:"w"`
-	H int `json:"h"`
-}
-
-// aniMeta contains metadata about the frames and the source image.
-type aniMeta struct {
-	App       string        `json:"app"`
-	Version   string        `json:"version"`
-	Image     string        `json:"image"`
-	Format    string        `json:"format"`
-	Size      aniSize       `json:"size"`
-	Scale     string        `json:"scale"`
-	FrameTags []interface{} `json:"frameTags"`
-	Layers    []aniLayer    `json:"layers"`
-	Slices    []interface{} `json:"slices"`
-}
-
-// aniLayer represents each layer in the "layers" array within "meta".
-type aniLayer struct {
-	Name      string `json:"name"`
-	Opacity   int    `json:"opacity"`
-	BlendMode string `json:"blendMode"`
 }
 
 // getSortedFrameNames extracts frame names and sorts them based on the numerical index.
@@ -240,4 +201,68 @@ func getSortedFrameNames(frames map[string]aniFrame) ([]string, error) {
 	}
 
 	return sortedNames, nil
+}
+
+// animationData represents the top-level structure of the JSON.
+type animationData struct {
+	Frames map[string]aniFrame `json:"frames"`
+	Meta   aniMeta             `json:"meta"`
+
+	//Local
+	sortedFrames []string              `json:"-"`
+	numFrames    int64                 `json:"-"`
+	animations   map[string]frameRange `json:"-"`
+}
+
+type frameRange struct {
+	start, end int
+}
+
+// aniFrame represents each individual frame in the "frames" object.
+type aniFrame struct {
+	Frame            aniRect `json:"frame"`
+	Rotated          bool    `json:"rotated"`
+	Trimmed          bool    `json:"trimmed"`
+	SpriteSourceSize aniRect `json:"spriteSourceSize"`
+	SourceSize       aniSize `json:"sourceSize"`
+	Duration         int     `json:"duration"`
+}
+
+// aniRect represents a rectangle with position and size.
+type aniRect struct {
+	X int `json:"x"`
+	Y int `json:"y"`
+	W int `json:"w"`
+	H int `json:"h"`
+}
+
+// aniSize represents width and height.
+type aniSize struct {
+	W int `json:"w"`
+	H int `json:"h"`
+}
+
+// aniMeta contains metadata about the frames and the source image.
+type aniMeta struct {
+	App       string         `json:"app"`
+	Version   string         `json:"version"`
+	Image     string         `json:"image"`
+	Format    string         `json:"format"`
+	Size      aniSize        `json:"size"`
+	Scale     string         `json:"scale"`
+	FrameTags []frameTagData `json:"frameTags"`
+	Layers    []aniLayer     `json:"layers"`
+	Slices    []interface{}  `json:"slices"`
+}
+
+type frameTagData struct {
+	Name     string
+	From, To int
+}
+
+// aniLayer represents each layer in the "layers" array within "meta".
+type aniLayer struct {
+	Name      string `json:"name"`
+	Opacity   int    `json:"opacity"`
+	BlendMode string `json:"blendMode"`
 }
