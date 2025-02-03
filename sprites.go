@@ -10,19 +10,23 @@ import (
 )
 
 var spriteList map[string]*spriteItem = map[string]*spriteItem{
-	"boat2":          {Path: "boats/"},
-	"boat2-flag":     {Path: "boats/"},
-	"sun":            {Path: "world/"},
-	"island1":        {Path: "world/", doReflect: true},
-	"title":          {Path: "title/"},
-	"clickstart":     {Path: "title/"},
-	"testScene1":     {Path: "islands/"},
-	"island-scene1":  {Path: "islands/"},
+	"title":      {Path: "title/"},
+	"clickstart": {Path: "title/"},
+
+	"sun":     {Path: "world/"},
+	"island1": {Path: "world/", doReflect: true},
+
 	"default-player": {Path: "characters/"},
+
+	"boat2":      {Path: "boats/"},
+	"boat2-flag": {Path: "boats/"},
+
+	"testScene1":    {Path: "islands/"},
+	"island-scene1": {Path: "islands/"},
 }
 
 var (
-	testScene1SP, visitSP, boat2SP, boat2SP_flag, sunSP, island1SP, titleSP, clickStartSP *spriteItem
+	defPlayerSP, testScene1SP, boat2SP, sunSP, island1SP, titleSP, clickStartSP *spriteItem
 )
 
 func initSprites() {
@@ -31,10 +35,10 @@ func initSprites() {
 
 	sunSP = spriteList["sun"]
 	boat2SP = spriteList["boat2"]
-	boat2SP_flag = spriteList["boat2-flag"]
 	island1SP = spriteList["island1"]
 
 	testScene1SP = spriteList["island-scene1"]
+	defPlayerSP = spriteList["default-player"]
 
 }
 

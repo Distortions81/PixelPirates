@@ -16,7 +16,7 @@ const (
 	boatYSpeed = 60.0 * 1000
 	boatXSpeed = 10 * 1000
 
-	playerSpeed = 60 * 1000
+	playerSpeed = 1
 )
 
 // Ebiten input handler
@@ -73,25 +73,31 @@ func (g *Game) Update() error {
 			}
 		}
 	} else if g.gameMode == GAME_ISLAND {
+		ps := float64(playerSpeed)
+		for _, key := range pressedKeys {
+			if key == ebiten.KeyShiftLeft || key == ebiten.KeyShiftRight {
+				ps = playerSpeed * 50
+			}
+		}
 		for _, key := range pressedKeys {
 			if key == ebiten.KeyE {
 				g.startFade(GAME_PLAY, time.Second, true, COLOR_WHITE, FADE_CROSSFADE)
 			}
 			if key == ebiten.KeyW ||
 				key == ebiten.KeyArrowUp {
-				g.playerPos.Y -= playerSpeed
+				g.playerPos.Y -= ps
 			}
 			if key == ebiten.KeyA ||
 				key == ebiten.KeyArrowLeft {
-				g.playerPos.X -= playerSpeed
+				g.playerPos.X -= ps
 			}
 			if key == ebiten.KeyS ||
 				key == ebiten.KeyArrowDown {
-				g.playerPos.Y += playerSpeed
+				g.playerPos.Y += ps
 			}
 			if key == ebiten.KeyD ||
 				key == ebiten.KeyArrowRight {
-				g.playerPos.X += playerSpeed
+				g.playerPos.X += ps
 			}
 		}
 	}

@@ -101,6 +101,18 @@ var islands []islandData = []islandData{
 }
 
 func (g *Game) drawIsland(screen *ebiten.Image) {
-	screen.DrawImage(testScene1SP.image, nil)
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(-g.playerPos.X, -g.playerPos.Y)
+	screen.DrawImage(testScene1SP.image, op)
 	ebitenutil.DebugPrint(screen, "Test Island scene, E to Exit.")
+
+	op = &ebiten.DrawImageOptions{}
+	ani := defPlayerSP
+	fKey := ani.animation.SortedFrames[0]
+	fRect := ani.animation.Frames[fKey].Frame
+
+	charX, charY := float64(fRect.W/2), float64(fRect.H/2)
+	op.GeoM.Translate(dWinWidthHalf-charX, dWinHeightHalf-charY)
+	playerImg := autoAnimate(defPlayerSP, 0)
+	screen.DrawImage(playerImg, op)
 }
