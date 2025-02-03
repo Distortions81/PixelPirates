@@ -31,7 +31,6 @@ func (g *Game) Update() error {
 		if pressedKeys != nil ||
 			inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) ||
 			inpututil.IsMouseButtonJustPressed(ebiten.MouseButton1) {
-			g.modeTransition = false
 			g.startFade(GAME_PLAY, time.Second, true, COLOR_WHITE, FADE_CROSSFADE)
 		}
 		return nil

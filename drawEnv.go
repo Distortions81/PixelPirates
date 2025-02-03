@@ -66,7 +66,8 @@ const (
 	skyDarkenDivide = 2.5
 	skySaturate     = 0.5
 
-	cloudReflectAlpha = 0.5
+	cloudReflectAlpha   = 0.5
+	cloudReflectStretch = 1.5
 )
 
 var (

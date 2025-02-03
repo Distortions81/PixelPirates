@@ -80,8 +80,8 @@ func drawCloudsNew(g *Game, screen *ebiten.Image) {
 		screen.DrawImage(cloud.image, op)
 
 		//Reflection for water
-		op.GeoM.Scale(1, -1)
-		op.GeoM.Translate(0, dWinHeight)
+		op.GeoM.Scale(1, -cloudReflectStretch)
+		op.GeoM.Translate(0, dWinHeight*(cloudReflectStretch/1.25))
 		op.ColorScale.ScaleAlpha(cloudReflectAlpha)
 		screen.DrawImage(cloud.image, op)
 	}

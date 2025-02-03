@@ -16,20 +16,21 @@ func (g *Game) drawTitle(screen *ebiten.Image) {
 	drawAir(g, screen)
 	drawBoat(g, screen)
 
-	//Text
-	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(
-		float64((dWinWidth/2)-(titleSP.image.Bounds().Dx())/2),
-		float64((dWinHeight/4)-(titleSP.image.Bounds().Dy())/2))
-	op.ColorScale.ScaleAlpha(0.3)
-	screen.DrawImage(titleSP.image, op)
+	if !g.modeTransition {
+		//Text
+		op := &ebiten.DrawImageOptions{}
+		op.GeoM.Translate(
+			float64((dWinWidth/2)-(titleSP.image.Bounds().Dx())/2),
+			float64((dWinHeight/4)-(titleSP.image.Bounds().Dy())/2))
+		//op.ColorScale.ScaleAlpha(0.8)
+		screen.DrawImage(titleSP.image, op)
 
-	//Click message
-	op = &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(
-		float64((dWinWidth/2)-(clickStartSP.image.Bounds().Dx())/2),
-		float64((dWinHeight/6)*5-(clickStartSP.image.Bounds().Dy())/2))
-	op.ColorScale.ScaleAlpha(0.3)
-	screen.DrawImage(clickStartSP.image, op)
-
+		//Click message
+		op = &ebiten.DrawImageOptions{}
+		op.GeoM.Translate(
+			float64((dWinWidth/2)-(clickStartSP.image.Bounds().Dx())/2),
+			float64((dWinHeight/6)*5-(clickStartSP.image.Bounds().Dy())/2))
+		op.ColorScale.ScaleAlpha(0.3)
+		screen.DrawImage(clickStartSP.image, op)
+	}
 }
