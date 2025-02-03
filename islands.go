@@ -115,6 +115,6 @@ func (g *Game) drawIsland(screen *ebiten.Image) {
 
 	charX, charY := float64(fRect.W/2), float64(fRect.H/2)
 	op.GeoM.Translate(dWinWidthHalf-charX, dWinHeightHalf-charY)
-	playerImg := autoAnimate(defPlayerSP, 0, "move")
+	playerImg := autoAnimate(defPlayerSP, 0, "6 move")
 	screen.DrawImage(playerImg, op)
 }

@@ -38,9 +38,9 @@ type Game struct {
 
 	stopMusic bool
 
-	boatPos   fPoint
-	playerPos fPoint
-	envColors colorData
+	boatPos                  fPoint
+	playerPos, prevPlayerPos fPoint
+	envColors                colorData
 
 	visiting, canVisit *islandData
 }

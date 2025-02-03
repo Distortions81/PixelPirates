@@ -75,6 +75,8 @@ func (g *Game) Update() error {
 			}
 		}
 	} else if g.gameMode == GAME_ISLAND {
+
+		g.prevPlayerPos = g.playerPos
 		pSpeed := float64(playerSpeed)
 		for _, key := range pressedKeys {
 			if key == ebiten.KeyShiftLeft || key == ebiten.KeyShiftRight {
