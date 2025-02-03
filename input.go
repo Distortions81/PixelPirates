@@ -13,8 +13,10 @@ const (
 	MaxBoatY = 25
 	MinBoatY = -35
 
-	vspeed = 60.0 * 1000
-	xspeed = 10 * 1000
+	boatYSpeed = 60.0 * 1000
+	boatXSpeed = 10 * 1000
+
+	playerSpeed = 60 * 1000
 )
 
 // Ebiten input handler
@@ -36,8 +38,8 @@ func (g *Game) Update() error {
 		return nil
 	} else if g.gameMode == GAME_PLAY {
 
-		vspeed := float64(time.Since(lastUpdate).Microseconds()) / vspeed
-		hspeed := float64(time.Since(lastUpdate).Microseconds()) / xspeed
+		vspeed := float64(time.Since(lastUpdate).Microseconds()) / boatYSpeed
+		hspeed := float64(time.Since(lastUpdate).Microseconds()) / boatXSpeed
 
 		xs := hspeed
 		for _, key := range pressedKeys {
@@ -74,6 +76,22 @@ func (g *Game) Update() error {
 		for _, key := range pressedKeys {
 			if key == ebiten.KeyE {
 				g.startFade(GAME_PLAY, time.Second, true, COLOR_WHITE, FADE_CROSSFADE)
+			}
+			if key == ebiten.KeyW ||
+				key == ebiten.KeyArrowUp {
+				g.playerPos.Y -= playerSpeed
+			}
+			if key == ebiten.KeyA ||
+				key == ebiten.KeyArrowLeft {
+				g.playerPos.X -= playerSpeed
+			}
+			if key == ebiten.KeyS ||
+				key == ebiten.KeyArrowDown {
+				g.playerPos.Y += playerSpeed
+			}
+			if key == ebiten.KeyD ||
+				key == ebiten.KeyArrowRight {
+				g.playerPos.X += playerSpeed
 			}
 		}
 	}
