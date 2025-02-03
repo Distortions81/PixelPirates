@@ -60,7 +60,7 @@ func drawIslands(g *Game, screen *ebiten.Image) {
 		//Visit sign
 		spriteSize := float64(island1SP.image.Bounds().Dx())
 		if !drewSign && islandPosX > 0 && islandPosX < spriteSize {
-			ebitenutil.DebugPrintAt(screen, "E: Visit", int(islandPosX)+28, int(islandPosY)-32)
+			ebitenutil.DebugPrintAt(screen, island.name+"\nE: Visit", int(islandPosX)+10, int(islandPosY)-32)
 			drewSign = true
 			g.canVisit = &island
 		}
