@@ -16,7 +16,6 @@ var spriteList map[string]*spriteItem = map[string]*spriteItem{
 	"island1":        {Path: "world/", doReflect: true},
 	"title":          {Path: "title/"},
 	"clickstart":     {Path: "title/"},
-	"visit":          {Path: "ui/"},
 	"testScene1":     {Path: "islands/"},
 	"island-scene1":  {Path: "islands/"},
 	"default-player": {Path: "characters/"},
@@ -33,7 +32,6 @@ func initSprites() {
 	sunSP = spriteList["sun"]
 	boat2SP = spriteList["boat2"]
 	boat2SP_flag = spriteList["boat2-flag"]
-	visitSP = spriteList["visit"]
 	island1SP = spriteList["island1"]
 
 	testScene1SP = spriteList["island-scene1"]
