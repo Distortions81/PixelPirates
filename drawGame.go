@@ -1,11 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
 const (
@@ -28,8 +26,6 @@ var (
 )
 
 func (g *Game) drawGame(screen *ebiten.Image) {
-	frameNumber++
-	startTime := time.Now()
 
 	g.makeWave()
 	g.makeAirWave()
@@ -42,24 +38,6 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 	drawAir(g, screen)
 	drawBoat(g, screen)
 
-	if *debug {
-
-		if frameNumber%60 == 0 {
-			renderTime := time.Since(startTime).Microseconds()
-			displayTime := time.Since(displayStamp).Microseconds()
-
-			debugBuf = fmt.Sprintf("Render: %4du, Display: %0.2fms, %%%0.2f, FPS: %3d",
-				renderTime,
-				float64(displayTime)/1000,
-				float64(renderTime)/float64(displayTime)*100,
-				int(1000/(float64(displayTime)/1000)))
-		}
-
-		buf := fmt.Sprintf("x: %d", int(g.boatPos.X))
-		ebitenutil.DebugPrint(screen, buf)
-		ebitenutil.DebugPrintAt(screen, debugBuf, 0, dWinHeight-16)
-		displayStamp = time.Now()
-	}
 }
 
 func drawBoat(g *Game, screen *ebiten.Image) {

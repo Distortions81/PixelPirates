@@ -116,6 +116,8 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
+	frameNumber++
+	startTime := time.Now()
 
 	switch g.gameMode {
 	case GAME_TITLE:
@@ -132,4 +134,21 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	if g.modeTransition {
 		g.drawFade(screen)
 	}
+
+	if *debug {
+		if frameNumber%60 == 0 {
+			renderTime := time.Since(startTime).Microseconds()
+			displayTime := time.Since(displayStamp).Microseconds()
+
+			debugBuf = fmt.Sprintf("Render: %4du, Display: %0.2fms, %%%0.2f, FPS: %0.2f",
+				renderTime,
+				float64(displayTime)/1000,
+				float64(renderTime)/float64(displayTime)*100,
+				ebiten.ActualFPS())
+		}
+
+		ebitenutil.DebugPrintAt(screen, debugBuf, 0, dWinHeight-16)
+		displayStamp = time.Now()
+	}
+
 }

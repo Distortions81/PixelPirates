@@ -113,13 +113,12 @@ func getIslands(pos int) []islandData {
 }
 
 func (g *Game) drawIsland(screen *ebiten.Image) {
-	screen.Clear()
+	//Draw island ground
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(-g.playPos.X, -g.playPos.Y)
 	screen.DrawImage(g.visiting.visitSprite.image, op)
-	buf := fmt.Sprintf("Test Island scene, E to Exit. %v,%v", g.playPos.X, g.playPos.Y)
-	ebitenutil.DebugPrint(screen, buf)
 
+	//Draw player
 	op = &ebiten.DrawImageOptions{}
 	ani := defPlayerSP
 	fKey := ani.animation.sortedFrames[0]
@@ -142,8 +141,12 @@ func (g *Game) drawIsland(screen *ebiten.Image) {
 		dirName = fmt.Sprintf("%v move", moveFix[faceDir])
 		playerImg = autoAnimate(defPlayerSP, 0, dirName)
 	}
-
 	screen.DrawImage(playerImg, op)
+
+	if *debug {
+		buf := fmt.Sprintf("Test Island scene, E to Exit. %0.0f,%0.0f", g.playPos.X, g.playPos.Y)
+		ebitenutil.DebugPrint(screen, buf)
+	}
 }
 
 var moveFix [8]int = [8]int{12, 2, 3, 4, 6, 8, 9, 10}

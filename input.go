@@ -17,8 +17,8 @@ const (
 	boatYSpeed = 60 * 1000
 	boatXSpeed = 10 * 1000
 
-	playerSpeed = 1
-	turboSpeed  = 25
+	playerSpeed = 11 * 1000
+	turboSpeed  = 10
 )
 
 // Ebiten input handler
@@ -78,9 +78,11 @@ func (g *Game) Update() error {
 		}
 	} else if g.gameMode == GAME_ISLAND {
 
+		pBase := float64(time.Since(lastUpdate).Microseconds()) / playerSpeed
+
 		g.oldPlayPos = g.playPos
 
-		pSpeed := float64(playerSpeed)
+		pSpeed := float64(pBase)
 		for _, key := range pressedKeys {
 			if key == ebiten.KeyShiftLeft || key == ebiten.KeyShiftRight {
 				pSpeed = playerSpeed * turboSpeed
@@ -176,7 +178,7 @@ func directionFromCoords(x, y float64) int {
 
 func applyDirection(x, y float64, direction int, speed float64) (float64, float64) {
 	// 45° diagonal movement factor (cos 45°, sin 45°)
-	diag := math.Sqrt(2) / 2
+	diag := math.Sqrt(2) / 2.0
 
 	switch direction {
 	case 0:
@@ -208,9 +210,7 @@ func applyDirection(x, y float64, direction int, speed float64) (float64, float6
 		x -= diag * speed
 		y += diag * speed
 	default:
-		// If the direction is invalid, do nothing or handle as needed.
-		// For example, you could return x, y as is, or log an error.
-		// We'll just return unchanged here.
+		// If the direction is invalid, do nothing
 	}
 
 	return x, y
