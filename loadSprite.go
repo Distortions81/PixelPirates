@@ -138,22 +138,22 @@ func decodeAniJSON(data []byte) (animationData, error) {
 	root.sortedFrames = sorted
 	root.numFrames = int64(len(sorted))
 
+	fmt.Printf("Loaded animation for: %v\n", root.Meta.Image)
 	if *debug {
-		fmt.Println("Frames:")
-		for _, fKey := range root.sortedFrames {
-			frameData := root.Frames[fKey]
-			fmt.Printf("Frame Name: %s\n", fKey)
-			fmt.Printf("  Position: (%d, %d)\n", frameData.Frame.X, frameData.Frame.Y)
-			fmt.Printf("  Size: %dx%d\n", frameData.Frame.W, frameData.Frame.H)
-			fmt.Printf("  Rotated: %t\n", frameData.Rotated)
-			fmt.Printf("  Trimmed: %t\n", frameData.Trimmed)
-			fmt.Printf("  Sprite Source Size: (%d, %d, %dx%d)\n", frameData.SpriteSourceSize.X, frameData.SpriteSourceSize.Y, frameData.SpriteSourceSize.W, frameData.SpriteSourceSize.H)
-			fmt.Printf("  Source Size: %dx%d\n", frameData.SourceSize.W, frameData.SourceSize.H)
-			fmt.Printf("  Duration: %dms\n", frameData.Duration)
-			fmt.Println()
-		}
-	} else {
-		fmt.Printf("Loaded animation for: %v\n", root.Meta.Image)
+		/*
+			fmt.Println("Frames:")
+			for _, fKey := range root.sortedFrames {
+				frameData := root.Frames[fKey]
+				fmt.Printf("Frame Name: %s\n", fKey)
+				fmt.Printf("  Position: (%d, %d)\n", frameData.Frame.X, frameData.Frame.Y)
+				fmt.Printf("  Size: %dx%d\n", frameData.Frame.W, frameData.Frame.H)
+				fmt.Printf("  Rotated: %t\n", frameData.Rotated)
+				fmt.Printf("  Trimmed: %t\n", frameData.Trimmed)
+				fmt.Printf("  Sprite Source Size: (%d, %d, %dx%d)\n", frameData.SpriteSourceSize.X, frameData.SpriteSourceSize.Y, frameData.SpriteSourceSize.W, frameData.SpriteSourceSize.H)
+				fmt.Printf("  Source Size: %dx%d\n", frameData.SourceSize.W, frameData.SourceSize.H)
+				fmt.Printf("  Duration: %dms\n", frameData.Duration)
+				fmt.Println()
+			} */
 	}
 
 	return root, nil
