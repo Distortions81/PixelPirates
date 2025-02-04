@@ -83,11 +83,7 @@ func newGame() *Game {
 	initIslands()
 
 	gMode := GAME_TITLE
-	if *qisland {
-		gMode = GAME_ISLAND
-	} else if *qtest {
-		gMode = GAME_PLAY
-	}
+
 	g := &Game{
 		gameMode: gMode,
 		envColors: colorData{
@@ -102,6 +98,17 @@ func newGame() *Game {
 				sky:     hexToRGB("1a237e"),
 			},
 		},
+	}
+
+	if *qisland {
+		g.visiting = &islands[0]
+		g.gameMode = GAME_ISLAND
+		go playMusicPlaylist(g, g.gameMode, gameSongList)
+	} else if *qtest {
+		g.gameMode = GAME_PLAY
+		go playMusicPlaylist(g, g.gameMode, gameSongList)
+	} else {
+		go playMusicPlaylist(g, g.gameMode, titleSongList)
 	}
 
 	g.startFade(g.gameMode, time.Second*2, false, COLOR_BLACK, FADE_IN)
