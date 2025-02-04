@@ -15,6 +15,9 @@ import (
 const maxVolume = 0.5
 
 func playMusicPlaylist(g *Game, gameMode int, songList []songData) {
+	if *nomusic {
+		return
+	}
 	if len(songList) == 0 {
 		return
 	}
@@ -59,6 +62,9 @@ func dumpMusic() {
 }
 
 func playSong(song songData) audioData {
+	if *nomusic {
+		return nil
+	}
 	var waves []audioData
 	var waveLock sync.Mutex
 

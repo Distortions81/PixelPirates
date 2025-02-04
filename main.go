@@ -24,8 +24,8 @@ const (
 )
 
 var (
-	wasmMode                     bool
-	qtest, qlive, qisland, debug *bool
+	wasmMode                              bool
+	nomusic, qtest, qlive, qisland, debug *bool
 )
 
 func main() {
@@ -34,6 +34,7 @@ func main() {
 	qtest = flag.Bool("qtest", false, "skip title screen")
 	qisland = flag.Bool("qisland", false, "go directly to welcome island")
 	qlive = flag.Bool("qlive", false, "live reload textures (slow)")
+	nomusic = flag.Bool("nomusic", false, "disable music")
 	debug = flag.Bool("debug", false, "debug info")
 	flag.Parse()
 
