@@ -123,7 +123,7 @@ func startLog() {
 
 	// Handle file errors
 	if errb != nil {
-		fmt.Printf("An error occurred when attempting to create the log. Details: %s", errb)
+		doLog(true, "An error occurred when attempting to create the log. Details: %s", errb)
 		return
 	}
 

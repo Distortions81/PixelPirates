@@ -29,7 +29,7 @@ var (
 )
 
 func main() {
-	fmt.Printf("Game res: %v,%v (%vx) : (%v, %v)\n", dWinWidth, dWinHeight, magScale, dWinWidth*magScale, dWinHeight*magScale)
+	doLog(true, "Game res: %v,%v (%vx) : (%v, %v)\n", dWinWidth, dWinHeight, magScale, dWinWidth*magScale, dWinHeight*magScale)
 	dump := flag.Bool("dumpMusic", false, "Dump songs out as WAV and quit.")
 	qtest = flag.Bool("qtest", false, "skip title screen")
 	qisland = flag.Bool("qisland", false, "go directly to welcome island")
@@ -68,7 +68,7 @@ func main() {
 			for {
 				loadSprites()
 				time.Sleep(time.Second * 1)
-				fmt.Printf("Reloading textures.")
+				doLog(true, "Reloading textures.")
 			}
 		}()
 	}

@@ -121,11 +121,11 @@ func decodeAniJSON(data []byte) (animationData, error) {
 
 	for _, item := range root.Meta.FrameTags {
 		if item.From+item.To == 0 {
-			fmt.Printf("Empty Animation: '%v', %v->%v\n", item.Name, item.From, item.To)
+			doLog(true, "Empty Animation: '%v', %v->%v", item.Name, item.From, item.To)
 			continue
 		}
 		if *debug {
-			fmt.Printf("Animation: %v, %v->%v\n", item.Name, item.From, item.To)
+			doLog(true, "Animation: %v, %v->%v", item.Name, item.From, item.To)
 		}
 		root.animations[item.Name] = frameRange{start: item.From, end: item.To}
 	}
@@ -138,20 +138,20 @@ func decodeAniJSON(data []byte) (animationData, error) {
 	root.sortedFrames = sorted
 	root.numFrames = int64(len(sorted))
 
-	fmt.Printf("Loaded animation for: %v\n", root.Meta.Image)
+	doLog(true, "Loaded animation for: %v", root.Meta.Image)
 	if *debug {
 		/*
 			fmt.Println("Frames:")
 			for _, fKey := range root.sortedFrames {
 				frameData := root.Frames[fKey]
-				fmt.Printf("Frame Name: %s\n", fKey)
-				fmt.Printf("  Position: (%d, %d)\n", frameData.Frame.X, frameData.Frame.Y)
-				fmt.Printf("  Size: %dx%d\n", frameData.Frame.W, frameData.Frame.H)
-				fmt.Printf("  Rotated: %t\n", frameData.Rotated)
-				fmt.Printf("  Trimmed: %t\n", frameData.Trimmed)
-				fmt.Printf("  Sprite Source Size: (%d, %d, %dx%d)\n", frameData.SpriteSourceSize.X, frameData.SpriteSourceSize.Y, frameData.SpriteSourceSize.W, frameData.SpriteSourceSize.H)
-				fmt.Printf("  Source Size: %dx%d\n", frameData.SourceSize.W, frameData.SourceSize.H)
-				fmt.Printf("  Duration: %dms\n", frameData.Duration)
+				doLog(true, "Frame Name: %s", fKey)
+				doLog(true, "  Position: (%d, %d)", frameData.Frame.X, frameData.Frame.Y)
+				doLog(true, "  Size: %dx%d", frameData.Frame.W, frameData.Frame.H)
+				doLog(true, "  Rotated: %t", frameData.Rotated)
+				doLog(true, "  Trimmed: %t", frameData.Trimmed)
+				doLog(true, "  Sprite Source Size: (%d, %d, %dx%d)", frameData.SpriteSourceSize.X, frameData.SpriteSourceSize.Y, frameData.SpriteSourceSize.W, frameData.SpriteSourceSize.H)
+				doLog(true, "  Source Size: %dx%d", frameData.SourceSize.W, frameData.SourceSize.H)
+				doLog(true, "  Duration: %dms", frameData.Duration)
 				fmt.Println()
 			} */
 	}

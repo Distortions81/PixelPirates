@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"math"
 	"math/rand"
 
@@ -18,7 +17,7 @@ func initNoise() {
 		noiseLayers[p].randomSeed = MapSeed - noiseLayers[p].seedOffset
 		noiseLayers[p].randomSource = rand.NewSource(noiseLayers[p].randomSeed)
 		noiseLayers[p].perlinNoise = perlin.NewPerlinRandSource(float64(noiseLayers[p].alpha), float64(noiseLayers[p].beta), noiseLayers[p].n, noiseLayers[p].randomSource)
-		fmt.Printf("init: %v\n", p)
+		doLog(true, "init: %v", p)
 	}
 }
 

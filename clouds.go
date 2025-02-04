@@ -46,11 +46,11 @@ func drawCloudsNew(g *Game, screen *ebiten.Image) {
 				newCloud = &cloudData{id: chunkIDTop}
 				chunkIDTop++
 				newCloud.image = ebiten.NewImage(cloudChunkX, cloudChunkY)
-				fmt.Printf("Created new cloud chunk: %v (%v,%v)\n",
+				doLog(true, "Created new cloud chunk: %v (%v,%v)",
 					newCloud.id, cloudChunkX, cloudChunkY)
 			} else {
 				newCloud = recycledChunks[0]
-				fmt.Printf("Reused cloud chunk: %v (%v,%v)\n",
+				doLog(true, "Reused cloud chunk: %v (%v,%v)",
 					newCloud.id, cloudChunkX, cloudChunkY)
 
 				if nc > 1 {
@@ -90,7 +90,7 @@ func drawCloudsNew(g *Game, screen *ebiten.Image) {
 	if cloudFrame%checkRecycle == 0 {
 		for xc, xCloud := range cloudChunks {
 			if cloudFrame-xCloud.lastUsed > cloudExpire {
-				fmt.Printf("Recycled chunk: %v\n", xCloud.id)
+				doLog(true, "Recycled chunk: %v", xCloud.id)
 				recycledChunks = append(recycledChunks, xCloud)
 				delete(cloudChunks, xc)
 			}

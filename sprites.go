@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"image"
 	"math"
 	"time"
@@ -72,7 +71,7 @@ type spriteItem struct {
 func getAniFrame(frame int64, ani *spriteItem, offset int) *ebiten.Image {
 	numFrames := int64(len(ani.animation.Frames))
 	if frame < 0 || frame >= numFrames {
-		fmt.Printf("%v: invalid frame number: %v\n", ani.Name, frame)
+		doLog(true, "%v: invalid frame number: %v", ani.Name, frame)
 		if frame >= numFrames {
 			frame = numFrames - 1
 		} else if frame < 0 {
@@ -101,7 +100,7 @@ func autoAnimate(ani *spriteItem, offset int, tag string) *ebiten.Image {
 	time := time.Now().UnixMilli() / int64(speed)
 
 	if numFrames <= 0 {
-		fmt.Printf("** %v: %v: NO FRAMES: %v -> %v\n\n", tag, ani.Name, frameRange.start, frameRange.end)
+		doLog(true, "** %v: %v: NO FRAMES: %v -> %v", tag, ani.Name, frameRange.start, frameRange.end)
 		return nil
 	}
 	frameNum := (time % numFrames) + int64(frameRange.start)
@@ -113,7 +112,7 @@ func autoAnimatePingPong(ani *spriteItem, offset int, tag string) *ebiten.Image 
 	frameRange := ani.animation.animations[tag]
 	numFrames := int64(frameRange.end - frameRange.start)
 	if numFrames <= 0 {
-		fmt.Printf("** %v: NO FRAMES: %v -> %v\n\n", ani.Name, frameRange.start, frameRange.end)
+		doLog(true, "** %v: NO FRAMES: %v -> %v", ani.Name, frameRange.start, frameRange.end)
 		return nil
 	}
 

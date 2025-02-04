@@ -47,8 +47,8 @@ func initIslands() {
 		islands[i].visitSprite = vsp
 		islands[i].spawn = fPoint{X: float64(vsp.image.Bounds().Dx()) / 2, Y: float64(vsp.image.Bounds().Dy())}
 
-		fmt.Printf("Spawn: %v,%v -- ", islands[i].spawn.X, islands[i].spawn.Y)
-		fmt.Printf("Storing island: #%v '%v' in block %v.\n", i+1, island.name, islandChunkPos)
+		doLog(true, "Spawn: %v,%v -- ", islands[i].spawn.X, islands[i].spawn.Y)
+		doLog(true, "Storing island: #%v '%v' in block %v.", i+1, island.name, islandChunkPos)
 
 		islandChunks[islandChunkPos].islands = append(islandChunks[islandChunkPos].islands, islands[i])
 	}
