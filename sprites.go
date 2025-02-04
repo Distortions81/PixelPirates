@@ -8,6 +8,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+// For some currently hardcoded sprites
 var spriteList map[string]*spriteItem = map[string]*spriteItem{
 	"title":      {Path: "title/"},
 	"clickstart": {Path: "title/"},

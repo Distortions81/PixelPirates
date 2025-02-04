@@ -9,9 +9,7 @@ import (
 	"time"
 )
 
-var (
-	logData logDataStruct
-)
+var logData logDataStruct
 
 type logDataStruct struct {
 	logDesc  *os.File

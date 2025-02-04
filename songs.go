@@ -21,43 +21,44 @@ type insData struct {
 	attack, decay, sustain, release float32
 }
 
-var gameModePlaylists = [GAME_MAX]playlistData{
-	GAME_TITLE: titleSongList,
-	GAME_PLAY:  gameSongList,
-}
+var (
+	gameModePlaylists = [GAME_MAX]playlistData{
+		GAME_TITLE: titleSongList,
+		GAME_PLAY:  gameSongList,
+	}
 
-var titleSongList = []songData{
-	ebonyGaleEx,
-}
+	titleSongList = []songData{
+		ebonyGaleEx,
+	}
 
-var gameSongList = []songData{
-	midnightDepthsPercussion,
-	introspectiveTheme,
-	merrySailingTheme,
-	ebonyGale,
-	pirateDramaticTheme,
-	pirateEpicTheme,
-}
+	gameSongList = []songData{
+		midnightDepthsPercussion,
+		introspectiveTheme,
+		merrySailingTheme,
+		ebonyGale,
+		pirateDramaticTheme,
+		pirateEpicTheme,
+	}
 
-var ebonyGaleEx = songData{
-	name:     "Aboard the Ebony Gale (Extended)",
-	bpm:      70,
-	reverb:   0.4,  // Slightly cavernous
-	delay:    0.25, // 250ms delay
-	feedback: 0.3,  // Mild echo repeats
-	ins: []insData{
+	ebonyGaleEx = songData{
+		name:     "Aboard the Ebony Gale (Extended)",
+		bpm:      70,
+		reverb:   0.4,  // Slightly cavernous
+		delay:    0.25, // 250ms delay
+		feedback: 0.3,  // Mild echo repeats
+		ins: []insData{
 
-		//------------------------------------------------------------------
-		// 1) Ocean - Subtle background white noise (with a few breaks)
-		//------------------------------------------------------------------
-		{
-			name:    "ocean",
-			volume:  0.15,
-			attack:  6.0,
-			decay:   6.0,
-			sustain: 0.0,
-			release: 0.0,
-			data: `
+			//------------------------------------------------------------------
+			// 1) Ocean - Subtle background white noise (with a few breaks)
+			//------------------------------------------------------------------
+			{
+				name:    "ocean",
+				volume:  0.15,
+				attack:  6.0,
+				decay:   6.0,
+				sustain: 0.0,
+				release: 0.0,
+				data: `
 ////////////////////////////////////////////////////////////////////////
 // SECTION A: Gentle wash of white noise
 ////////////////////////////////////////////////////////////////////////
@@ -75,20 +76,20 @@ WN 16, WN 16, WN 16,
 
 
 `,
-		},
+			},
 
-		//------------------------------------------------------------------
-		// 2) Lead - Main melodic line with variations each section
-		//------------------------------------------------------------------
-		{
-			name:    "lead",
-			volume:  0.8,
-			square:  0.2, // Mostly sine with a bit of buzz
-			attack:  0.1,
-			decay:   0.3,
-			sustain: 0.7,
-			release: 0.4,
-			data: `
+			//------------------------------------------------------------------
+			// 2) Lead - Main melodic line with variations each section
+			//------------------------------------------------------------------
+			{
+				name:    "lead",
+				volume:  0.8,
+				square:  0.2, // Mostly sine with a bit of buzz
+				attack:  0.1,
+				decay:   0.3,
+				sustain: 0.7,
+				release: 0.4,
+				data: `
 ////////////////////////////////////////////////////////////////////////
 // SECTION A (Measures 1-16): Original melody
 ////////////////////////////////////////////////////////////////////////
@@ -156,20 +157,20 @@ Db5 2, Eb5 2,
 Db5 1, Bb4 1, Ab4 2,
 Gb4 4
 `,
-		},
+			},
 
-		//------------------------------------------------------------------
-		// 3) Harmony - Four sections of 16 measures each, new chords in B/C
-		//------------------------------------------------------------------
-		{
-			name:    "harmony",
-			volume:  0.6,
-			square:  0.1, // Softer timbre
-			attack:  0.2,
-			decay:   0.3,
-			sustain: 0.6,
-			release: 0.5,
-			data: `
+			//------------------------------------------------------------------
+			// 3) Harmony - Four sections of 16 measures each, new chords in B/C
+			//------------------------------------------------------------------
+			{
+				name:    "harmony",
+				volume:  0.6,
+				square:  0.1, // Softer timbre
+				attack:  0.2,
+				decay:   0.3,
+				sustain: 0.6,
+				release: 0.5,
+				data: `
 ////////////////////////////////////////////////////////////////////////
 // SECTION A (Measures 1-16): Original chord progression
 ////////////////////////////////////////////////////////////////////////
@@ -262,20 +263,20 @@ Cb4/Eb4/Gb4 4,
 Db4/Ab4/Db5 4,
 Eb4/Gb4/Bb4 4
 `,
-		},
+			},
 
-		//------------------------------------------------------------------
-		// 4) Bass - Matches the harmony’s four sections
-		//------------------------------------------------------------------
-		{
-			name:    "bass",
-			volume:  0.7,
-			square:  0.3, // Slightly more edge in the low range
-			attack:  0.05,
-			decay:   0.2,
-			sustain: 0.7,
-			release: 0.3,
-			data: `
+			//------------------------------------------------------------------
+			// 4) Bass - Matches the harmony’s four sections
+			//------------------------------------------------------------------
+			{
+				name:    "bass",
+				volume:  0.7,
+				square:  0.3, // Slightly more edge in the low range
+				attack:  0.05,
+				decay:   0.2,
+				sustain: 0.7,
+				release: 0.3,
+				data: `
 ////////////////////////////////////////////////////////////////////////
 // SECTION A (Measures 1-16): Original bass notes
 ////////////////////////////////////////////////////////////////////////
@@ -368,39 +369,39 @@ Cb2 4,
 Db2 4,
 Eb2 4
 `},
-	},
-}
+		},
+	}
 
-var ebonyGale = songData{
-	name:     "Aboard the Ebony Gale",
-	bpm:      70,
-	reverb:   0.4,  // Slightly cavernous
-	delay:    0.25, // 250ms delay
-	feedback: 0.3,  // Mild echo repeats
-	ins: []insData{
-		{
-			// Bright, prominent lead
-			name:    "ocean",
-			volume:  0.15,
-			attack:  6.0,
-			decay:   6.0,
-			sustain: 0.0,
-			release: 0.0,
-			data: `
+	ebonyGale = songData{
+		name:     "Aboard the Ebony Gale",
+		bpm:      70,
+		reverb:   0.4,  // Slightly cavernous
+		delay:    0.25, // 250ms delay
+		feedback: 0.3,  // Mild echo repeats
+		ins: []insData{
+			{
+				// Bright, prominent lead
+				name:    "ocean",
+				volume:  0.15,
+				attack:  6.0,
+				decay:   6.0,
+				sustain: 0.0,
+				release: 0.0,
+				data: `
 WN 16, WN 16, WN 16,
 WN 16, WN 16,
 `,
-		},
-		{
-			// Bright, prominent lead
-			name:    "lead",
-			volume:  0.8,
-			square:  0.2, // Mostly sine with a bit of buzz
-			attack:  0.1,
-			decay:   0.3,
-			sustain: 0.7,
-			release: 0.4,
-			data: `
+			},
+			{
+				// Bright, prominent lead
+				name:    "lead",
+				volume:  0.8,
+				square:  0.2, // Mostly sine with a bit of buzz
+				attack:  0.1,
+				decay:   0.3,
+				sustain: 0.7,
+				release: 0.4,
+				data: `
 Eb4 1, Gb4 1, Ab4 2,
 Bb4 1, Ab4 1, Gb4 2,
 Fb4 1, Gb4 1, Ab4 2,
@@ -411,17 +412,17 @@ Bb4 1, Ab4 1, Db5 2,
 Cb5 1, Bb4 1, Ab4 2,
 Gb4 4
 `,
-		},
-		{
-			// Gentle accompaniment chords
-			name:    "harmony",
-			volume:  0.6,
-			square:  0.1, // Softer timbre
-			attack:  0.2,
-			decay:   0.3,
-			sustain: 0.6,
-			release: 0.5,
-			data: `
+			},
+			{
+				// Gentle accompaniment chords
+				name:    "harmony",
+				volume:  0.6,
+				square:  0.1, // Softer timbre
+				attack:  0.2,
+				decay:   0.3,
+				sustain: 0.6,
+				release: 0.5,
+				data: `
 Eb4/Gb4/Bb4 4,
 Cb4/Eb4/Gb4 4,
 Db4/Ab4/Db5 4,
@@ -442,17 +443,17 @@ Cb4/Eb4/Gb4 4,
 Db4/Gb4/Bb4 4,
 Eb4/Gb4/Bb4 4
 `,
-		},
-		{
-			// Steady low-end anchor
-			name:    "bass",
-			volume:  0.7,
-			square:  0.3, // Slightly more edge in the low range
-			attack:  0.05,
-			decay:   0.2,
-			sustain: 0.7,
-			release: 0.3,
-			data: `
+			},
+			{
+				// Steady low-end anchor
+				name:    "bass",
+				volume:  0.7,
+				square:  0.3, // Slightly more edge in the low range
+				attack:  0.05,
+				decay:   0.2,
+				sustain: 0.7,
+				release: 0.3,
+				data: `
 Eb2 4,
 Cb2 4,
 Db2 4,
@@ -473,17 +474,17 @@ Cb2 4,
 Db2 4,
 Eb2 4
 `,
-		},
-		{
-			// Simple percussive hits (kick/snare imitation)
-			name:    "percussion",
-			volume:  0.0, // Muted
-			square:  1.0, // Pure square for a sharper click
-			attack:  0.0,
-			decay:   0.1,
-			sustain: 0.0,
-			release: 0.05,
-			data: `
+			},
+			{
+				// Simple percussive hits (kick/snare imitation)
+				name:    "percussion",
+				volume:  0.0, // Muted
+				square:  1.0, // Pure square for a sharper click
+				attack:  0.0,
+				decay:   0.1,
+				sustain: 0.0,
+				release: 0.05,
+				data: `
 Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
 Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
 Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
@@ -494,31 +495,31 @@ Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
 Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
 Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75
 `,
+			},
 		},
-	},
-}
+	}
 
-var introspectiveTheme = songData{
-	name:     "Introspective Reflection",
-	bpm:      70,
-	reverb:   0.5, // moderate, for spacious introspection
-	delay:    0.3,
-	feedback: 0.3,
-	ins: []insData{
-		{
-			// 1) Soft Piano (Chords)
-			name:   "Soft Piano (Chords)",
-			volume: 0.6,
-			square: 0.1, // mostly sine-like but a bit of "bite"
-			// Longer attack/decay for a gentle swell, moderate sustain/release
-			attack:  0.5,
-			decay:   0.5,
-			sustain: 0.7,
-			release: 1.0,
-			// One 16-measure chord progression:
-			//   i (Eb minor) -> VI (Cb major) -> iv (Ab minor) -> i (Eb minor)
-			// Each chord is 4 measures, total 16. Then repeat 2 more times => 48 measures (~2:45 at 70 BPM).
-			data: `
+	introspectiveTheme = songData{
+		name:     "Introspective Reflection",
+		bpm:      70,
+		reverb:   0.5, // moderate, for spacious introspection
+		delay:    0.3,
+		feedback: 0.3,
+		ins: []insData{
+			{
+				// 1) Soft Piano (Chords)
+				name:   "Soft Piano (Chords)",
+				volume: 0.6,
+				square: 0.1, // mostly sine-like but a bit of "bite"
+				// Longer attack/decay for a gentle swell, moderate sustain/release
+				attack:  0.5,
+				decay:   0.5,
+				sustain: 0.7,
+				release: 1.0,
+				// One 16-measure chord progression:
+				//   i (Eb minor) -> VI (Cb major) -> iv (Ab minor) -> i (Eb minor)
+				// Each chord is 4 measures, total 16. Then repeat 2 more times => 48 measures (~2:45 at 70 BPM).
+				data: `
 ////////////////////////////////////////////////////////////////////////
 // 16-MEASURE CYCLE (4 chords × 4 measures each), REPEATED 3x
 ////////////////////////////////////////////////////////////////////////
@@ -593,20 +594,20 @@ Gb3 1, Bb3 1, Eb4 1, Gb4 1,
 Bb3 1, Eb4 1, Gb4 1, Bb4 1,
 Eb4 1, Gb4 1, Bb4 1, Eb5 1,
 `,
-		},
-		{
-			// 2) Distant Strings (Melody or sustained lines)
-			name:   "Distant Strings",
-			volume: 0.5,
-			square: 0.0, // pure sine-like, smooth/soft
-			// Slow, gentle envelope
-			attack:  1.0,
-			decay:   0.5,
-			sustain: 0.7,
-			release: 1.5,
-			// We'll use half notes (2 beats) to create a slow, reflective melody.
-			// Each measure has 2 half notes. The 16-measure phrase is repeated 3x.
-			data: `
+			},
+			{
+				// 2) Distant Strings (Melody or sustained lines)
+				name:   "Distant Strings",
+				volume: 0.5,
+				square: 0.0, // pure sine-like, smooth/soft
+				// Slow, gentle envelope
+				attack:  1.0,
+				decay:   0.5,
+				sustain: 0.7,
+				release: 1.5,
+				// We'll use half notes (2 beats) to create a slow, reflective melody.
+				// Each measure has 2 half notes. The 16-measure phrase is repeated 3x.
+				data: `
 ////////////////////////////////////////////////////////////////////////
 // 16 MEASURES (2 half notes each), REPEATED 3x
 ////////////////////////////////////////////////////////////////////////
@@ -681,26 +682,26 @@ Gb4 2, Eb4 2,
 Bb4 2, Gb4 2,
 Eb4 2, Eb3 2,
 `,
+			},
 		},
-	},
-}
+	}
 
-var midnightDepthsPercussion = songData{
-	name:     "Midnight Depths",
-	bpm:      70,
-	reverb:   0.6, // Larger reverb for a darker, echoic atmosphere
-	delay:    0.3, // 300ms delay
-	feedback: 0.4, // Enough feedback for an eerie repeat
-	ins: []insData{
-		{
-			name:    "lead",
-			volume:  0.8,
-			square:  0.2, // Mostly sine, slight edge
-			attack:  0.2, // Mild swell
-			decay:   0.3,
-			sustain: 0.7,
-			release: 0.5,
-			data: `
+	midnightDepthsPercussion = songData{
+		name:     "Midnight Depths",
+		bpm:      70,
+		reverb:   0.6, // Larger reverb for a darker, echoic atmosphere
+		delay:    0.3, // 300ms delay
+		feedback: 0.4, // Enough feedback for an eerie repeat
+		ins: []insData{
+			{
+				name:    "lead",
+				volume:  0.8,
+				square:  0.2, // Mostly sine, slight edge
+				attack:  0.2, // Mild swell
+				decay:   0.3,
+				sustain: 0.7,
+				release: 0.5,
+				data: `
 Eb4 2, NN 2,
 Gb4 1, Ab4 1, Bb4 2,
 NN 2, Db5 2,
@@ -716,16 +717,16 @@ Db5 2, Bb4 2,
 Eb5 2, NN 2,
 Db5 1, Bb4 1, Ab4 2
 `,
-		},
-		{
-			name:    "harmony",
-			volume:  0.6,
-			square:  0.1, // Softer timbre
-			attack:  0.3,
-			decay:   0.4,
-			sustain: 0.6,
-			release: 0.5,
-			data: `
+			},
+			{
+				name:    "harmony",
+				volume:  0.6,
+				square:  0.1, // Softer timbre
+				attack:  0.3,
+				decay:   0.4,
+				sustain: 0.6,
+				release: 0.5,
+				data: `
 Eb4/Gb4/Bb4 4,
 Eb4/Gb4/Bb4 4,
 Cb4/Eb4/Gb4 4,
@@ -746,16 +747,16 @@ Db4/Gb4/Bb4 4,
 Ab3/Db4/Fb4 4,
 Eb4/Gb4/Bb4 4
 `,
-		},
-		{
-			name:    "bass",
-			volume:  0.6,
-			square:  0.3, // More bite in low range
-			attack:  0.1,
-			decay:   0.2,
-			sustain: 0.7,
-			release: 0.3,
-			data: `
+			},
+			{
+				name:    "bass",
+				volume:  0.6,
+				square:  0.3, // More bite in low range
+				attack:  0.1,
+				decay:   0.2,
+				sustain: 0.7,
+				release: 0.3,
+				data: `
 Eb2 4,
 Eb2 4,
 Cb2 4,
@@ -776,32 +777,32 @@ Db2 4,
 Ab2 4,
 Eb2 4
 `,
-		},
-		{
-			name:    "descant",
-			volume:  0.7,
-			square:  0.0, // Pure sine, ethereal
-			attack:  0.4,
-			decay:   0.2,
-			sustain: 0.8,
-			release: 0.6,
-			data: `
+			},
+			{
+				name:    "descant",
+				volume:  0.7,
+				square:  0.0, // Pure sine, ethereal
+				attack:  0.4,
+				decay:   0.2,
+				sustain: 0.8,
+				release: 0.6,
+				data: `
 NN 8, // (rests for first 8 measures)
 
 Gb5 0.5, Ab5 0.5, Bb5 1, NN 2.5,
 Db6 1, Bb5 1, NN 2,
 Ab5 0.5, Gb5 0.5, Eb5 1, NN 2.5
 `,
-		},
-		{
-			name:    "pad",
-			volume:  0.5,
-			square:  0.0, // Warm, pad-like
-			attack:  1.0, // Long swell
-			decay:   0.5,
-			sustain: 0.7,
-			release: 1.5,
-			data: `
+			},
+			{
+				name:    "pad",
+				volume:  0.5,
+				square:  0.0, // Warm, pad-like
+				attack:  1.0, // Long swell
+				decay:   0.5,
+				sustain: 0.7,
+				release: 1.5,
+				data: `
 Eb4/Gb4/Bb4 0.5, NN 0.5, Eb4/Gb4/Bb4 0.5, NN 2.5,
 Cb4/Eb4/Gb4 1, NN 3,
 Bb3/Db4/Fb4 1, NN 3,
@@ -817,16 +818,16 @@ Cb4/Eb4/Gb4 0.5, NN 3.5,
 Bb3/Db4/Fb4 0.5, NN 3.5,
 Eb4/Gb4/Bb4 0.5, NN 3.5
 `,
-		},
-		{
-			name:    "percussion",
-			volume:  0.0, // Muted
-			square:  1.0, // Sharp, clicky
-			attack:  0.0,
-			decay:   0.05,
-			sustain: 0.0,
-			release: 0.1,
-			data: `
+			},
+			{
+				name:    "percussion",
+				volume:  0.0, // Muted
+				square:  1.0, // Sharp, clicky
+				attack:  0.0,
+				decay:   0.05,
+				sustain: 0.0,
+				release: 0.1,
+				data: `
 Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
 Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
 Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
@@ -837,42 +838,42 @@ Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
 Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75,
 Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75, Eb1 0.25, NN 0.75, Bb1 0.25, NN 0.75
 `,
+			},
 		},
-	},
-}
+	}
 
-var pirateEpicTheme = songData{
-	name:     "Epic Pirate Saga",
-	bpm:      100, // ~64 measures => ~2.5 minutes
-	reverb:   0.6,
-	delay:    0.3,
-	feedback: 0.4,
-	ins: []insData{
-		{
-			// --------------------
-			// 1) CHORDS INSTRUMENT
-			// --------------------
-			name: "Chords",
-			// We'll stitch together 4 "sections" of 16 measures each = 64 total.
-			// Each measure has 4 beats. BPM=100 => 1 beat = 0.6s, so 1 measure = ~2.4s
-			// 64 measures => ~153.6s => ~2m34s total.
-			//
-			// A rough chord progression in E-flat minor territory:
-			//   Section A (16 measures):  Ebm → Gb → Db → Abm
-			//   Section B (16 measures):  Ebm → Db → Gb → Bbm
-			//   Section C (16 measures):  Ebm → Abm → Bbm → Db
-			//   Section D (16 measures):  Gb → Db → Abm → Ebm
-			//
-			// Each chord is held for 2 measures (8 measures total per “progression”),
-			// repeated for 16 in each section. Then we string all sections together.
-			//
-			// For clarity, we’ll do 2 measures per chord, with a small arpeggio pattern:
-			//   - measure 1: (Eb4, Gb4, Bb4, Eb5)
-			//   - measure 2: (Gb4, Bb4, Eb5, Gb5)
-			// etc.
-			//
-			// This big string *looks* repetitive, but is valid for a roughly 2.5 min track.
-			data: `
+	pirateEpicTheme = songData{
+		name:     "Epic Pirate Saga",
+		bpm:      100, // ~64 measures => ~2.5 minutes
+		reverb:   0.6,
+		delay:    0.3,
+		feedback: 0.4,
+		ins: []insData{
+			{
+				// --------------------
+				// 1) CHORDS INSTRUMENT
+				// --------------------
+				name: "Chords",
+				// We'll stitch together 4 "sections" of 16 measures each = 64 total.
+				// Each measure has 4 beats. BPM=100 => 1 beat = 0.6s, so 1 measure = ~2.4s
+				// 64 measures => ~153.6s => ~2m34s total.
+				//
+				// A rough chord progression in E-flat minor territory:
+				//   Section A (16 measures):  Ebm → Gb → Db → Abm
+				//   Section B (16 measures):  Ebm → Db → Gb → Bbm
+				//   Section C (16 measures):  Ebm → Abm → Bbm → Db
+				//   Section D (16 measures):  Gb → Db → Abm → Ebm
+				//
+				// Each chord is held for 2 measures (8 measures total per “progression”),
+				// repeated for 16 in each section. Then we string all sections together.
+				//
+				// For clarity, we’ll do 2 measures per chord, with a small arpeggio pattern:
+				//   - measure 1: (Eb4, Gb4, Bb4, Eb5)
+				//   - measure 2: (Gb4, Bb4, Eb5, Gb5)
+				// etc.
+				//
+				// This big string *looks* repetitive, but is valid for a roughly 2.5 min track.
+				data: `
 ////////////////////////////////////////////////////////////////////////
 // SECTION A (16 measures): Ebm -> Gb -> Db -> Abm
 ////////////////////////////////////////////////////////////////////////
@@ -997,23 +998,23 @@ Gb4 1, Bb4 1, Eb5 1, Gb5 1,
 Eb4 1, Gb4 1, Bb4 1, Eb5 1,
 Gb4 1, Bb4 1, Eb5 1, Gb5 1,
 `,
-			volume:  0.7, // Full-sounding chord instrument
-			square:  0.3, // Part sine, part square
-			attack:  0.1,
-			decay:   0.3,
-			sustain: 0.7,
-			release: 0.5,
-		},
-		{
-			// --------------------
-			// 2) MELODY INSTRUMENT
-			// --------------------
-			name: "Lead Violin",
-			// We'll do 64 measures of melodic lines that loosely match the chord progression.
-			// For simplicity, each measure has 4 notes, each note = 1 beat,
-			// so they line up measure-by-measure with the chord track.
-			// We vary between Eb, Gb, Ab, Bb, Db, E# (F), Cb (B).
-			data: `
+				volume:  0.7, // Full-sounding chord instrument
+				square:  0.3, // Part sine, part square
+				attack:  0.1,
+				decay:   0.3,
+				sustain: 0.7,
+				release: 0.5,
+			},
+			{
+				// --------------------
+				// 2) MELODY INSTRUMENT
+				// --------------------
+				name: "Lead Violin",
+				// We'll do 64 measures of melodic lines that loosely match the chord progression.
+				// For simplicity, each measure has 4 notes, each note = 1 beat,
+				// so they line up measure-by-measure with the chord track.
+				// We vary between Eb, Gb, Ab, Bb, Db, E# (F), Cb (B).
+				data: `
 ////////////////////////////////////////////////////////////////////////
 // 64-Measure Melody, aligns with chord changes above
 ////////////////////////////////////////////////////////////////////////
@@ -1061,38 +1062,38 @@ Gb5 1, Bb5 1, Eb6 1, Gb5 1,
 Ab5 1, Gb5 1, Eb5 1, Db5 1,
 Bb4 1, Gb5 1, Eb5 1, Eb5 1,
 `,
-			volume:  0.6, // A bit softer than the chords
-			square:  0.0, // Pure sine wave for a gentler violin-ish tone
-			attack:  0.05,
-			decay:   0.2,
-			sustain: 0.8,
-			release: 0.4,
+				volume:  0.6, // A bit softer than the chords
+				square:  0.0, // Pure sine wave for a gentler violin-ish tone
+				attack:  0.05,
+				decay:   0.2,
+				sustain: 0.8,
+				release: 0.4,
+			},
 		},
-	},
-}
+	}
 
-// Dramatic, sweeping ~3:12 pirate theme at 80 BPM, 64 measures total.
-var pirateDramaticTheme = songData{
-	name:     "Dramatic Sweeping Pirate Theme",
-	bpm:      80,  // 80 BPM => 1 measure (4 beats) ~ 3 seconds => 64 measures ~ 192s = 3m12s
-	reverb:   0.8, // Large reverb
-	delay:    0.4, // 0.4s delay
-	feedback: 0.5, // Strong feedback for a big echo
-	ins: []insData{
-		{
-			//-----------------------------------------------------------------------
-			// 1) Chords: A "string ensemble" style with slow attack & long release
-			//-----------------------------------------------------------------------
-			name:   "String Ensemble (Chords)",
-			volume: 0.8,
-			square: 0.1, // Mostly sine-like, slightly “grainy”
-			// Big ADSR for a swelling effect
-			attack:  0.8,
-			decay:   1.0,
-			sustain: 0.7,
-			release: 2.0,
-			// 16 measures repeated 4 times => 64 measures total
-			data: `
+	// Dramatic, sweeping ~3:12 pirate theme at 80 BPM, 64 measures total.
+	pirateDramaticTheme = songData{
+		name:     "Dramatic Sweeping Pirate Theme",
+		bpm:      80,  // 80 BPM => 1 measure (4 beats) ~ 3 seconds => 64 measures ~ 192s = 3m12s
+		reverb:   0.8, // Large reverb
+		delay:    0.4, // 0.4s delay
+		feedback: 0.5, // Strong feedback for a big echo
+		ins: []insData{
+			{
+				//-----------------------------------------------------------------------
+				// 1) Chords: A "string ensemble" style with slow attack & long release
+				//-----------------------------------------------------------------------
+				name:   "String Ensemble (Chords)",
+				volume: 0.8,
+				square: 0.1, // Mostly sine-like, slightly “grainy”
+				// Big ADSR for a swelling effect
+				attack:  0.8,
+				decay:   1.0,
+				sustain: 0.7,
+				release: 2.0,
+				// 16 measures repeated 4 times => 64 measures total
+				data: `
 ////////////////////////////////////////////////////////////////////////
 // ONE “CYCLE” OF 16 MEASURES (4 chords × 4 measures each), REPEATED 4X
 ////////////////////////////////////////////////////////////////////////
@@ -1179,24 +1180,24 @@ Gb3 1, Bb3 1, Eb4 1, Gb4 1,
 Bb3 1, Eb4 1, Gb4 1, Bb4 1,
 Eb4 1, Gb4 1, Bb4 1, Eb5 1,
 `,
-		},
-		{
-			//-----------------------------------------------------------------------
-			// 2) Choir: Big sustained notes under the chords, to add depth/drama
-			//-----------------------------------------------------------------------
-			name:   "Choir",
-			volume: 0.5,
-			square: 0.0, // Pure sine-ish (smooth)
-			// Very slow attack, long release
-			attack:  1.5,
-			decay:   1.0,
-			sustain: 0.8,
-			release: 2.0,
-			// We'll do half-notes that follow the chord roots for 16 measures,
-			// repeated 4 times. Each chord root changes every 4 measures, so
-			// we’ll hold each root for 2 beats, do 2 half-notes per measure, etc.
-			// For variety, we’ll step from root to 5th or minor 3rd.
-			data: `
+			},
+			{
+				//-----------------------------------------------------------------------
+				// 2) Choir: Big sustained notes under the chords, to add depth/drama
+				//-----------------------------------------------------------------------
+				name:   "Choir",
+				volume: 0.5,
+				square: 0.0, // Pure sine-ish (smooth)
+				// Very slow attack, long release
+				attack:  1.5,
+				decay:   1.0,
+				sustain: 0.8,
+				release: 2.0,
+				// We'll do half-notes that follow the chord roots for 16 measures,
+				// repeated 4 times. Each chord root changes every 4 measures, so
+				// we’ll hold each root for 2 beats, do 2 half-notes per measure, etc.
+				// For variety, we’ll step from root to 5th or minor 3rd.
+				data: `
 ////////////////////////////////////////////////////////////////////////
 // 16 MEASURES, REPEATED 4X
 ////////////////////////////////////////////////////////////////////////
@@ -1258,22 +1259,22 @@ Eb2 2, Gb2 2,
 Eb2 2, Bb2 2,
 Eb2 2, Gb2 2,
 `,
-		},
-		{
-			//-----------------------------------------------------------------------
-			// 3) Lead Cello: A melodic line that soars over the chords
-			//-----------------------------------------------------------------------
-			name:   "Lead Cello",
-			volume: 0.7,
-			square: 0.2, // Slightly more bite than the choir
-			// Somewhat shorter attack than chords, but still a bit of swell
-			attack:  0.5,
-			decay:   0.5,
-			sustain: 0.8,
-			release: 1.5,
-			// We'll do quarter-note melodies in each measure (4 notes/measure),
-			// 16 measures, repeated 4x
-			data: `
+			},
+			{
+				//-----------------------------------------------------------------------
+				// 3) Lead Cello: A melodic line that soars over the chords
+				//-----------------------------------------------------------------------
+				name:   "Lead Cello",
+				volume: 0.7,
+				square: 0.2, // Slightly more bite than the choir
+				// Somewhat shorter attack than chords, but still a bit of swell
+				attack:  0.5,
+				decay:   0.5,
+				sustain: 0.8,
+				release: 1.5,
+				// We'll do quarter-note melodies in each measure (4 notes/measure),
+				// 16 measures, repeated 4x
+				data: `
 ////////////////////////////////////////////////////////////////////////
 // 16-MEASURE MELODY, REPEATED 4X
 ////////////////////////////////////////////////////////////////////////
@@ -1325,40 +1326,40 @@ Gb4 1, Eb5 1, Bb4 1, Gb4 1,
 Bb4 1, Eb5 1, Gb4 1, Bb4 1,
 Eb5 1, Gb4 1, Bb4 1, Eb4 1,
 `,
+			},
 		},
-	},
-}
+	}
 
-// Merry, playful sea-sailing tune (~2 min) in "Bb major" spelled enharmonically
-var merrySailingTheme = songData{
-	name: "Merry Sea Shanty",
-	bpm:  120,
-	// Subtle, pleasant space
-	reverb:   0.3,
-	delay:    0.2,
-	feedback: 0.25,
-	ins: []insData{
-		{
-			//-------------------------------------------------------------------
-			// 1) Strumming Guitar (Chords)
-			//-------------------------------------------------------------------
-			name:   "Strumming Guitar",
-			volume: 0.8,
-			square: 0.4, // somewhat bright/buzzy
-			// Short attack for a strum, moderate decay, lower sustain, short release
-			attack:  0.05,
-			decay:   0.2,
-			sustain: 0.5,
-			release: 0.3,
-			// We'll define a 4-measure loop (I–IV–V–I) repeated 16 times => 64 measures total.
-			//
-			// Each measure has 4 quarter notes. The chord shape is repeated each beat
-			// to simulate a quick "strum" on each beat.
-			//
-			// B♭ major => (Bb, C##, E#)
-			// E♭ major => (Eb, F##, Bb)
-			// F major  => (E#, G##, B#)
-			data: `
+	// Merry, playful sea-sailing tune (~2 min) in "Bb major" spelled enharmonically
+	merrySailingTheme = songData{
+		name: "Merry Sea Shanty",
+		bpm:  120,
+		// Subtle, pleasant space
+		reverb:   0.3,
+		delay:    0.2,
+		feedback: 0.25,
+		ins: []insData{
+			{
+				//-------------------------------------------------------------------
+				// 1) Strumming Guitar (Chords)
+				//-------------------------------------------------------------------
+				name:   "Strumming Guitar",
+				volume: 0.8,
+				square: 0.4, // somewhat bright/buzzy
+				// Short attack for a strum, moderate decay, lower sustain, short release
+				attack:  0.05,
+				decay:   0.2,
+				sustain: 0.5,
+				release: 0.3,
+				// We'll define a 4-measure loop (I–IV–V–I) repeated 16 times => 64 measures total.
+				//
+				// Each measure has 4 quarter notes. The chord shape is repeated each beat
+				// to simulate a quick "strum" on each beat.
+				//
+				// B♭ major => (Bb, C##, E#)
+				// E♭ major => (Eb, F##, Bb)
+				// F major  => (E#, G##, B#)
+				data: `
 ////////////////////////////////////////////////////////////////////////
 // 4-measure chord pattern, repeated 16x => 64 total measures
 ////////////////////////////////////////////////////////////////////////
@@ -1408,22 +1409,22 @@ Eb3 1, F##3 1, Bb3 1, Eb4 1,
 E#3 1, G##3 1, B#3 1, E#4 1,
 Bb3 1, C##4 1, E#4 1, Bb4 1,
 `,
-		},
-		{
-			//-------------------------------------------------------------------
-			// 2) Flute (Melody)
-			//-------------------------------------------------------------------
-			name:   "Flute",
-			volume: 0.6,
-			square: 0.0, // pure sine (soft flute-like)
-			// A slightly gentler ADSR than the guitar
-			attack:  0.1,
-			decay:   0.2,
-			sustain: 0.8,
-			release: 0.4,
-			// We'll do a 4-measure melodic phrase repeated 16 times => 64 measures.
-			// Each measure has 4 quarter notes. They loosely trace the chords.
-			data: `
+			},
+			{
+				//-------------------------------------------------------------------
+				// 2) Flute (Melody)
+				//-------------------------------------------------------------------
+				name:   "Flute",
+				volume: 0.6,
+				square: 0.0, // pure sine (soft flute-like)
+				// A slightly gentler ADSR than the guitar
+				attack:  0.1,
+				decay:   0.2,
+				sustain: 0.8,
+				release: 0.4,
+				// We'll do a 4-measure melodic phrase repeated 16 times => 64 measures.
+				// Each measure has 4 quarter notes. They loosely trace the chords.
+				data: `
 ////////////////////////////////////////////////////////////////////////
 // 4-measure melodic phrase, repeated 16 times
 ////////////////////////////////////////////////////////////////////////
@@ -1473,6 +1474,7 @@ Eb5 1, Bb4 1, F##5 1, Eb5 1,
 E#5 1, G##4 1, B#4 1, G##5 1,
 Bb4 1, E#5 1, C##5 1, Bb4 1,
 `,
+			},
 		},
-	},
-}
+	}
+)

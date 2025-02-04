@@ -51,8 +51,10 @@ func loadSprite(name string, unmanaged bool, doBlur bool) (*ebiten.Image, *ebite
 	}
 
 	//Create image
-	var img, blurImg *ebiten.Image
-	var newBlur image.Image
+	var (
+		img, blurImg *ebiten.Image
+		newBlur      image.Image
+	)
 	if doBlur {
 		newBlur = blur.Box(m, islandReflectionBlur)
 	}

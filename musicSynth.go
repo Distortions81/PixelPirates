@@ -65,10 +65,12 @@ func playSong(song songData) audioData {
 	if *nomusic {
 		return nil
 	}
-	var waves []audioData
-	var waveLock sync.Mutex
+	var (
+		waves    []audioData
+		waveLock sync.Mutex
+		wg       sync.WaitGroup
+	)
 
-	var wg sync.WaitGroup
 	for _, instrument := range song.ins {
 		if instrument.volume <= 0 {
 			continue
@@ -332,8 +334,10 @@ func calculateFrequency(note string) float32 {
 
 	// Note names are of the form "A1", "C#4", etc.
 	// First, extract the note (A, B, C, etc.) and the octave number
-	var noteName string
-	var octave int
+	var (
+		noteName string
+		octave   int
+	)
 	fmt.Sscanf(note, "%2s%d", &noteName, &octave)
 
 	// Find the index of the note (A, A#, B, etc.)

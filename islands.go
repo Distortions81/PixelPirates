@@ -126,8 +126,10 @@ func (g *Game) drawIsland(screen *ebiten.Image) {
 	op.GeoM.Translate(dWinWidthHalf-charX, dWinHeightHalf-charY)
 
 	faceDir := directionFromCoords(g.oldPlayPos.X-g.playPos.X, g.oldPlayPos.Y-g.playPos.Y)
-	var dirName string
-	var playerImg *ebiten.Image
+	var (
+		dirName   string
+		playerImg *ebiten.Image
+	)
 	if faceDir < 0 {
 		dirName = "idle"
 		lface := g.playerFacing
@@ -147,5 +149,7 @@ func (g *Game) drawIsland(screen *ebiten.Image) {
 	}
 }
 
-var moveFix [8]int = [8]int{12, 2, 3, 4, 6, 8, 9, 10}
-var faceFix [8]int = [8]int{4, 3, 2, 1, 0, 7, 6, 5}
+var (
+	moveFix [8]int = [8]int{12, 2, 3, 4, 6, 8, 9, 10}
+	faceFix [8]int = [8]int{4, 3, 2, 1, 0, 7, 6, 5}
+)
