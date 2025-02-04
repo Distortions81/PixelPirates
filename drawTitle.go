@@ -9,7 +9,7 @@ func (g *Game) drawTitle(screen *ebiten.Image) {
 	g.makeAirWave()
 
 	drawWorldGrad(g, screen)
-	drawSun(screen)
+	drawSun(g, screen)
 	drawCloudsNew(g, screen)
 	drawWaves(g, screen)
 	drawIslands(g, screen)
@@ -20,17 +20,17 @@ func (g *Game) drawTitle(screen *ebiten.Image) {
 		//Text
 		op := &ebiten.DrawImageOptions{}
 		op.GeoM.Translate(
-			float64((dWinWidth/2)-(titleSP.image.Bounds().Dx())/2),
-			float64((dWinHeight/4)-(titleSP.image.Bounds().Dy())/2))
+			float64((dWinWidth/2)-(g.titleSP.image.Bounds().Dx())/2),
+			float64((dWinHeight/4)-(g.titleSP.image.Bounds().Dy())/2))
 		//op.ColorScale.ScaleAlpha(0.8)
-		screen.DrawImage(titleSP.image, op)
+		screen.DrawImage(g.titleSP.image, op)
 
 		//Click message
 		op = &ebiten.DrawImageOptions{}
 		op.GeoM.Translate(
-			float64((dWinWidth/2)-(clickStartSP.image.Bounds().Dx())/2),
-			float64((dWinHeight/6)*5-(clickStartSP.image.Bounds().Dy())/2))
+			float64((dWinWidth/2)-(g.clickStartSP.image.Bounds().Dx())/2),
+			float64((dWinHeight/6)*5-(g.clickStartSP.image.Bounds().Dy())/2))
 		op.ColorScale.ScaleAlpha(0.3)
-		screen.DrawImage(clickStartSP.image, op)
+		screen.DrawImage(g.clickStartSP.image, op)
 	}
 }

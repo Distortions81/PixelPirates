@@ -18,20 +18,13 @@ const (
 	islandReflectionAlpha = 0.15
 )
 
-var (
-	displayStamp time.Time
-	frameNumber  uint64
-
-	debugBuf string
-)
-
 func (g *Game) drawGame(screen *ebiten.Image) {
 
 	g.makeWave()
 	g.makeAirWave()
 
 	drawWorldGrad(g, screen)
-	drawSun(screen)
+	drawSun(g, screen)
 	drawCloudsNew(g, screen)
 	drawWaves(g, screen)
 	drawIslands(g, screen)
@@ -46,7 +39,7 @@ func drawBoat(g *Game, screen *ebiten.Image) {
 	if time.Now().Unix()%3 == 0 {
 		offset.Y = 1
 	}
-	boatFrame := autoAnimatePingPong(boat2SP, 0, "sail")
+	boatFrame := autoAnimatePingPong(g.boat2SP, 0, "sail")
 	if g.gameMode == GAME_PLAY {
 		op.GeoM.Translate(
 			float64((dWinWidth/4)-(boatFrame.Bounds().Dx())/2+offset.X),

@@ -8,6 +8,24 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
+const (
+	FADE_CROSSFADE = iota
+	FADE_IN
+	FADE_OUT
+)
+
+type fadeData struct {
+	fadeToMode int
+
+	fadeStarted   time.Time
+	fadeType      int
+	duration      time.Duration
+	fadeDirection bool
+	stopMusic     bool
+
+	color color.NRGBA
+}
+
 func (g *Game) startFade(toMode int, duration time.Duration, stopMusic bool, color color.NRGBA, fadeType int) {
 	if g.modeTransition {
 		return

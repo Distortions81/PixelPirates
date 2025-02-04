@@ -1,9 +1,5 @@
 package main
 
-import "github.com/hajimehoshi/ebiten/v2/audio"
-
-var audioContext *audio.Context
-
 type audioData []float32
 
 // applyReverb takes an input slice of samples, applies a simple delay + feedback effect,

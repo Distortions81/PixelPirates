@@ -12,8 +12,6 @@ const (
 	checkChunks     = 4
 )
 
-var islandChunks map[int]*islandChunkData
-
 type islandData struct {
 	name, desc string
 	pos        int
@@ -34,13 +32,13 @@ var islands []islandData = []islandData{
 	{name: "Welcome island", desc: "Learn the basics here!", pos: dWinWidth, spriteName: "island1", visitName: "island-scene1"},
 }
 
-func initIslands() {
-	islandChunks = map[int]*islandChunkData{}
+func initIslands(g *Game) {
+	g.islandChunks = map[int]*islandChunkData{}
 
 	for i, island := range islands {
 		islandChunkPos := island.pos / islandChunkSize
-		if islandChunks[islandChunkPos] == nil {
-			islandChunks[islandChunkPos] = &islandChunkData{}
+		if g.islandChunks[islandChunkPos] == nil {
+			g.islandChunks[islandChunkPos] = &islandChunkData{}
 		}
 		islands[i].sprite = spriteList[island.spriteName]
 		vsp := spriteList[island.visitName]
@@ -50,7 +48,7 @@ func initIslands() {
 		doLog(true, true, "Spawn: %v,%v -- ", islands[i].spawn.X, islands[i].spawn.Y)
 		doLog(true, true, "Storing island: #%v '%v' in block %v.", i+1, island.name, islandChunkPos)
 
-		islandChunks[islandChunkPos].islands = append(islandChunks[islandChunkPos].islands, islands[i])
+		g.islandChunks[islandChunkPos].islands = append(g.islandChunks[islandChunkPos].islands, islands[i])
 	}
 }
 
@@ -58,7 +56,7 @@ func drawIslands(g *Game, screen *ebiten.Image) {
 
 	paralaxPos := g.boatPos.X * (islandY * distParallax)
 
-	islands := getIslands(int(paralaxPos))
+	islands := getIslands(g, int(paralaxPos))
 	drewSign := false
 
 	for i, island := range islands {
@@ -97,16 +95,16 @@ func drawIslands(g *Game, screen *ebiten.Image) {
 	}
 }
 
-func getIslands(pos int) []islandData {
+func getIslands(g *Game, pos int) []islandData {
 	var islandsFound []islandData
 
 	cPos := pos / islandChunkSize
 
 	for x := cPos - checkChunks; x < cPos+checkChunks; x++ {
-		if islandChunks[x] == nil {
+		if g.islandChunks[x] == nil {
 			continue
 		}
-		islandsFound = append(islandsFound, islandChunks[x].islands...)
+		islandsFound = append(islandsFound, g.islandChunks[x].islands...)
 	}
 
 	return islandsFound
@@ -120,7 +118,7 @@ func (g *Game) drawIsland(screen *ebiten.Image) {
 
 	//Draw player
 	op = &ebiten.DrawImageOptions{}
-	ani := defPlayerSP
+	ani := g.defPlayerSP
 	fKey := ani.animation.sortedFrames[0]
 	fRect := ani.animation.Frames[fKey].Frame
 
@@ -136,10 +134,10 @@ func (g *Game) drawIsland(screen *ebiten.Image) {
 		if lface < 0 {
 			lface = 4
 		}
-		playerImg = getAniFrame(int64(faceFix[lface]), defPlayerSP, 0)
+		playerImg = getAniFrame(int64(faceFix[lface]), g.defPlayerSP, 0)
 	} else {
 		dirName = fmt.Sprintf("%v move", moveFix[faceDir])
-		playerImg = autoAnimate(defPlayerSP, 0, dirName)
+		playerImg = autoAnimate(g.defPlayerSP, 0, dirName)
 	}
 	screen.DrawImage(playerImg, op)
 

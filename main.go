@@ -39,8 +39,6 @@ func main() {
 
 	doLog(true, true, "Game res: %v,%v (%vx) : (%v, %v)\n", dWinWidth, dWinHeight, magScale, dWinWidth*magScale, dWinHeight*magScale)
 
-	audioContext = audio.NewContext(sampleRate)
-
 	if *dump {
 		dumpMusic()
 		fmt.Println("Music dump complete.")
@@ -59,9 +57,7 @@ func main() {
 	ebiten.SetScreenClearedEveryFrame(false)
 	ebiten.SetWindowTitle("Pixel Pirates")
 
-	cloudChunks = map[int]*cloudData{}
 	initNoise()
-	worldGradImg = ebiten.NewImage(1, dWinHeight)
 	loadSprites()
 
 	if *qlive {
@@ -81,9 +77,6 @@ func main() {
 
 func newGame() *Game {
 
-	initSprites()
-	initIslands()
-
 	gMode := GAME_TITLE
 
 	g := &Game{
@@ -102,6 +95,13 @@ func newGame() *Game {
 		},
 	}
 
+	initSprites(g)
+	initIslands(g)
+	g.audioContext = audio.NewContext(sampleRate)
+	g.cloudChunks = map[int]*cloudData{}
+	g.worldGradImg = ebiten.NewImage(1, dWinHeight)
+	g.worldGradDirty = true
+
 	if *qisland {
 		g.visiting = &islands[0]
 		g.gameMode = GAME_ISLAND
@@ -115,7 +115,7 @@ func newGame() *Game {
 
 	g.startFade(g.gameMode, time.Second*2, false, COLOR_BLACK, FADE_IN)
 
-	lastUpdate = time.Now()
+	g.lastUpdate = time.Now()
 	return g
 
 }
@@ -125,7 +125,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	frameNumber++
+	g.frameNumber++
 	startTime := time.Now()
 
 	switch g.gameMode {
@@ -145,19 +145,19 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	if *debugMode {
-		if frameNumber%60 == 0 {
+		if g.frameNumber%60 == 0 {
 			renderTime := time.Since(startTime).Microseconds()
-			displayTime := time.Since(displayStamp).Microseconds()
+			displayTime := time.Since(g.displayStamp).Microseconds()
 
-			debugBuf = fmt.Sprintf("Render: %4du, Display: %0.2fms, %%%0.2f, FPS: %0.2f",
+			g.debugBuf = fmt.Sprintf("Render: %4du, Display: %0.2fms, %%%0.2f, FPS: %0.2f",
 				renderTime,
 				float64(displayTime)/1000,
 				float64(renderTime)/float64(displayTime)*100,
 				ebiten.ActualFPS())
 		}
 
-		ebitenutil.DebugPrintAt(screen, debugBuf, 0, dWinHeight-16)
-		displayStamp = time.Now()
+		ebitenutil.DebugPrintAt(screen, g.debugBuf, 0, dWinHeight-16)
+		g.displayStamp = time.Now()
 	}
 
 }

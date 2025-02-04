@@ -23,17 +23,13 @@ var spriteList map[string]*spriteItem = map[string]*spriteItem{
 	"island-scene1": {Path: "islands/"},
 }
 
-var (
-	defPlayerSP, boat2SP, sunSP, titleSP, clickStartSP *spriteItem
-)
+func initSprites(g *Game) {
+	g.titleSP = spriteList["title"]
+	g.clickStartSP = spriteList["clickstart"]
 
-func initSprites() {
-	titleSP = spriteList["title"]
-	clickStartSP = spriteList["clickstart"]
-
-	sunSP = spriteList["sun"]
-	boat2SP = spriteList["boat2"]
-	defPlayerSP = spriteList["default-player"]
+	g.sunSP = spriteList["sun"]
+	g.boat2SP = spriteList["boat2"]
+	g.defPlayerSP = spriteList["default-player"]
 
 }
 

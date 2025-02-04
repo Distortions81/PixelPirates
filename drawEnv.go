@@ -70,17 +70,8 @@ const (
 	cloudReflectStretch = 1.5
 )
 
-var (
-	wavesLines            [dWinHeightHalf]waveLine
-	airWaveLines          [dWinHeightHalf]waveLine
-	numWaves, numAirWaves int
-
-	worldGradImg   *ebiten.Image
-	worldGradDirty bool = true
-)
-
 func (g *Game) updateWorldGrad() {
-	worldGradImg.Clear()
+	g.worldGradImg.Clear()
 
 	var y float32
 	for y = 0; y < dWinHeightHalf; y++ {
@@ -91,7 +82,7 @@ func (g *Game) updateWorldGrad() {
 			H: waterStartColor + (vVal * waterHueShift),
 			S: waterSaturate,
 			V: waterBrightStart - math.Min(vVal/waterDarkenDivide, 1.0)})
-		vector.DrawFilledRect(worldGradImg, 0, dWinHeightHalf+y,
+		vector.DrawFilledRect(g.worldGradImg, 0, dWinHeightHalf+y,
 			1, 1, color, false)
 
 		//Sky
@@ -99,40 +90,40 @@ func (g *Game) updateWorldGrad() {
 			H: skyStartColor + (vVal * skyHueShift),
 			S: skySaturate,
 			V: skyBrightStart - math.Min(((1.0-vVal)/skyDarkenDivide), 1.0)})
-		vector.DrawFilledRect(worldGradImg, 0, y, 1, 1, color, false)
+		vector.DrawFilledRect(g.worldGradImg, 0, y, 1, 1, color, false)
 
 	}
 
 	//Horizon
-	vector.DrawFilledRect(worldGradImg, 0, dWinHeightHalf-(1), dWinWidth, 1,
+	vector.DrawFilledRect(g.worldGradImg, 0, dWinHeightHalf-(1), dWinWidth, 1,
 		g.envColors.day.horizon, false)
 }
 
-func drawSun(screen *ebiten.Image) {
+func drawSun(g *Game, screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(float64(sunSP.image.Bounds().Dx())+sunX, 24)
-	screen.DrawImage(sunSP.image, op)
+	op.GeoM.Translate(float64(g.sunSP.image.Bounds().Dx())+sunX, 24)
+	screen.DrawImage(g.sunSP.image, op)
 }
 
 func drawWorldGrad(g *Game, screen *ebiten.Image) {
 	//Draw world grads (cached)
-	if worldGradDirty {
-		worldGradDirty = false
+	if g.worldGradDirty {
+		g.worldGradDirty = false
 		g.updateWorldGrad()
 	}
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Scale(dWinWidth, 1)
-	screen.DrawImage(worldGradImg, op)
+	screen.DrawImage(g.worldGradImg, op)
 }
 
-func drawSunReflect(screen *ebiten.Image) {
+func drawSunReflect(g *Game, screen *ebiten.Image) {
 	subRect := image.Rectangle{
-		Min: image.Point{X: 0, Y: sunSP.blurred.Bounds().Dy() / 2.0},
-		Max: image.Point{X: sunSP.blurred.Bounds().Dx(), Y: sunSP.blurred.Bounds().Dy()},
+		Min: image.Point{X: 0, Y: g.sunSP.blurred.Bounds().Dy() / 2.0},
+		Max: image.Point{X: g.sunSP.blurred.Bounds().Dx(), Y: g.sunSP.blurred.Bounds().Dy()},
 	}
 	op := &ebiten.DrawImageOptions{}
 	op.Filter = ebiten.FilterLinear
-	sub := sunSP.blurred.SubImage(subRect)
+	sub := g.sunSP.blurred.SubImage(subRect)
 	op.GeoM.Reset()
 	xScale, yScale := 1.0, sunReflectHeight
 	op.GeoM.Scale(xScale, yScale)
@@ -145,7 +136,7 @@ func drawSunReflect(screen *ebiten.Image) {
 
 func drawAir(g *Game, screen *ebiten.Image) {
 
-	for y, line := range airWaveLines {
+	for y, line := range g.airWaveLines {
 		for _, wave := range line.waves {
 			// Lower alpha for waves that are farther away
 			alpha := uint8(math32.Min(30+(float32(y)*2.5), 255))
@@ -172,7 +163,7 @@ func drawAir(g *Game, screen *ebiten.Image) {
 }
 
 func drawWaves(g *Game, screen *ebiten.Image) {
-	for y, line := range wavesLines {
+	for y, line := range g.wavesLines {
 		for _, wave := range line.waves {
 			// Lower alpha for waves that are farther away
 			alpha := uint8(math32.Min(waveAlpha+(float32(y)*waveDistAlpha), 255))
@@ -200,21 +191,21 @@ func drawWaves(g *Game, screen *ebiten.Image) {
 var collisions int
 
 func (g Game) makeWave() {
-	if numWaves > 0 {
-		for l, line := range wavesLines {
+	if g.numWaves > 0 {
+		for l, line := range g.wavesLines {
 			for w, wave := range line.waves {
 				if time.Since(wave.start) > wave.life {
 					// Remove the element at index i
-					wavesLines[l].waves = append(wavesLines[l].waves[:w], wavesLines[l].waves[w+1:]...)
-					numWaves--
-					wavesLines[l].count--
+					g.wavesLines[l].waves = append(g.wavesLines[l].waves[:w], g.wavesLines[l].waves[w+1:]...)
+					g.numWaves--
+					g.wavesLines[l].count--
 					break
 				}
 			}
 		}
 	}
 	spawns := 0
-	for spawns < spawnPerFrame && numWaves < maxWaves && collisions < maxCollisions {
+	for spawns < spawnPerFrame && g.numWaves < maxWaves && collisions < maxCollisions {
 		y := int(logDistWave(rand.Float64()) * dWinHeightHalf)
 		y = min(y, dWinHeightHalf-1)
 		y = max(y, 0)
@@ -227,29 +218,29 @@ func (g Game) makeWave() {
 			life:  time.Millisecond * time.Duration(minWaveLifeMS+(rand.Float64()*maxWaveLifeRandMS)),
 		}
 
-		wavesLines[y].waves = append(wavesLines[y].waves, newWave)
-		wavesLines[y].count++
-		numWaves++
+		g.wavesLines[y].waves = append(g.wavesLines[y].waves, newWave)
+		g.wavesLines[y].count++
+		g.numWaves++
 		spawns++
 	}
 }
 
 func (g Game) makeAirWave() {
-	if numAirWaves > 0 {
-		for l, line := range airWaveLines {
+	if g.numAirWaves > 0 {
+		for l, line := range g.airWaveLines {
 			for w, wave := range line.waves {
 				if time.Since(wave.start) > wave.life {
 					// Remove the element at index i
-					airWaveLines[l].waves = append(airWaveLines[l].waves[:w], airWaveLines[l].waves[w+1:]...)
-					numAirWaves--
-					airWaveLines[l].count--
+					g.airWaveLines[l].waves = append(g.airWaveLines[l].waves[:w], g.airWaveLines[l].waves[w+1:]...)
+					g.numAirWaves--
+					g.airWaveLines[l].count--
 					break
 				}
 			}
 		}
 	}
 	spawns := 0
-	for spawns < spawnPerFrame && numAirWaves < maxAirWaves && collisions < maxCollisions {
+	for spawns < spawnPerFrame && g.numAirWaves < maxAirWaves && collisions < maxCollisions {
 		y := int(logDistAirWave(rand.Float64()) * dWinHeightHalf)
 		y = min(y, dWinHeightHalf-1)
 		y = max(y, 0)
@@ -262,9 +253,9 @@ func (g Game) makeAirWave() {
 			life:  time.Millisecond * time.Duration(minAirWaveLifeMS+(rand.Float64()*maxAirWaveLifeRandMS)),
 		}
 
-		airWaveLines[y].waves = append(airWaveLines[y].waves, newWave)
-		airWaveLines[y].count++
-		numAirWaves++
+		g.airWaveLines[y].waves = append(g.airWaveLines[y].waves, newWave)
+		g.airWaveLines[y].count++
+		g.numAirWaves++
 		spawns++
 	}
 }

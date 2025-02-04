@@ -300,7 +300,7 @@ func playWave(g *Game, music bool, wave audioData) {
 	}
 
 	// 3) Create a player and play
-	player := audioContext.NewPlayerFromBytes(soundData)
+	player := g.audioContext.NewPlayerFromBytes(soundData)
 	player.Play()
 
 	for player.IsPlaying() {

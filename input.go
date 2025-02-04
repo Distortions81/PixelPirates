@@ -8,8 +8,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
-var lastUpdate time.Time
-
 const (
 	MaxBoatY = 25
 	MinBoatY = -35
@@ -25,7 +23,7 @@ const (
 func (g *Game) Update() error {
 
 	defer func() {
-		lastUpdate = time.Now()
+		g.lastUpdate = time.Now()
 		g.clampBoatPos()
 	}()
 
@@ -40,8 +38,8 @@ func (g *Game) Update() error {
 		return nil
 	} else if g.gameMode == GAME_PLAY {
 
-		xBase := float64(time.Since(lastUpdate).Microseconds()) / boatYSpeed
-		yBase := float64(time.Since(lastUpdate).Microseconds()) / boatXSpeed
+		xBase := float64(time.Since(g.lastUpdate).Microseconds()) / boatYSpeed
+		yBase := float64(time.Since(g.lastUpdate).Microseconds()) / boatXSpeed
 
 		xSpeed, ySpeed := yBase, xBase
 		for _, key := range pressedKeys {
@@ -78,7 +76,7 @@ func (g *Game) Update() error {
 		}
 	} else if g.gameMode == GAME_ISLAND {
 
-		pBase := float64(time.Since(lastUpdate).Microseconds()) / playerSpeed
+		pBase := float64(time.Since(g.lastUpdate).Microseconds()) / playerSpeed
 
 		g.oldPlayPos = g.playPos
 

@@ -10,6 +10,10 @@ import (
 )
 
 var (
+	logData logDataStruct
+)
+
+type logDataStruct struct {
 	logDesc  *os.File
 	logName  string
 	logReady bool
@@ -17,7 +21,7 @@ var (
 	logBuf      []string
 	logBufLines int
 	logBufLock  sync.Mutex
-)
+}
 
 /*
  * Log this, can use printf arguments
@@ -57,16 +61,16 @@ func doLog(withTrace, debug bool, format string, args ...interface{}) {
 		buf = fmt.Sprintf("%v: %v\n", date, text)
 	}
 
-	if !logReady || logDesc == nil {
+	if !logData.logReady || logData.logDesc == nil {
 		fmt.Print(buf)
 		return
 	}
 
 	// Add to buffer
-	logBufLock.Lock()
-	logBuf = append(logBuf, buf)
-	logBufLines++
-	logBufLock.Unlock()
+	logData.logBufLock.Lock()
+	logData.logBuf = append(logData.logBuf, buf)
+	logData.logBufLines++
+	logData.logBufLock.Unlock()
 }
 
 func logDaemon() {
@@ -77,29 +81,29 @@ func logDaemon() {
 
 	go func() {
 		for {
-			logBufLock.Lock()
+			logData.logBufLock.Lock()
 
 			// Are there lines to write?
-			if logBufLines == 0 {
-				logBufLock.Unlock()
+			if logData.logBufLines == 0 {
+				logData.logBufLock.Unlock()
 				time.Sleep(time.Millisecond * 100)
 				continue
 			}
 
 			// Write line
-			_, err := logDesc.WriteString(logBuf[0])
+			_, err := logData.logDesc.WriteString(logData.logBuf[0])
 			if err != nil {
 				fmt.Println("DoLog: WriteString failure")
-				logDesc.Close()
-				logDesc = nil
+				logData.logDesc.Close()
+				logData.logDesc = nil
 			}
-			fmt.Print(logBuf[0])
+			fmt.Print(logData.logBuf[0])
 
 			// Remove line from buffer
-			logBuf = logBuf[1:]
-			logBufLines--
+			logData.logBuf = logData.logBuf[1:]
+			logData.logBufLines--
 
-			logBufLock.Unlock()
+			logData.logBufLock.Unlock()
 		}
 	}()
 }
@@ -113,7 +117,7 @@ func startLog() {
 	t := time.Now()
 
 	// Create our log file names
-	logName = fmt.Sprintf("log/auth-%v-%v-%v.log", t.Day(), t.Month(), t.Year())
+	logData.logName = fmt.Sprintf("log/auth-%v-%v-%v.log", t.Day(), t.Month(), t.Year())
 
 	// Make log directory
 	errr := os.MkdirAll("log", os.ModePerm)
@@ -123,7 +127,7 @@ func startLog() {
 	}
 
 	// Open log files
-	bdesc, errb := os.OpenFile(logName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	bdesc, errb := os.OpenFile(logData.logName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 
 	// Handle file errors
 	if errb != nil {
@@ -132,7 +136,7 @@ func startLog() {
 	}
 
 	// Save descriptors, open/closed elsewhere
-	logDesc = bdesc
-	logReady = true
+	logData.logDesc = bdesc
+	logData.logReady = true
 
 }

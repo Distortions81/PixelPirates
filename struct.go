@@ -3,6 +3,9 @@ package main
 import (
 	"image/color"
 	"time"
+
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/audio"
 )
 
 // Game mode
@@ -13,42 +16,54 @@ const (
 	GAME_MAX //Don't use
 )
 
-const (
-	FADE_CROSSFADE = iota
-	FADE_IN
-	FADE_OUT
-)
-
-type fadeData struct {
-	fadeToMode int
-
-	fadeStarted   time.Time
-	fadeType      int
-	duration      time.Duration
-	fadeDirection bool
-	stopMusic     bool
-
-	color color.NRGBA
-}
-
 type Game struct {
-	gameMode       int
+	gameMode int
+	//Fade
 	modeTransition bool
-	fade           fadeData
 
-	stopMusic bool
+	//Draw
+	displayStamp time.Time
+	frameNumber  uint64
 
-	boatPos             fPoint
+	debugBuf string
+
+	//Input
+	lastUpdate time.Time
+
+	//Audio
+	audioContext *audio.Context
+	stopMusic    bool
+
+	fade fadeData
+
+	//Ocean specific
+	boatPos fPoint
+	//Waves
+	wavesLines            [dWinHeightHalf]waveLine
+	airWaveLines          [dWinHeightHalf]waveLine
+	numWaves, numAirWaves int
+
+	worldGradImg   *ebiten.Image
+	worldGradDirty bool
+
+	//Visit-Island specific
+	islandChunks        map[int]*islandChunkData
 	playPos, oldPlayPos fPoint
 	playerFacing        int
-	envColors           colorData
 
 	visiting, canVisit *islandData
-}
 
-// hsv represents a color in hsv space
-type hsv struct {
-	H, S, V float64
+	//Clouds
+	cloudChunks    map[int]*cloudData
+	recycledChunks []*cloudData
+	cloudsDirty    bool
+	chunkIDTop     int
+
+	//Sky & water colors
+	envColors colorData
+
+	//Hardcoded sprites
+	defPlayerSP, boat2SP, sunSP, titleSP, clickStartSP *spriteItem
 }
 
 type colorData struct {
