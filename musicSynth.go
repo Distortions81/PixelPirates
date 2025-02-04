@@ -12,7 +12,7 @@ import (
 	"github.com/chewxy/math32"
 )
 
-const maxVolume = 0.8
+const maxVolume = 0.5
 
 func playMusicPlaylist(g *Game, gameMode int, songList []songData) {
 	if len(songList) == 0 {
