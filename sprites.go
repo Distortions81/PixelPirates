@@ -97,14 +97,14 @@ func getAniFrame(frame int64, ani *spriteItem, offset int) *ebiten.Image {
 
 func autoAnimate(ani *spriteItem, offset int, tag string) *ebiten.Image {
 	frameRange := ani.animation.animations[tag]
-	numFrames := int64(frameRange.end - frameRange.start)
+	numFrames := int64(frameRange.end-frameRange.start) + 1
 
 	firstFrame := ani.animation.sortedFrames[frameRange.start]
 	speed := ani.animation.Frames[firstFrame].Duration
 	time := time.Now().UnixMilli() / int64(speed)
 
 	if numFrames <= 0 {
-		fmt.Printf("** %v: NO FRAMES: %v -> %v\n\n", ani.Name, frameRange.start, frameRange.end)
+		fmt.Printf("** %v: %v: NO FRAMES: %v -> %v\n\n", tag, ani.Name, frameRange.start, frameRange.end)
 		return nil
 	}
 	frameNum := (time % numFrames) + int64(frameRange.start)

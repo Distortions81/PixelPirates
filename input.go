@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -76,15 +77,18 @@ func (g *Game) Update() error {
 		}
 	} else if g.gameMode == GAME_ISLAND {
 
-		g.prevPlayerPos = g.playerPos
+		g.oldPlayPos = g.playPos
+
 		pSpeed := float64(playerSpeed)
 		for _, key := range pressedKeys {
 			if key == ebiten.KeyShiftLeft || key == ebiten.KeyShiftRight {
 				pSpeed = playerSpeed * turboSpeed
 			}
 		}
+
 		sceneX, sceneY := float64(testScene1SP.image.Bounds().Dx()), float64(testScene1SP.image.Bounds().Dy())
 		sceneX, sceneY = sceneX-dWinWidth, sceneY-dWinHeight
+		oldPos := g.playPos
 		for _, key := range pressedKeys {
 			if key == ebiten.KeyE {
 				g.startFade(GAME_PLAY, time.Second, true, COLOR_WHITE, FADE_CROSSFADE)
@@ -92,36 +96,46 @@ func (g *Game) Update() error {
 			}
 			if key == ebiten.KeyW ||
 				key == ebiten.KeyArrowUp {
-				g.playerPos.Y -= pSpeed
-				if g.playerPos.Y < 0 {
-					g.playerPos.Y = 0
-				}
+				g.playPos.Y -= pSpeed
 			}
 			if key == ebiten.KeyA ||
 				key == ebiten.KeyArrowLeft {
-				g.playerPos.X -= pSpeed
-				if g.playerPos.X < 0 {
-					g.playerPos.X = 0
-				}
+				g.playPos.X -= pSpeed
 			}
 			if key == ebiten.KeyS ||
 				key == ebiten.KeyArrowDown {
-				g.playerPos.Y += pSpeed
-				if g.playerPos.Y > sceneY {
-					g.playerPos.Y = sceneY
-				}
+				g.playPos.Y += pSpeed
 			}
 			if key == ebiten.KeyD ||
 				key == ebiten.KeyArrowRight {
-				g.playerPos.X += pSpeed
-				if g.playerPos.X > sceneX {
-					g.playerPos.X = sceneX
-				}
+				g.playPos.X += pSpeed
 			}
 		}
+		face := directionFromCoords(oldPos.X-g.playPos.X, oldPos.Y-g.playPos.Y)
+		if face >= 0 {
+			g.playerFacing = face
+		}
+		g.playPos = clampPos(fPoint{X: 0, Y: 0}, g.playPos, fPoint{X: sceneX, Y: sceneY})
 	}
 
 	return nil
+}
+
+func clampPos(low, pos, max fPoint) fPoint {
+	if pos.Y > max.Y {
+		pos.Y = max.Y
+	}
+	if pos.Y < low.Y {
+		pos.Y = low.Y
+	}
+
+	if pos.X > max.X {
+		pos.X = max.X
+	}
+	if pos.X < low.X {
+		pos.X = low.X
+	}
+	return pos
 }
 
 func (g *Game) clampBoatPos() {
@@ -131,4 +145,72 @@ func (g *Game) clampBoatPos() {
 	if g.boatPos.Y < MinBoatY {
 		g.boatPos.Y = MinBoatY
 	}
+}
+
+func directionFromCoords(x, y float64) int {
+	x = -x
+	switch {
+	case y > 0 && x == 0:
+		return 0 // north
+	case x > 0 && y > 0:
+		return 1 // north-east
+	case x > 0 && y == 0:
+		return 2 // east
+	case x > 0 && y < 0:
+		return 3 // south-east
+	case x == 0 && y < 0:
+		return 4 // south
+	case x < 0 && y < 0:
+		return 5 // south-west
+	case x < 0 && y == 0:
+		return 6 // west
+	case x < 0 && y > 0:
+		return 7 // north-west
+	default:
+		// x == 0 && y == 0 → no movement
+		// or any unhandled case
+		return -1 //default south
+	}
+}
+
+func applyDirection(x, y float64, direction int, speed float64) (float64, float64) {
+	// 45° diagonal movement factor (cos 45°, sin 45°)
+	diag := math.Sqrt(2) / 2
+
+	switch direction {
+	case 0:
+		// north
+		y += speed
+	case 1:
+		// north-east
+		x += diag * speed
+		y += diag * speed
+	case 2:
+		// east
+		x += speed
+	case 3:
+		// south-east
+		x += diag * speed
+		y -= diag * speed
+	case 4:
+		// south
+		y -= speed
+	case 5:
+		// south-west
+		x -= diag * speed
+		y -= diag * speed
+	case 6:
+		// west
+		x -= speed
+	case 7:
+		// north-west
+		x -= diag * speed
+		y += diag * speed
+	default:
+		// If the direction is invalid, do nothing or handle as needed.
+		// For example, you could return x, y as is, or log an error.
+		// We'll just return unchanged here.
+	}
+
+	return x, y
 }

@@ -103,9 +103,9 @@ var islands []islandData = []islandData{
 func (g *Game) drawIsland(screen *ebiten.Image) {
 	screen.Clear()
 	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(-g.playerPos.X, -g.playerPos.Y)
+	op.GeoM.Translate(-g.playPos.X, -g.playPos.Y)
 	screen.DrawImage(testScene1SP.image, op)
-	buf := fmt.Sprintf("Test Island scene, E to Exit. %v,%v", g.playerPos.X, g.playerPos.Y)
+	buf := fmt.Sprintf("Test Island scene, E to Exit. %v,%v", g.playPos.X, g.playPos.Y)
 	ebitenutil.DebugPrint(screen, buf)
 
 	op = &ebiten.DrawImageOptions{}
@@ -115,6 +115,24 @@ func (g *Game) drawIsland(screen *ebiten.Image) {
 
 	charX, charY := float64(fRect.W/2), float64(fRect.H/2)
 	op.GeoM.Translate(dWinWidthHalf-charX, dWinHeightHalf-charY)
-	playerImg := autoAnimate(defPlayerSP, 0, "6 move")
+
+	faceDir := directionFromCoords(g.oldPlayPos.X-g.playPos.X, g.oldPlayPos.Y-g.playPos.Y)
+	var dirName string
+	var playerImg *ebiten.Image
+	if faceDir < 0 {
+		dirName = "idle"
+		lface := g.playerFacing
+		if lface < 0 {
+			lface = 4
+		}
+		playerImg = getAniFrame(int64(faceFix[lface]), defPlayerSP, 0)
+	} else {
+		dirName = fmt.Sprintf("%v move", moveFix[faceDir])
+		playerImg = autoAnimate(defPlayerSP, 0, dirName)
+	}
+
 	screen.DrawImage(playerImg, op)
 }
+
+var moveFix [8]int = [8]int{12, 2, 3, 4, 6, 8, 9, 10}
+var faceFix [8]int = [8]int{4, 3, 2, 1, 0, 7, 6, 5}
