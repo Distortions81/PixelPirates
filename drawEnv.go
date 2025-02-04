@@ -188,9 +188,7 @@ func drawWaves(g *Game, screen *ebiten.Image) {
 	}
 }
 
-var collisions int
-
-func (g Game) makeWave() {
+func (g *Game) makeWave() {
 	if g.numWaves > 0 {
 		for l, line := range g.wavesLines {
 			for w, wave := range line.waves {
@@ -205,14 +203,12 @@ func (g Game) makeWave() {
 		}
 	}
 	spawns := 0
-	for spawns < spawnPerFrame && g.numWaves < maxWaves && collisions < maxCollisions {
+	for spawns < spawnPerFrame && g.numWaves < maxWaves && g.collisions < maxCollisions {
 		y := int(logDistWave(rand.Float64()) * dWinHeightHalf)
 		y = min(y, dWinHeightHalf-1)
 		y = max(y, 0)
 
-		var newWave waveData
-
-		newWave = waveData{
+		var newWave = waveData{
 			x:     rand.Intn(dWinWidth / 2),
 			start: time.Now(),
 			life:  time.Millisecond * time.Duration(minWaveLifeMS+(rand.Float64()*maxWaveLifeRandMS)),
@@ -225,7 +221,7 @@ func (g Game) makeWave() {
 	}
 }
 
-func (g Game) makeAirWave() {
+func (g *Game) makeAirWave() {
 	if g.numAirWaves > 0 {
 		for l, line := range g.airWaveLines {
 			for w, wave := range line.waves {
@@ -240,7 +236,7 @@ func (g Game) makeAirWave() {
 		}
 	}
 	spawns := 0
-	for spawns < spawnPerFrame && g.numAirWaves < maxAirWaves && collisions < maxCollisions {
+	for spawns < spawnPerFrame && g.numAirWaves < maxAirWaves && g.collisions < maxCollisions {
 		y := int(logDistAirWave(rand.Float64()) * dWinHeightHalf)
 		y = min(y, dWinHeightHalf-1)
 		y = max(y, 0)
@@ -258,6 +254,7 @@ func (g Game) makeAirWave() {
 		g.numAirWaves++
 		spawns++
 	}
+
 }
 
 func logDistWave(uniform float64) float64 {

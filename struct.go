@@ -42,9 +42,7 @@ type Game struct {
 	wavesLines            [dWinHeightHalf]waveLine
 	airWaveLines          [dWinHeightHalf]waveLine
 	numWaves, numAirWaves int
-
-	worldGradImg   *ebiten.Image
-	worldGradDirty bool
+	collisions            int
 
 	//Visit-Island specific
 	islandChunks        map[int]*islandChunkData
@@ -60,7 +58,9 @@ type Game struct {
 	chunkIDTop     int
 
 	//Sky & water colors
-	envColors colorData
+	envColors      colorData
+	worldGradImg   *ebiten.Image
+	worldGradDirty bool
 
 	//Hardcoded sprites
 	defPlayerSP, boat2SP, sunSP, titleSP, clickStartSP *spriteItem
