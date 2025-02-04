@@ -25,7 +25,7 @@ var spriteList map[string]*spriteItem = map[string]*spriteItem{
 }
 
 var (
-	defPlayerSP, testScene1SP, boat2SP, sunSP, island1SP, titleSP, clickStartSP *spriteItem
+	defPlayerSP, boat2SP, sunSP, titleSP, clickStartSP *spriteItem
 )
 
 func initSprites() {
@@ -34,9 +34,6 @@ func initSprites() {
 
 	sunSP = spriteList["sun"]
 	boat2SP = spriteList["boat2"]
-	island1SP = spriteList["island1"]
-
-	testScene1SP = spriteList["island-scene1"]
 	defPlayerSP = spriteList["default-player"]
 
 }

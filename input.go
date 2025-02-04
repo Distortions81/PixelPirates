@@ -70,6 +70,7 @@ func (g *Game) Update() error {
 			if key == ebiten.KeyE {
 				if g.canVisit != nil {
 					g.visiting = g.canVisit
+					g.playPos = g.canVisit.spawn
 					g.startFade(GAME_ISLAND, time.Second, true, COLOR_WHITE, FADE_CROSSFADE)
 				}
 				return nil
@@ -86,7 +87,7 @@ func (g *Game) Update() error {
 			}
 		}
 
-		sceneX, sceneY := float64(testScene1SP.image.Bounds().Dx()), float64(testScene1SP.image.Bounds().Dy())
+		sceneX, sceneY := float64(g.visiting.visitSprite.image.Bounds().Dx()), float64(g.visiting.visitSprite.image.Bounds().Dy())
 		sceneX, sceneY = sceneX-dWinWidth, sceneY-dWinHeight
 		oldPos := g.playPos
 		for _, key := range pressedKeys {

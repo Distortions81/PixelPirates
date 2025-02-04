@@ -80,6 +80,7 @@ func main() {
 func newGame() *Game {
 
 	initSprites()
+	initIslands()
 
 	gMode := GAME_TITLE
 	if *qisland {

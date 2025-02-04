@@ -17,24 +17,40 @@ var islandChunks map[int]*islandChunkData
 type islandData struct {
 	name, desc string
 	pos        int
+	spawn      fPoint
 
 	spriteName string
-	sprite     *spriteItem
+	visitName  string
+
+	sprite      *spriteItem
+	visitSprite *spriteItem
 }
 
 type islandChunkData struct {
 	islands []islandData
 }
 
-func init() {
+var islands []islandData = []islandData{
+	{name: "Welcome island", desc: "Learn the basics here!", pos: dWinWidth, spriteName: "island1", visitName: "island-scene1"},
+}
+
+func initIslands() {
 	islandChunks = map[int]*islandChunkData{}
+
 	for i, island := range islands {
 		islandChunkPos := island.pos / islandChunkSize
 		if islandChunks[islandChunkPos] == nil {
 			islandChunks[islandChunkPos] = &islandChunkData{}
 		}
+		islands[i].sprite = spriteList[island.spriteName]
+		vsp := spriteList[island.visitName]
+		islands[i].visitSprite = vsp
+		islands[i].spawn = fPoint{X: float64(vsp.image.Bounds().Dx()) / 2, Y: float64(vsp.image.Bounds().Dy())}
+
+		fmt.Printf("Spawn: %v,%v -- ", islands[i].spawn.X, islands[i].spawn.Y)
 		fmt.Printf("Storing island: #%v '%v' in block %v.\n", i+1, island.name, islandChunkPos)
-		islandChunks[islandChunkPos].islands = append(islandChunks[islandChunkPos].islands, island)
+
+		islandChunks[islandChunkPos].islands = append(islandChunks[islandChunkPos].islands, islands[i])
 	}
 }
 
@@ -45,9 +61,9 @@ func drawIslands(g *Game, screen *ebiten.Image) {
 	islands := getIslands(int(paralaxPos))
 	drewSign := false
 
-	for _, island := range islands {
+	for i, island := range islands {
 		islandPosX := -(paralaxPos + float64(-island.pos))
-		islandPosY := dWinHeightHalf - float64(island1SP.image.Bounds().Dy()) + islandY
+		islandPosY := dWinHeightHalf - float64(island.sprite.image.Bounds().Dy()) + islandY
 
 		//Island
 		op := &ebiten.DrawImageOptions{}
@@ -55,14 +71,14 @@ func drawIslands(g *Game, screen *ebiten.Image) {
 			islandPosX,
 			islandPosY,
 		)
-		screen.DrawImage(island1SP.image, op)
+		screen.DrawImage(island.sprite.image, op)
 
 		//Visit sign
-		spriteSize := float64(island1SP.image.Bounds().Dx())
+		spriteSize := float64(island.sprite.image.Bounds().Dx())
 		if !drewSign && islandPosX > 0 && islandPosX < spriteSize {
 			ebitenutil.DebugPrintAt(screen, island.name+"\nE: Visit", int(islandPosX)+10, int(islandPosY)-32)
 			drewSign = true
-			g.canVisit = &island
+			g.canVisit = &islands[i]
 		}
 
 		//Island refection
@@ -73,7 +89,7 @@ func drawIslands(g *Game, screen *ebiten.Image) {
 			islandPosX,
 			islandPosY*1.5,
 		)
-		screen.DrawImage(island1SP.blurred, op)
+		screen.DrawImage(island.sprite.blurred, op)
 	}
 	//Clear target
 	if !drewSign {
@@ -96,15 +112,11 @@ func getIslands(pos int) []islandData {
 	return islandsFound
 }
 
-var islands []islandData = []islandData{
-	{name: "Welcome island", desc: "Learn the basics here!", pos: dWinWidth, spriteName: "island1"},
-}
-
 func (g *Game) drawIsland(screen *ebiten.Image) {
 	screen.Clear()
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(-g.playPos.X, -g.playPos.Y)
-	screen.DrawImage(testScene1SP.image, op)
+	screen.DrawImage(g.visiting.visitSprite.image, op)
 	buf := fmt.Sprintf("Test Island scene, E to Exit. %v,%v", g.playPos.X, g.playPos.Y)
 	ebitenutil.DebugPrint(screen, buf)
 
