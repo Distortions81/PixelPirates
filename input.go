@@ -85,7 +85,7 @@ func (g *Game) Update() error {
 		pSpeed := float64(pBase)
 		for _, key := range pressedKeys {
 			if key == ebiten.KeyShiftLeft || key == ebiten.KeyShiftRight {
-				pSpeed = playerSpeed * turboSpeed
+				pSpeed *= turboSpeed
 			}
 		}
 
