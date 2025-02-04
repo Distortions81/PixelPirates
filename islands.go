@@ -47,8 +47,8 @@ func initIslands() {
 		islands[i].visitSprite = vsp
 		islands[i].spawn = fPoint{X: float64(vsp.image.Bounds().Dx()) / 2, Y: float64(vsp.image.Bounds().Dy())}
 
-		doLog(true, "Spawn: %v,%v -- ", islands[i].spawn.X, islands[i].spawn.Y)
-		doLog(true, "Storing island: #%v '%v' in block %v.", i+1, island.name, islandChunkPos)
+		doLog(true, true, "Spawn: %v,%v -- ", islands[i].spawn.X, islands[i].spawn.Y)
+		doLog(true, true, "Storing island: #%v '%v' in block %v.", i+1, island.name, islandChunkPos)
 
 		islandChunks[islandChunkPos].islands = append(islandChunks[islandChunkPos].islands, islands[i])
 	}
@@ -143,7 +143,7 @@ func (g *Game) drawIsland(screen *ebiten.Image) {
 	}
 	screen.DrawImage(playerImg, op)
 
-	if *debug {
+	if *debugMode {
 		buf := fmt.Sprintf("Test Island scene, E to Exit. %0.0f,%0.0f", g.playPos.X, g.playPos.Y)
 		ebitenutil.DebugPrint(screen, buf)
 	}

@@ -42,12 +42,12 @@ func loadSprites() {
 	for name, sprite := range spriteList {
 		image, blurImg, err := loadSprite(sprite.Path+name, false, sprite.doReflect)
 		if err == nil {
-			doLog(true, "loading sprite '"+name+"'")
+			doLog(true, true, "loading sprite '"+name+"'")
 			spriteList[name].image = image
 			spriteList[name].blurred = blurImg
 			spriteList[name].Name = name
 		} else {
-			doLog(true, "loading sprite '"+name+"' failed.")
+			doLog(true, false, "loading sprite '"+name+"' failed.")
 		}
 
 		aniData, err := loadAnimationData(sprite.Path + name)
@@ -71,7 +71,7 @@ type spriteItem struct {
 func getAniFrame(frame int64, ani *spriteItem, offset int) *ebiten.Image {
 	numFrames := int64(len(ani.animation.Frames))
 	if frame < 0 || frame >= numFrames {
-		doLog(true, "%v: invalid frame number: %v", ani.Name, frame)
+		doLog(true, false, "%v: invalid frame number: %v", ani.Name, frame)
 		if frame >= numFrames {
 			frame = numFrames - 1
 		} else if frame < 0 {
@@ -100,7 +100,7 @@ func autoAnimate(ani *spriteItem, offset int, tag string) *ebiten.Image {
 	time := time.Now().UnixMilli() / int64(speed)
 
 	if numFrames <= 0 {
-		doLog(true, "** %v: %v: NO FRAMES: %v -> %v", tag, ani.Name, frameRange.start, frameRange.end)
+		doLog(true, false, "** %v: %v: NO FRAMES: %v -> %v", tag, ani.Name, frameRange.start, frameRange.end)
 		return nil
 	}
 	frameNum := (time % numFrames) + int64(frameRange.start)
@@ -112,7 +112,7 @@ func autoAnimatePingPong(ani *spriteItem, offset int, tag string) *ebiten.Image 
 	frameRange := ani.animation.animations[tag]
 	numFrames := int64(frameRange.end - frameRange.start)
 	if numFrames <= 0 {
-		doLog(true, "** %v: NO FRAMES: %v -> %v", ani.Name, frameRange.start, frameRange.end)
+		doLog(true, false, "** %v: NO FRAMES: %v -> %v", ani.Name, frameRange.start, frameRange.end)
 		return nil
 	}
 

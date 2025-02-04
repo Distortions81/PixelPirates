@@ -27,8 +27,8 @@ func playMusicPlaylist(g *Game, gameMode int, songList []songData) {
 				return
 			}
 			startTime := time.Now()
-			if *debug {
-				doLog(true, "Rendering: '%v'", song.name)
+			if *debugMode {
+				doLog(true, true, "Rendering: '%v'", song.name)
 			}
 			output := playSong(song)
 
@@ -36,11 +36,11 @@ func playMusicPlaylist(g *Game, gameMode int, songList []songData) {
 				output = applyReverb(output, song.delay, song.feedback, song.reverb)
 			}
 			runtime.GC()
-			doLog(true, "Render took %v\nNow Playing: %v.\n", time.Since(startTime).Round(time.Millisecond), song.name)
+			doLog(true, true, "Render took %v\nNow Playing: %v.\n", time.Since(startTime).Round(time.Millisecond), song.name)
 
 			playWave(g, true, output)
 		}
-		fmt.Println("\nRestarting playlist...")
+		doLog(true, true, "Restarting playlist...")
 	}
 }
 
@@ -49,8 +49,8 @@ func dumpMusic() {
 	os.Mkdir("dump", 0755)
 
 	for _, song := range titleSongList {
-		if *debug {
-			doLog(true, "Rendering: '%v'", song.name)
+		if *debugMode {
+			doLog(true, true, "Rendering: '%v'", song.name)
 		}
 		output := playSong(song)
 
@@ -95,8 +95,8 @@ func generateFromText(song *songData, ins *insData) audioData {
 	beatDuration := time.Minute / time.Duration(song.bpm)
 	var finalWave audioData
 
-	if *debug {
-		doLog(true, "Rendering: %v", ins.name)
+	if *debugMode {
+		doLog(true, true, "Rendering: %v", ins.name)
 	}
 	for _, noteStr := range strings.Split(ins.data, ",") {
 		note, duration := parseNote(noteStr)

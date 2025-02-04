@@ -39,14 +39,14 @@ func loadSprite(name string, unmanaged bool, doBlur bool) (*ebiten.Image, *ebite
 		pngData, err = os.Open(spritesDir + name + ".png")
 	}
 	if err != nil {
-		doLog(true, "loadSprite: Open Embedded: %v", err)
+		doLog(true, false, "loadSprite: Open Embedded: %v", err)
 		return nil, nil, err
 	}
 
 	//Decode png
 	m, err := png.Decode(pngData)
 	if err != nil {
-		doLog(true, "loadSprite: Embedded: %v", err)
+		doLog(true, false, "loadSprite: Embedded: %v", err)
 		return nil, nil, err
 	}
 
@@ -81,13 +81,13 @@ func loadAnimationData(name string) (*animationData, error) {
 		}
 		buf, err := io.ReadAll(jdata)
 		if err != nil {
-			doLog(true, "loadAnimationData: Embedded: %v", err)
+			doLog(true, false, "loadAnimationData: Embedded: %v", err)
 			return nil, err
 		}
 
 		aniJSON, err := decodeAniJSON(buf)
 		if err != nil {
-			doLog(true, "loadAnimationData: Embedded: %v", err)
+			doLog(true, false, "loadAnimationData: Embedded: %v", err)
 			return nil, err
 		}
 
@@ -100,7 +100,7 @@ func loadAnimationData(name string) (*animationData, error) {
 
 		aniJSON, err := decodeAniJSON(buf)
 		if err != nil {
-			doLog(true, "loadAnimationData: Embedded: %v", err)
+			doLog(true, false, "loadAnimationData: Embedded: %v", err)
 			return nil, err
 		}
 
@@ -113,7 +113,7 @@ func decodeAniJSON(data []byte) (animationData, error) {
 	var root animationData
 	err := json.Unmarshal(data, &root)
 	if err != nil {
-		doLog(true, "decodeAniJSON: %v", err)
+		doLog(true, false, "decodeAniJSON: %v", err)
 		return animationData{}, err
 	}
 
@@ -121,11 +121,11 @@ func decodeAniJSON(data []byte) (animationData, error) {
 
 	for _, item := range root.Meta.FrameTags {
 		if item.From+item.To == 0 {
-			doLog(true, "Empty Animation: '%v', %v->%v", item.Name, item.From, item.To)
+			doLog(true, false, "Empty Animation: '%v', %v->%v", item.Name, item.From, item.To)
 			continue
 		}
-		if *debug {
-			doLog(true, "Animation: %v, %v->%v", item.Name, item.From, item.To)
+		if *debugMode {
+			doLog(true, true, "Animation: %v, %v->%v", item.Name, item.From, item.To)
 		}
 		root.animations[item.Name] = frameRange{start: item.From, end: item.To}
 	}
@@ -138,8 +138,8 @@ func decodeAniJSON(data []byte) (animationData, error) {
 	root.sortedFrames = sorted
 	root.numFrames = int64(len(sorted))
 
-	doLog(true, "Loaded animation for: %v", root.Meta.Image)
-	if *debug {
+	doLog(true, true, "Loaded animation for: %v", root.Meta.Image)
+	if *debugMode {
 		/*
 			fmt.Println("Frames:")
 			for _, fKey := range root.sortedFrames {

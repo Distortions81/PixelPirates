@@ -23,9 +23,13 @@ var (
  * Log this, can use printf arguments
  * Write to buffer, async write
  */
-func doLog(withTrace bool, format string, args ...interface{}) {
+func doLog(withTrace, debug bool, format string, args ...interface{}) {
 
 	if wasmMode {
+		return
+	}
+
+	if !*debugMode && debug {
 		return
 	}
 
@@ -123,7 +127,7 @@ func startLog() {
 
 	// Handle file errors
 	if errb != nil {
-		doLog(true, "An error occurred when attempting to create the log. Details: %s", errb)
+		doLog(true, false, "An error occurred when attempting to create the log. Details: %s", errb)
 		return
 	}
 

@@ -24,19 +24,20 @@ const (
 )
 
 var (
-	wasmMode                              bool
-	nomusic, qtest, qlive, qisland, debug *bool
+	wasmMode                                  bool
+	nomusic, qtest, qlive, qisland, debugMode *bool
 )
 
 func main() {
-	doLog(true, "Game res: %v,%v (%vx) : (%v, %v)\n", dWinWidth, dWinHeight, magScale, dWinWidth*magScale, dWinHeight*magScale)
 	dump := flag.Bool("dumpMusic", false, "Dump songs out as WAV and quit.")
 	qtest = flag.Bool("qtest", false, "skip title screen")
 	qisland = flag.Bool("qisland", false, "go directly to welcome island")
 	qlive = flag.Bool("qlive", false, "live reload textures (slow)")
 	nomusic = flag.Bool("nomusic", false, "disable music")
-	debug = flag.Bool("debug", false, "debug info")
+	debugMode = flag.Bool("debug", false, "debug info")
 	flag.Parse()
+
+	doLog(true, true, "Game res: %v,%v (%vx) : (%v, %v)\n", dWinWidth, dWinHeight, magScale, dWinWidth*magScale, dWinHeight*magScale)
 
 	audioContext = audio.NewContext(sampleRate)
 
@@ -68,7 +69,7 @@ func main() {
 			for {
 				loadSprites()
 				time.Sleep(time.Second * 1)
-				doLog(true, "Reloading textures.")
+				doLog(true, true, "Reloading textures.")
 			}
 		}()
 	}
@@ -143,7 +144,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		g.drawFade(screen)
 	}
 
-	if *debug {
+	if *debugMode {
 		if frameNumber%60 == 0 {
 			renderTime := time.Since(startTime).Microseconds()
 			displayTime := time.Since(displayStamp).Microseconds()

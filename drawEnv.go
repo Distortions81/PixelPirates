@@ -75,9 +75,6 @@ var (
 	airWaveLines          [dWinHeightHalf]waveLine
 	numWaves, numAirWaves int
 
-	cloudbuf, cloudblur *ebiten.Image
-	lastCloudPos        int = math.MinInt
-
 	worldGradImg   *ebiten.Image
 	worldGradDirty bool = true
 )
