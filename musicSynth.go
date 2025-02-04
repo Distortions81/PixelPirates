@@ -12,6 +12,8 @@ import (
 	"github.com/chewxy/math32"
 )
 
+const maxVolume = 0.8
+
 func playMusicPlaylist(g *Game, gameMode int, songList []songData) {
 	if len(songList) == 0 {
 		return
@@ -248,8 +250,8 @@ func mixWaves(waves ...audioData) audioData {
 	}
 
 	// 5. If the peak amplitude exceeds 1.0, scale the whole wave down
-	if maxAmp > 1.0 {
-		scale := 1.0 / maxAmp
+	if maxAmp > maxVolume {
+		scale := maxVolume / maxAmp
 		for i := range mixed {
 			mixed[i] *= scale
 		}
