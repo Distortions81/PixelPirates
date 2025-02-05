@@ -10,18 +10,18 @@ import (
 
 // For some currently hardcoded sprites
 var spriteList map[string]*spriteItem = map[string]*spriteItem{
+	//Title
 	"title":      {Path: "title/"},
 	"clickstart": {Path: "title/"},
 
+	//Game & Title
 	"sun":     {Path: "world/"},
 	"island1": {Path: "world/", doReflect: true},
+	"boat2":   {Path: "boats/"},
 
-	"default-player": {Path: "characters/"},
-
-	"boat2": {Path: "boats/"},
-
-	"testScene1":    {Path: "islands/"},
-	"island-scene1": {Path: "islands/"},
+	//Islands
+	"island-scene1":  {Path: "islands/", onDemand: true},
+	"default-player": {Path: "characters/", onDemand: true},
 }
 
 func initSprites(g *Game) {
@@ -30,39 +30,45 @@ func initSprites(g *Game) {
 
 	g.sunSP = spriteList["sun"]
 	g.boat2SP = spriteList["boat2"]
-	g.defPlayerSP = spriteList["default-player"]
-
 }
 
 func loadSprites() {
 
 	for name, sprite := range spriteList {
-		image, blurImg, err := loadSprite(sprite.Path+name, false, sprite.doReflect)
-		if err == nil {
-			doLog(true, true, "loading sprite '"+name+"'")
-			spriteList[name].image = image
-			spriteList[name].blurred = blurImg
-			spriteList[name].Name = name
-		} else {
-			doLog(true, false, "loading sprite '"+name+"' failed.")
-		}
+		loadSprite(name, sprite)
+	}
+}
 
-		aniData, err := loadAnimationData(sprite.Path + name)
-		if err == nil {
-			spriteList[name].animation = aniData
-		}
+func loadSprite(name string, sprite *spriteItem) {
+	var image, blurImg *ebiten.Image
+	var err error
+
+	if !sprite.onDemand {
+		image, blurImg, err = loadImage(sprite.Path+name, false, sprite.doReflect)
+		doLog(true, true, "loading sprite '"+name+"'")
+	}
+	if err == nil {
+		spriteList[name].image = image
+		spriteList[name].blurred = blurImg
+		spriteList[name].Name = name
+	} else {
+		doLog(true, false, "loading sprite '"+name+"' failed.")
+	}
+
+	aniData, err := loadAnimationData(sprite.Path + name)
+	if err == nil {
+		spriteList[name].animation = aniData
 	}
 }
 
 type spriteItem struct {
 	Name, Path string
 
-	image     *ebiten.Image
-	blurred   *ebiten.Image
-	doReflect bool
+	image, blurred *ebiten.Image
+	doReflect      bool
+	onDemand       bool
 
 	animation *animationData
-	pingDir   bool
 }
 
 func getAniFrame(frame int64, ani *spriteItem, offset int) *ebiten.Image {
