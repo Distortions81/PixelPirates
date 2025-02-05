@@ -66,15 +66,18 @@ func (g *Game) Update() error {
 				g.boatPos.X += xSpeed
 			}
 			if key == ebiten.KeyE {
-				if g.canVisit != nil {
-					g.visiting = g.canVisit
-					g.playPos = g.canVisit.spawn
+				if g.canVisit != nil && !g.modeTransition {
+					visitIsland(g)
 					g.startFade(GAME_ISLAND, time.Second, true, COLOR_WHITE, FADE_CROSSFADE)
 				}
 				return nil
 			}
 		}
 	} else if g.gameMode == GAME_ISLAND {
+
+		if g.visiting == nil || g.visiting.visitSprite.image == nil {
+			return nil
+		}
 
 		pBase := float64(time.Since(g.lastUpdate).Microseconds()) / playerSpeed
 
