@@ -44,6 +44,13 @@ func visitIsland(g *Game) {
 		g.visiting.spawn = fPoint{X: float64(bounds.Dx()) / 2, Y: float64(bounds.Dy())}
 	}
 
+	//Dynamically load player animations if needed.
+	if g.defPlayerSP == nil {
+		sp := spriteList["default-player"]
+		loadSprite("default-player", sp, true)
+		g.defPlayerSP = sp
+	}
+
 	g.playPos = g.canVisit.spawn
 }
 

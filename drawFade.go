@@ -77,7 +77,13 @@ func (g *Game) drawFade(screen *ebiten.Image) {
 				initNoise(g)
 				g.clickStartSP.image.Deallocate()
 				g.titleSP.image.Deallocate()
-				doLog(true, false, "Deallocated title screen assets.")
+				doLog(true, true, "Deallocated title screen assets.")
+			} else if oldMode == GAME_ISLAND {
+				g.visiting.visitSprite.image.Deallocate()
+				g.visiting = nil
+				doLog(true, true, "Deallocated visitSprite.")
+				g.defPlayerSP.image.Deallocate()
+				doLog(true, true, "Deallocated defPlayer.")
 			}
 			if *debugMode {
 				doLog(true, true, "mode: %v to %v", oldMode, g.gameMode)

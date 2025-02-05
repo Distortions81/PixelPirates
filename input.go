@@ -36,9 +36,6 @@ func (g *Game) Update() error {
 			if g.modeTransition {
 				return nil
 			}
-			sp := spriteList["default-player"]
-			loadSprite("default-player", sp, true)
-			g.defPlayerSP = sp
 
 			g.startFade(GAME_PLAY, time.Second, true, COLOR_WHITE, FADE_CROSSFADE)
 		}
