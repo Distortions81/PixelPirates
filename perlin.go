@@ -8,8 +8,11 @@ import (
 
 var MapSeed int64 = 0
 
-func initNoise() {
-	MapSeed = rand.Int63()
+func initNoise(g *Game) {
+	if MapSeed == 0 && g.gameMode == GAME_PLAY {
+		MapSeed = rand.Int63()
+		g.cloudsDirty = true
+	}
 
 	for p := range noiseLayers {
 		noiseLayers[p].randomSeed = MapSeed - noiseLayers[p].seedOffset
