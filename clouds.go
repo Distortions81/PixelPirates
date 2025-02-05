@@ -2,14 +2,15 @@ package main
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
 const (
-	cloudExpire  = 60 * 5
-	checkRecycle = 60 * 10
+	cloudExpire  = 60 * 5.0
+	checkRecycle = 60 * 10.0
 	cloudChunkX  = dWinHeightHalf
 	cloudChunkY  = dWinHeightHalf
 )
@@ -24,7 +25,7 @@ func drawCloudsNew(g *Game, screen *ebiten.Image) {
 
 	draws := 0
 
-	numChunks := dWinWidth/cloudChunkX + 1
+	var numChunks int = int(math.Round((dWinWidth / cloudChunkX) + 1))
 	for x := 0; x < numChunks+1; x++ {
 
 		pos := int((g.boatPos.X) * float64(cloudY/dWinWidth))

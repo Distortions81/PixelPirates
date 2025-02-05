@@ -86,7 +86,7 @@ func (g *Game) drawFade(screen *ebiten.Image) {
 				doLog(true, true, "Deallocated defPlayer.")
 			}
 			if *debugMode {
-				doLog(true, true, "mode: %v to %v", oldMode, g.gameMode)
+				doLog(true, true, "mode: %v to %v", modeNames[oldMode], modeNames[g.gameMode])
 			}
 			go func(g *Game) {
 				time.Sleep(g.fade.duration / 2)

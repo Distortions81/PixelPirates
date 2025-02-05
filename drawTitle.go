@@ -20,8 +20,8 @@ func (g *Game) drawTitle(screen *ebiten.Image) {
 		//Text
 		op := &ebiten.DrawImageOptions{}
 		op.GeoM.Translate(
-			float64((dWinWidth/2)-(g.titleSP.image.Bounds().Dx())/2),
-			float64((dWinHeight/4)-(g.titleSP.image.Bounds().Dy())/2))
+			float64(float64(dWinWidth/2.0)-float64(g.titleSP.image.Bounds().Dx())/2.0),
+			float64(float64(dWinHeight/4.0)-float64(g.titleSP.image.Bounds().Dy())/2.0))
 		//op.ColorScale.ScaleAlpha(0.8)
 		screen.DrawImage(g.titleSP.image, op)
 

@@ -16,6 +16,12 @@ const (
 	GAME_MAX //Don't use
 )
 
+var modeNames [GAME_MAX]string = [GAME_MAX]string{
+	"title",
+	"play",
+	"island",
+}
+
 type Game struct {
 	gameMode int
 	//Fade

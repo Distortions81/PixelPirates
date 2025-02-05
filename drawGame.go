@@ -43,7 +43,7 @@ func drawBoat(g *Game, screen *ebiten.Image) {
 	if g.gameMode == GAME_PLAY {
 		op.GeoM.Translate(
 			float64((dWinWidth/4)-(boatFrame.Bounds().Dx())/2+offset.X),
-			float64((dWinHeight/6)*4.5-(boatFrame.Bounds().Dy())/2+offset.Y)+float64(g.boatPos.Y))
+			float64(dWinHeight/6.0)*4.5-float64(boatFrame.Bounds().Dy())/2+float64(offset.Y)+float64(g.boatPos.Y))
 	} else {
 		op.GeoM.Translate(
 			float64((dWinWidth/2)-(boatFrame.Bounds().Dx())/2+offset.X),

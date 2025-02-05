@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	dWinWidth, dWinHeight = 1280 / magScale, 720 / magScale
+	dWinWidth, dWinHeight = 1280 / magScale, 800 / magScale
 	dWinHeightHalf        = dWinHeight / 2
 	dWinWidthHalf         = dWinWidth / 2
 	magScale              = 4
@@ -26,6 +26,7 @@ const (
 var (
 	wasmMode                                  bool
 	nomusic, qtest, qlive, qisland, debugMode *bool
+	fullscreen                                *bool
 )
 
 func main() {
@@ -35,6 +36,8 @@ func main() {
 	qlive = flag.Bool("qlive", false, "live reload textures (slow)")
 	nomusic = flag.Bool("nomusic", false, "disable music")
 	debugMode = flag.Bool("debug", false, "debug info")
+
+	fullscreen := flag.Bool("fullscreen", false, "fullscreen mode.")
 	flag.Parse()
 
 	startLog()
@@ -57,6 +60,7 @@ func main() {
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	ebiten.SetVsyncEnabled(true)
 	ebiten.SetScreenClearedEveryFrame(false)
+	ebiten.SetFullscreen(*fullscreen)
 	ebiten.SetWindowTitle("Pixel Pirates")
 
 	loadSprites()
