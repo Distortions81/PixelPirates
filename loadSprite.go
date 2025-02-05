@@ -39,14 +39,14 @@ func loadImage(name string, unmanaged bool, doBlur bool) (*ebiten.Image, *ebiten
 		pngData, err = os.Open(spritesDir + name + ".png")
 	}
 	if err != nil {
-		doLog(true, false, "loadSprite: Open Embedded: %v", err)
+		doLog(true, false, "loadSprite: Open: %v", err)
 		return nil, nil, err
 	}
 
 	//Decode png
 	m, err := png.Decode(pngData)
 	if err != nil {
-		doLog(true, false, "loadSprite: Embedded: %v", err)
+		doLog(true, false, "loadSprite: Decode: %v", err)
 		return nil, nil, err
 	}
 
@@ -127,7 +127,7 @@ func decodeAniJSON(data []byte) (animationData, error) {
 			continue
 		}
 		if *debugMode {
-			doLog(true, true, "Animation: %v, %v->%v", item.Name, item.From, item.To)
+			//doLog(true, true, "Animation: %v, %v->%v", item.Name, item.From, item.To)
 		}
 		root.animations[item.Name] = frameRange{start: item.From, end: item.To}
 	}
@@ -140,7 +140,7 @@ func decodeAniJSON(data []byte) (animationData, error) {
 	root.sortedFrames = sorted
 	root.numFrames = int64(len(sorted))
 
-	doLog(true, true, "Loaded animation for: %v", root.Meta.Image)
+	doLog(true, true, "Decoded animation for: %v", root.Meta.Image)
 	if *debugMode {
 		/*
 			fmt.Println("Frames:")

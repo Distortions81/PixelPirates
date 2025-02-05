@@ -79,6 +79,9 @@ func (g *Game) drawFade(screen *ebiten.Image) {
 				g.titleSP.image.Deallocate()
 				doLog(true, false, "Deallocated title screen assets.")
 			}
+			if *debugMode {
+				doLog(true, true, "mode: %v to %v", oldMode, g.gameMode)
+			}
 			go func(g *Game) {
 				time.Sleep(g.fade.duration / 2)
 				playMusicPlaylist(g, g.gameMode, gameModePlaylists[g.gameMode])

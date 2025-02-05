@@ -59,8 +59,9 @@ func doLog(withTrace, debug bool, format string, args ...interface{}) {
 		buf = fmt.Sprintf("%v: %v\n", date, text)
 	}
 
+	fmt.Print(buf)
+
 	if !logData.logReady || logData.logDesc == nil {
-		fmt.Print(buf)
 		return
 	}
 
@@ -95,7 +96,7 @@ func logDaemon() {
 				logData.logDesc.Close()
 				logData.logDesc = nil
 			}
-			fmt.Print(logData.logBuf[0])
+			//fmt.Print(logData.logBuf[0])
 
 			// Remove line from buffer
 			logData.logBuf = logData.logBuf[1:]

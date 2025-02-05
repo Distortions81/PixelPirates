@@ -35,8 +35,15 @@ var islands []islandData = []islandData{
 
 func visitIsland(g *Game) {
 	g.visiting = g.canVisit
-	loadSprite(g.visiting.visitName, g.visiting.visitSprite)
+
+	loadSprite(g.visiting.visitName, g.visiting.visitSprite, true)
 	g.visiting.visitSprite = spriteList[g.visiting.visitName]
+
+	if g.visiting.spawn.X == 0 && g.visiting.spawn.Y == 0 {
+		bounds := g.visiting.visitSprite.image.Bounds()
+		g.visiting.spawn = fPoint{X: float64(bounds.Dx()) / 2, Y: float64(bounds.Dy())}
+	}
+
 	g.playPos = g.canVisit.spawn
 }
 
@@ -65,6 +72,9 @@ func drawIslands(g *Game, screen *ebiten.Image) {
 	drewSign := false
 
 	for i, island := range islands {
+		if island.sprite.image == nil {
+			loadSprite(island.spriteName, island.sprite, true)
+		}
 		islandPosX := -(paralaxPos + float64(-island.pos))
 		islandPosY := dWinHeightHalf - float64(island.sprite.image.Bounds().Dy()) + islandY
 

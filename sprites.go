@@ -16,7 +16,7 @@ var spriteList map[string]*spriteItem = map[string]*spriteItem{
 
 	//Game & Title
 	"sun":     {Path: "world/"},
-	"island1": {Path: "world/", doReflect: true},
+	"island1": {Path: "world/", doReflect: true, onDemand: true},
 	"boat2":   {Path: "boats/"},
 
 	//Islands
@@ -35,15 +35,15 @@ func initSprites(g *Game) {
 func loadSprites() {
 
 	for name, sprite := range spriteList {
-		loadSprite(name, sprite)
+		loadSprite(name, sprite, false)
 	}
 }
 
-func loadSprite(name string, sprite *spriteItem) {
+func loadSprite(name string, sprite *spriteItem, demanded bool) {
 	var image, blurImg *ebiten.Image
 	var err error
 
-	if !sprite.onDemand {
+	if !sprite.onDemand || demanded {
 		image, blurImg, err = loadImage(sprite.Path+name, false, sprite.doReflect)
 		doLog(true, true, "loading sprite '"+name+"'")
 	}
