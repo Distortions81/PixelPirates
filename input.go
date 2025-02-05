@@ -184,9 +184,12 @@ func directionFromCoords(x, y float64) int {
 	}
 }
 
+var diag = math.Sqrt(2) / 2
+
 func applyDirection(x, y float64, direction int, speed float64) (float64, float64) {
 	// 45° diagonal movement factor (cos 45°, sin 45°)
-	diag := math.Sqrt(2) / 2.0
+
+	diagonal := diag * speed
 
 	switch direction {
 	case 0:
@@ -194,29 +197,29 @@ func applyDirection(x, y float64, direction int, speed float64) (float64, float6
 		y += speed
 	case 1:
 		// north-east
-		x += diag * speed
-		y += diag * speed
+		x += diagonal
+		y += diagonal
 	case 2:
 		// east
 		x += speed
 	case 3:
 		// south-east
-		x += diag * speed
-		y -= diag * speed
+		x += diagonal
+		y -= diagonal
 	case 4:
 		// south
 		y -= speed
 	case 5:
 		// south-west
-		x -= diag * speed
-		y -= diag * speed
+		x -= diagonal
+		y -= diagonal
 	case 6:
 		// west
 		x -= speed
 	case 7:
 		// north-west
-		x -= diag * speed
-		y += diag * speed
+		x -= diagonal
+		y += diagonal
 	default:
 		// If the direction is invalid, do nothing
 	}
