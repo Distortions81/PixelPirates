@@ -29,7 +29,15 @@ type islandChunkData struct {
 }
 
 var islands []islandData = []islandData{
-	{name: "Welcome island", desc: "Learn the basics here!", pos: dWinWidth, spriteName: "island1", visitName: "island-scene1"},
+	{name: "Welcome island", desc: "Learn the basics here!",
+		pos: dWinWidth, spriteName: "island1", visitName: "island-scene1"},
+}
+
+func visitIsland(g *Game) {
+	g.visiting = g.canVisit
+	loadSprite(g.visiting.visitName, g.visiting.visitSprite)
+	g.visiting.visitSprite = spriteList[g.visiting.visitName]
+	g.playPos = g.canVisit.spawn
 }
 
 func initIslands(g *Game) {
@@ -41,11 +49,8 @@ func initIslands(g *Game) {
 			g.islandChunks[islandChunkPos] = &islandChunkData{}
 		}
 		islands[i].sprite = spriteList[island.spriteName]
-		vsp := spriteList[island.visitName]
-		islands[i].visitSprite = vsp
-		islands[i].spawn = fPoint{X: float64(vsp.image.Bounds().Dx()) / 2, Y: float64(vsp.image.Bounds().Dy())}
+		islands[i].visitSprite = spriteList[island.visitName]
 
-		doLog(true, true, "Spawn: %v,%v -- ", islands[i].spawn.X, islands[i].spawn.Y)
 		doLog(true, true, "Storing island: #%v '%v' in block %v.", i+1, island.name, islandChunkPos)
 
 		g.islandChunks[islandChunkPos].islands = append(g.islandChunks[islandChunkPos].islands, islands[i])
@@ -111,6 +116,17 @@ func getIslands(g *Game, pos int) []islandData {
 }
 
 func (g *Game) drawIsland(screen *ebiten.Image) {
+
+	if g.visiting == nil {
+		screen.Clear()
+		ebitenutil.DebugPrint(screen, "Invalid g.visiting.")
+		return
+	}
+	if g.visiting.visitSprite.image == nil {
+		screen.Clear()
+		ebitenutil.DebugPrint(screen, "Invalid visitSprite.")
+		return
+	}
 	//Draw island ground
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(-g.playPos.X, -g.playPos.Y)
