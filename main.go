@@ -37,7 +37,9 @@ func main() {
 	debugMode = flag.Bool("debug", false, "debug info")
 	flag.Parse()
 
-	doLog(true, true, "Game res: %v,%v (%vx) : (%v, %v)\n", dWinWidth, dWinHeight, magScale, dWinWidth*magScale, dWinHeight*magScale)
+	startLog()
+	logDaemon()
+	doLog(true, true, "Game res: %v,%v (%vx) : (%v, %v)", dWinWidth, dWinHeight, magScale, dWinWidth*magScale, dWinHeight*magScale)
 
 	if *dump {
 		dumpMusic()
@@ -57,7 +59,6 @@ func main() {
 	ebiten.SetScreenClearedEveryFrame(false)
 	ebiten.SetWindowTitle("Pixel Pirates")
 
-	initNoise()
 	loadSprites()
 
 	if *qlive {
@@ -95,8 +96,10 @@ func newGame() *Game {
 		},
 	}
 
+	initNoise(g)
 	initSprites(g)
 	initIslands(g)
+
 	g.audioContext = audio.NewContext(sampleRate)
 	g.cloudChunks = map[int]*cloudData{}
 	g.worldGradImg = ebiten.NewImage(1, dWinHeight)
