@@ -25,7 +25,7 @@ var efs embed.FS
 const loadEmbedSprites = false
 
 // Load sprites
-func loadSprite(name string, unmanaged bool, doBlur bool) (*ebiten.Image, *ebiten.Image, error) {
+func loadImage(name string, unmanaged bool, doBlur bool) (*ebiten.Image, *ebiten.Image, error) {
 
 	//Open file
 	var (
