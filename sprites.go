@@ -9,6 +9,7 @@ import (
 )
 
 // For some currently hardcoded sprites
+// Sprites with an animation json auto load as unmanged
 var spriteList map[string]*spriteItem = map[string]*spriteItem{
 	//Title
 	"title":      {Path: "title/"},
@@ -20,7 +21,7 @@ var spriteList map[string]*spriteItem = map[string]*spriteItem{
 	"boat2":   {Path: "boats/"},
 
 	//Islands
-	"island-scene1":  {Path: "islands/", onDemand: true},
+	"island-scene1":  {Path: "islands/", onDemand: true, unmanged: true},
 	"default-player": {Path: "characters/", onDemand: true},
 }
 
@@ -44,7 +45,19 @@ func loadSprite(name string, sprite *spriteItem, demanded bool) {
 	var err error
 
 	if !sprite.onDemand || demanded {
-		image, blurImg, err = loadImage(sprite.Path+name, false, sprite.doReflect)
+		unmanaged := false
+
+		aniData, err := loadAnimationData(sprite.Path + name)
+		if err == nil {
+			spriteList[name].animation = aniData
+			//Don't put atlases on the main atlas
+			unmanaged = true
+		}
+		if sprite.unmanged {
+			unmanaged = true
+		}
+
+		image, blurImg, err = loadImage(sprite.Path+name, unmanaged, sprite.doReflect)
 		doLog(true, true, "loading sprite '"+name+"'")
 	}
 	if err == nil {
@@ -55,10 +68,6 @@ func loadSprite(name string, sprite *spriteItem, demanded bool) {
 		doLog(true, false, "loading sprite '"+name+"' failed.")
 	}
 
-	aniData, err := loadAnimationData(sprite.Path + name)
-	if err == nil {
-		spriteList[name].animation = aniData
-	}
 }
 
 type spriteItem struct {
@@ -67,6 +76,7 @@ type spriteItem struct {
 	image, blurred *ebiten.Image
 	doReflect      bool
 	onDemand       bool
+	unmanged       bool
 
 	animation *animationData
 }
