@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	dWinWidth, dWinHeight = 1280 / magScale, 800 / magScale
+	dWinWidth, dWinHeight = 1280 / magScale, 720 / magScale
 	dWinHeightHalf        = dWinHeight / 2
 	dWinWidthHalf         = dWinWidth / 2
 	magScale              = 4
