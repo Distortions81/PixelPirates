@@ -36,7 +36,7 @@ func playMusicPlaylist(g *Game, gameMode int, songList []songData) {
 				output = applyReverb(output, song.delay, song.feedback, song.reverb)
 			}
 			runtime.GC()
-			doLog(true, true, "Render took %v\nNow Playing: %v.\n", time.Since(startTime).Round(time.Millisecond), song.name)
+			doLog(true, true, "Render took %v -- Now Playing: %v.", time.Since(startTime).Round(time.Millisecond), song.name)
 
 			playWave(g, true, output)
 		}
