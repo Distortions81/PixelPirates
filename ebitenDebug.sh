@@ -2,5 +2,5 @@
 
 go clean
 go build -tags=ebitenginedebug
-EBITENGINE_INTERNAL_IMAGES_KEY=P ./PixelPirates
+EBITENGINE_INTERNAL_IMAGES_KEY=P ./PixelPirates -debug
 go clean
