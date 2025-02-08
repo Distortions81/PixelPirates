@@ -14,7 +14,7 @@ import (
 	"github.com/chewxy/math32"
 )
 
-const maxVolume = 1
+const maxVolume = 0.5
 
 func playMusicPlaylist(g *Game, gameMode int, songList []songData) {
 	if *nomusic {
@@ -38,7 +38,7 @@ func playMusicPlaylist(g *Game, gameMode int, songList []songData) {
 				output = applyReverb(output, song.delay, song.feedback, song.reverb)
 			}
 			runtime.GC()
-			doLog(true, true, "Render took %v -- Now Playing: %v.", time.Since(startTime).Round(time.Millisecond), song.name)
+			doLog(true, true, "Render took %v -- Now Playing: %v. (%v sec)", time.Since(startTime).Round(time.Millisecond), song.name, len(output)/sampleRate)
 
 			playWave(g, true, output)
 		}
