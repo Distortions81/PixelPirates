@@ -5,6 +5,7 @@ import (
 	"math/rand/v2"
 	"os"
 	"runtime"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -235,17 +236,7 @@ func mixWaves(waves ...audioData) audioData {
 		}
 	}
 
-	// 3. Average by number of waves
-	/*
-		numWaves := float32(len(waves))
-		if numWaves > 1.0 {
-			for i := 0; i < maxLen; i++ {
-				mixed[i] /= numWaves
-			}
-		}
-	*/
-
-	// 4. Find the peak amplitude (absolute value)
+	// 3. Find the peak amplitude (absolute value)
 	var maxAmp float32
 	for _, sample := range mixed {
 		absVal := sample
@@ -257,7 +248,7 @@ func mixWaves(waves ...audioData) audioData {
 		}
 	}
 
-	// 5. If the peak amplitude exceeds 1.0, scale the whole wave down
+	// 4. If the peak amplitude exceeds maxVolume, scale the whole wave down
 	if maxAmp > maxVolume {
 		scale := maxVolume / maxAmp
 		for i := range mixed {
@@ -270,7 +261,7 @@ func mixWaves(waves ...audioData) audioData {
 
 func playWave(g *Game, music bool, wave audioData) {
 
-	// 2) Convert float64 samples to raw bytes (16-bit PCM), with noise shaping
+	// 2) Convert float32 samples to raw bytes (16-bit PCM), with noise shaping
 	soundData := make([]byte, len(wave)*2)
 
 	// We'll store the quantization error from the previous sample
@@ -323,35 +314,74 @@ func playWave(g *Game, music bool, wave audioData) {
 	}
 }
 
+// calculateFrequency now supports standard note names such as "A4", "C#4", "Db4", etc.
+// It also supports the special codes "NN" for a rest (frequency 0) and "WN" for white noise (frequency -1).
 func calculateFrequency(note string) float32 {
-	// Base note A4
-	var baseFrequency float32 = 440.0
-	// Note names (A-G), standard equal temperament tuning
-	noteNames := map[string]int{
-		"WN": -2, "NN": -1, "Ab": 0, "A#": 1, "Bb": 2, "Cb": 3, "C#": 4, "Db": 5,
-		"D#": 6, "Eb": 7, "Fb": 8, "F#": 9, "Gb": 10, "G#": 11,
+	// Special cases
+	if note == "NN" {
+		return 0 // rest
+	}
+	if note == "WN" {
+		return -1 // white noise indicator
 	}
 
-	// Note names are of the form "A1", "C#4", etc.
-	// First, extract the note (A, B, C, etc.) and the octave number
-	var (
-		noteName string
-		octave   int
-	)
-	fmt.Sscanf(note, "%2s%d", &noteName, &octave)
-
-	// Find the index of the note (A, A#, B, etc.)
-	halfSteps := noteNames[noteName]
-	if halfSteps == -1 {
+	// A valid note should start with a letter (A-G), optionally followed by '#' or 'b', then the octave number.
+	// For example: "C4", "A4", "C#4", "Db3", etc.
+	if len(note) < 2 {
 		return 0
-	} else if halfSteps == -2 {
-		return -1
 	}
 
-	// Calculate the number of half-steps from A4 (which is the 49th note)
-	halfStepsFromA4 := (octave-6)*12 + halfSteps
-	// Frequency of the note
-	frequency := baseFrequency * math32.Pow(2, float32(halfStepsFromA4)/12)
+	// Extract the note letter.
+	noteLetter := rune(note[0])
+	var accidental rune
+	var octave int
+	var err error
+
+	// If the second character is '#' or 'b', then it is an accidental.
+	if len(note) >= 3 && (note[1] == '#' || note[1] == 'b') {
+		accidental = rune(note[1])
+		octave, err = strconv.Atoi(note[2:])
+		if err != nil {
+			return 0
+		}
+	} else {
+		accidental = 0
+		octave, err = strconv.Atoi(note[1:])
+		if err != nil {
+			return 0
+		}
+	}
+
+	// Map natural note letters to a base semitone number (relative to C).
+	// Using: C=0, D=2, E=4, F=5, G=7, A=9, B=11.
+	noteMap := map[rune]int{
+		'C': 0,
+		'D': 2,
+		'E': 4,
+		'F': 5,
+		'G': 7,
+		'A': 9,
+		'B': 11,
+	}
+	base, ok := noteMap[noteLetter]
+	if !ok {
+		return 0
+	}
+	semitone := base
+	if accidental == '#' {
+		semitone++
+	} else if accidental == 'b' {
+		semitone--
+	}
+
+	// Calculate the semitone offset from A4.
+	// A4 is defined as 440 Hz, and in our mapping A has a base value of 9.
+	// Thus, the total offset in semitones is:
+	//     offset = (octave - 4)*12 + (semitone - 9)
+	offset := (octave-4)*12 + (semitone - 9)
+
+	// Calculate the frequency using the equal temperament formula.
+	frequency := 440.0 * math32.Pow(2, float32(offset)/12.0)
 	return frequency
 }
 
