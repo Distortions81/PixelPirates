@@ -14,7 +14,7 @@ import (
 	"github.com/chewxy/math32"
 )
 
-const maxVolume = 0.5
+const maxVolume = 0.8
 
 func playMusicPlaylist(g *Game, gameMode int, songList []songData) {
 	if *nomusic {
@@ -135,7 +135,7 @@ func playNote(freq float32, duration time.Duration, ins *insData) audioData {
 }
 
 // Global constant for white noise dB offset.
-const noiseDBOffset = -6.0 // Adjust this value as needed
+const noiseDBOffset = -3.0 // Adjust this value as needed
 
 func generateNoise(duration time.Duration) audioData {
 	numSamples := int(float64(sampleRate) * duration.Seconds())
@@ -167,11 +167,11 @@ func generateWave(freq float32, duration time.Duration, waveform string, blend f
 	case "sine":
 		dbOffset = 0.0
 	case "square":
-		dbOffset = -2.0
+		dbOffset = -6.0
 	case "triangle":
-		dbOffset = 3.0
+		dbOffset = 0.0
 	case "sawtooth":
-		dbOffset = -8.0
+		dbOffset = -12.0
 	case "mix":
 		dbOffset = blend*(-2.0) + (1-blend)*0.0
 	default:
