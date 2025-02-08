@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"math/rand/v2"
 	"os"
 	"runtime"
@@ -46,15 +47,12 @@ func playMusicPlaylist(g *Game, gameMode int, songList []songData) {
 }
 
 func dumpMusic() {
-
 	os.Mkdir("dump", 0755)
-
 	for _, song := range titleSongList {
 		if *debugMode {
 			doLog(true, true, "Rendering: '%v'", song.name)
 		}
 		output := playSong(song)
-
 		if song.reverb > 0 {
 			output = applyReverb(output, song.delay, song.feedback, song.reverb)
 		}
@@ -71,18 +69,13 @@ func playSong(song songData) audioData {
 		waveLock sync.Mutex
 		wg       sync.WaitGroup
 	)
-
 	for _, instrument := range song.ins {
 		if instrument.volume <= 0 {
 			continue
 		}
-
 		wg.Add(1)
 		go func(ins insData) {
-			insWave := generateFromText(
-				&song,
-				&ins,
-			)
+			insWave := generateFromText(&song, &ins)
 			waveLock.Lock()
 			waves = append(waves, insWave)
 			waveLock.Unlock()
@@ -90,16 +83,14 @@ func playSong(song songData) audioData {
 		}(instrument)
 	}
 	wg.Wait()
-
 	return mixWaves(waves...)
 }
 
 func generateFromText(song *songData, ins *insData) audioData {
 	beatDuration := time.Minute / time.Duration(song.bpm)
 	var finalWave audioData
-
 	if *debugMode {
-		doLog(true, true, "Rendering: %v", ins.name)
+		doLog(true, true, "Rendering instrument: %v", ins.name)
 	}
 	for _, noteStr := range strings.Split(ins.data, ",") {
 		note, duration := parseNote(noteStr)
@@ -107,7 +98,6 @@ func generateFromText(song *songData, ins *insData) audioData {
 			continue
 		}
 		noteDuration := time.Duration(beatDuration.Seconds() * duration * float64(time.Second))
-
 		// Check for chord
 		chordNotes := strings.Split(note, "/")
 		if len(chordNotes) > 1 {
@@ -119,61 +109,43 @@ func generateFromText(song *songData, ins *insData) audioData {
 			finalWave = append(finalWave, noteWave...)
 		}
 	}
-
 	return finalWave
 }
 
 // playNote now uses the new waveform options.
-// It checks ins.waveform (a new string field you can add to insData).
 func playNote(freq float32, duration time.Duration, ins *insData) audioData {
-	// Handle rest: frequency 0 returns silence.
 	if freq == 0 {
 		return make(audioData, int(float64(sampleRate)*duration.Seconds()))
 	}
-
 	var wave audioData
 	if freq == -1 {
 		wave = generateNoise(duration)
 	} else {
-		// Determine waveform type.
-		// If ins.waveform is empty, default to "mix" for backwards compatibility.
 		waveformType := ins.waveform
 		if waveformType == "" {
 			waveformType = "mix"
 		}
-		// ins.square is still used as the blend factor if you're using "mix"
 		wave = generateWave(freq, duration, waveformType, ins.square)
 	}
-
 	wave = applyADSR(wave, ins)
-
-	// Apply per-instrument volume.
 	for i := range wave {
 		wave[i] *= float32(ins.volume)
 	}
-
 	return wave
 }
 
-// Define a global constant for white noise dB offset.
+// Global constant for white noise dB offset.
 const noiseDBOffset = -6.0 // Adjust this value as needed
 
 func generateNoise(duration time.Duration) audioData {
 	numSamples := int(float64(sampleRate) * duration.Seconds())
 	wave := make(audioData, numSamples)
-
-	// Convert the noise dB offset to a linear compensation factor.
 	compensation := math32.Pow(10, float32(noiseDBOffset)/20)
 
-	// Generate white noise samples in the range [-1.0, 1.0] and apply the compensation.
 	for i := 0; i < numSamples; i++ {
-		// Generate a random sample between -1 and 1.
 		sample := float32(rand.Float64()*2.0 - 1.0)
-		// Multiply by the compensation factor.
 		wave[i] = sample * compensation
-
-		// Optionally, for a slightly smoother noise (as in the original code),
-		// you can repeat the same value over a few samples.
+		// Repeat the sample for smoothing.
 		for x := 0; x < 8; x++ {
 			i++
 			if i < numSamples {
@@ -181,43 +153,34 @@ func generateNoise(duration time.Duration) audioData {
 			}
 		}
 	}
-
 	return wave
 }
 
-// generateWave now accepts a waveform type and a blend factor.
-// It generates one of several waveforms and applies an amplitude compensation factor
-// computed on a logarithmic (dB) scale to help balance perceived loudness.
+// generateWave accepts a waveform type and blend factor.
 func generateWave(freq float32, duration time.Duration, waveform string, blend float32) audioData {
 	samples := int(float64(sampleRate) * duration.Seconds())
 	wave := make(audioData, samples)
-	period := 1.0 / freq
+	period := 1.0 / float64(freq)
 
-	// Define desired dB offsets for each waveform.
-	// (These values are suggestions – adjust as needed.)
 	var dbOffset float32
 	switch waveform {
 	case "sine":
-		dbOffset = 0.0 // no adjustment
+		dbOffset = 0.0
 	case "square":
-		dbOffset = -2.0 // square tends to be louder; reduce by 2 dB
+		dbOffset = -2.0
 	case "triangle":
-		dbOffset = 3.0 // triangle may sound too quiet; boost by 3 dB
+		dbOffset = 3.0
 	case "sawtooth":
-		dbOffset = -8.0 // sawtooth is very bright; reduce by 8 dB
+		dbOffset = -8.0
 	case "mix":
-		// For a mix of square and sine, take a weighted average of dB offsets.
 		dbOffset = blend*(-2.0) + (1-blend)*0.0
 	default:
 		dbOffset = blend*(-2.0) + (1-blend)*0.0
 	}
-	// Convert the dB offset to a linear compensation factor.
 	compensation := math32.Pow(10, dbOffset/20)
 
 	for i := 0; i < samples; i++ {
 		t := float32(i) / float32(sampleRate)
-
-		// Basic waveforms:
 		sineVal := math32.Sin(2 * math32.Pi * freq * t)
 
 		var squareVal float32
@@ -227,14 +190,10 @@ func generateWave(freq float32, duration time.Duration, waveform string, blend f
 			squareVal = 1.0
 		}
 
-		// Triangle wave:
-		tmod := math32.Mod(t, period)
-		triangleVal := 4*math32.Abs(tmod/period-0.5) - 1.0
+		tmod := float32(math.Mod(float64(t), period))
+		triangleVal := 4*math32.Abs(tmod/float32(period)-0.5) - 1.0
+		sawtoothVal := 2*float32(math.Mod(float64(t), period))/float32(period) - 1.0
 
-		// Sawtooth wave:
-		sawtoothVal := 2*math32.Mod(t, period)/period - 1.0
-
-		// Select the waveform output:
 		var sample float32
 		switch waveform {
 		case "sine":
@@ -246,51 +205,45 @@ func generateWave(freq float32, duration time.Duration, waveform string, blend f
 		case "sawtooth":
 			sample = sawtoothVal
 		case "mix":
-			// Blend: blend=0 gives pure sine; blend=1 gives pure square.
 			sample = blend*squareVal + (1-blend)*sineVal
 		default:
 			sample = blend*squareVal + (1-blend)*sineVal
 		}
-
-		// Apply the compensation factor.
 		wave[i] = sample * compensation
 	}
-
 	return wave
 }
 
 func playChord(chord []string, duration time.Duration, ins *insData) audioData {
-	// Generate wave for each note in the chord
 	var waves []audioData
 	for _, note := range chord {
 		freq := calculateFrequency(note)
-		noteWave := generateWave(freq, duration, ins.waveform, ins.square)
+		var noteWave audioData
+		if freq == 0 {
+			// Generate silence: an array of zeros of the proper length.
+			noteWave = make(audioData, int(float64(sampleRate)*duration.Seconds()))
+		} else {
+			noteWave = generateWave(freq, duration, ins.waveform, ins.square)
+		}
 		noteWave = applyADSR(noteWave, ins)
-		// Apply volume
 		for i := range noteWave {
 			noteWave[i] *= float32(ins.volume)
 		}
 		waves = append(waves, noteWave)
 	}
-
-	// Sum waves
 	chordWave := make(audioData, len(waves[0]))
 	for i := range chordWave {
 		var sum float32
 		for _, w := range waves {
 			sum += w[i]
 		}
-		// average to prevent single chord from ballooning amplitude
 		chordWave[i] = sum / float32(len(waves))
 	}
-
 	return chordWave
 }
 
-// mixWaves sums multiple mono wave slices (all with the same sample rate),
-// averages them, then normalizes the result so that the peak amplitude is exactly maxVolume.
+// mixWaves using the maximum length.
 func mixWaves(waves ...audioData) audioData {
-	// 1. Determine the maximum length among all input waves.
 	var maxLen int
 	for _, w := range waves {
 		if len(w) > maxLen {
@@ -298,15 +251,14 @@ func mixWaves(waves ...audioData) audioData {
 		}
 	}
 
-	// 2. Sum the waves.
 	mixed := make(audioData, maxLen)
 	for _, w := range waves {
-		for i := 0; i < len(w); i++ {
-			mixed[i] += w[i]
+		for i := 0; i < maxLen; i++ {
+			if i < len(w) {
+				mixed[i] += w[i]
+			}
 		}
 	}
-
-	// 3. Average by the number of waves.
 	numWaves := float32(len(waves))
 	if numWaves > 1.0 {
 		for i := 0; i < maxLen; i++ {
@@ -314,7 +266,6 @@ func mixWaves(waves ...audioData) audioData {
 		}
 	}
 
-	// 4. Find the peak amplitude (absolute value) of the mixed signal.
 	var maxAmp float32
 	for _, sample := range mixed {
 		absVal := sample
@@ -325,60 +276,38 @@ func mixWaves(waves ...audioData) audioData {
 			maxAmp = absVal
 		}
 	}
-
-	// 5. If maxAmp is non-zero, compute a normalization scale factor and apply it.
 	if maxAmp > 0 {
 		scale := maxVolume / maxAmp
 		for i := range mixed {
 			mixed[i] *= scale
 		}
 	}
-
 	return mixed
 }
 
 func playWave(g *Game, music bool, wave audioData) {
-
-	// 2) Convert float32 samples to raw bytes (16-bit PCM), with noise shaping
 	soundData := make([]byte, len(wave)*2)
-
-	// We'll store the quantization error from the previous sample
 	var prevError float32
 
 	for i, sample := range wave {
-		// Add shaped error from the previous sample.
-		// A small feedback factor (like 0.5) is a simple first-order noise shaper.
 		shapedSample := sample + 0.5*prevError
-
-		// Hard-clip to -1.0..+1.0 (avoid integer overflow if shapedSample is out of range)
 		if shapedSample > 1.0 {
 			shapedSample = 1.0
 		} else if shapedSample < -1.0 {
 			shapedSample = -1.0
 		}
-
-		// Convert to 16-bit integer
 		intVal := int16(math32.Round(shapedSample * 32767))
-
-		// Store this in the output buffer (little-endian)
 		soundData[i*2] = byte(intVal)
 		soundData[i*2+1] = byte(intVal >> 8)
-
-		// Calculate the new quantization error:
-		// This is the difference between our shapedSample and the quantized integer value.
 		actual := float32(intVal) / 32767.0
 		prevError = shapedSample - actual
 	}
-
-	// 3) Create a player and play
 	player := g.audioContext.NewPlayerFromBytes(soundData)
 	player.Play()
 
 	for player.IsPlaying() {
-		//Handle 'stop music'
 		if music && g.stopMusic {
 			g.stopMusic = false
-
 			fadeout := 50
 			for x := 1; x < fadeout; x++ {
 				volume := 1 - float64(x)/float64(fadeout)
@@ -392,30 +321,22 @@ func playWave(g *Game, music bool, wave audioData) {
 	}
 }
 
-// calculateFrequency now supports standard note names such as "A4", "C#4", "Db4", etc.
-// It also supports the special codes "NN" for a rest (frequency 0) and "WN" for white noise (frequency -1).
+// calculateFrequency supports note names such as "A4", "C#4", "Db4", etc.
 func calculateFrequency(note string) float32 {
-	// Special cases
 	if note == "NN" {
 		return 0 // rest
 	}
 	if note == "WN" {
 		return -1 // white noise indicator
 	}
-
-	// A valid note should start with a letter (A-G), optionally followed by '#' or 'b', then the octave number.
-	// For example: "C4", "A4", "C#4", "Db3", etc.
 	if len(note) < 2 {
 		return 0
 	}
-
-	// Extract the note letter.
 	noteLetter := rune(note[0])
 	var accidental rune
 	var octave int
 	var err error
 
-	// If the second character is '#' or 'b', then it is an accidental.
 	if len(note) >= 3 && (note[1] == '#' || note[1] == 'b') {
 		accidental = rune(note[1])
 		octave, err = strconv.Atoi(note[2:])
@@ -430,8 +351,6 @@ func calculateFrequency(note string) float32 {
 		}
 	}
 
-	// Map natural note letters to a base semitone number (relative to C).
-	// Using: C=0, D=2, E=4, F=5, G=7, A=9, B=11.
 	noteMap := map[rune]int{
 		'C': 0,
 		'D': 2,
@@ -451,96 +370,103 @@ func calculateFrequency(note string) float32 {
 	} else if accidental == 'b' {
 		semitone--
 	}
-
-	// Calculate the semitone offset from A4.
-	// A4 is defined as 440 Hz, and in our mapping A has a base value of 9.
-	// Thus, the total offset in semitones is:
-	//     offset = (octave - 4)*12 + (semitone - 9)
 	offset := (octave-4)*12 + (semitone - 9)
-
-	// Calculate the frequency using the equal temperament formula.
 	frequency := 440.0 * math32.Pow(2, float32(offset)/12.0)
 	return frequency
 }
 
+// / applyADSR applies an ADSR envelope to the input waveform 'wave'
+// and guarantees that the returned output is exactly the same length as 'wave'.
+// If the sum of attack, decay, and release (in samples) is less than the total length,
+// the remaining samples are assigned to sustain.
+// If the sum is greater than the total length, the attack, decay, and release are scaled down proportionally.
 func applyADSR(wave audioData, ins *insData) audioData {
-	length := len(wave)
-	adsrWave := make(audioData, length)
+	totalSamples := len(wave)
 
-	//Prevent clicking
-	if ins.attack < 0.01 {
-		ins.attack = 0.01
-	}
-	if ins.decay < 0.01 {
-		ins.decay = 0.01
-	}
-	if ins.sustain < 0.01 {
-		ins.sustain = 0.01
-	}
-	if ins.release < 0.01 {
-		ins.release = 0.01
-	}
+	// Calculate the nominal phase lengths.
+	nomAttackSamples := int(float32(sampleRate) * ins.attack)
+	nomDecaySamples := int(float32(sampleRate) * ins.decay)
+	nomReleaseSamples := int(float32(sampleRate) * ins.release)
 
-	// Calculate the number of samples for each phase
-	attackSamples := int(float32(sampleRate) * ins.attack)
-	decaySamples := int(float32(sampleRate) * ins.decay)
-	releaseSamples := int(float32(sampleRate) * ins.release)
-	sustainSamples := length - attackSamples - decaySamples - releaseSamples
+	// The sum of the non-sustain phases.
+	phaseSum := nomAttackSamples + nomDecaySamples + nomReleaseSamples
 
-	if sustainSamples < 0 {
-		sustainSamples = 0
-	}
+	var attackSamples, decaySamples, releaseSamples, sustainSamples int
 
-	// Attack
-	for i := 0; i < attackSamples && i < length; i++ {
-		adsrWave[i] = wave[i] * float32(i) / float32(attackSamples)
+	if phaseSum > totalSamples {
+		// Not enough samples for full phases; scale them down proportionally.
+		scale := float32(totalSamples) / float32(phaseSum)
+		attackSamples = int(float32(nomAttackSamples) * scale)
+		decaySamples = int(float32(nomDecaySamples) * scale)
+		releaseSamples = int(float32(nomReleaseSamples) * scale)
+		sustainSamples = 0 // No room for sustain.
+	} else {
+		attackSamples = nomAttackSamples
+		decaySamples = nomDecaySamples
+		releaseSamples = nomReleaseSamples
+		// All remaining samples become sustain.
+		sustainSamples = totalSamples - phaseSum
 	}
 
-	// Decay
-	for i := attackSamples; i < attackSamples+decaySamples && i < length; i++ {
-		t := float32(i-attackSamples) / float32(decaySamples)
-		adsrWave[i] = wave[i] * (1.0 - (1.0-ins.sustain)*t)
+	// Create the envelope array.
+	envelope := make([]float32, totalSamples)
+	index := 0
+
+	// Attack phase: ramp linearly from 0 to 1.
+	for i := 0; i < attackSamples && index < totalSamples; i++ {
+		envelope[index] = float32(i) / float32(attackSamples)
+		index++
 	}
 
-	// Sustain
-	for i := attackSamples + decaySamples; i < attackSamples+decaySamples+sustainSamples && i < length; i++ {
-		adsrWave[i] = wave[i] * ins.sustain
+	// Decay phase: ramp from 1 down to ins.sustain.
+	for i := 0; i < decaySamples && index < totalSamples; i++ {
+		t := float32(i) / float32(decaySamples)
+		envelope[index] = 1 - (1-ins.sustain)*t
+		index++
 	}
 
-	// Release
-	releaseStart := attackSamples + decaySamples + sustainSamples
-	for i := releaseStart; i < length; i++ {
-		t := float32(i-releaseStart) / float32(releaseSamples)
-		adsrWave[i] = wave[i] * ins.sustain * (1.0 - t)
+	// Sustain phase: constant at ins.sustain.
+	for i := 0; i < sustainSamples && index < totalSamples; i++ {
+		envelope[index] = ins.sustain
+		index++
 	}
 
-	// ---- Quick fade-out fix to ensure zero at the end ----
-	fadeOutDurationSec := 0.01 // 10 ms
-	fadeOutSamples := int(float64(sampleRate) * fadeOutDurationSec)
-	if fadeOutSamples > length {
-		fadeOutSamples = length
+	// Release phase: ramp from ins.sustain down to 0.
+	for i := 0; i < releaseSamples && index < totalSamples; i++ {
+		t := float32(i) / float32(releaseSamples)
+		if t > 1 {
+			t = 1
+		}
+		envelope[index] = ins.sustain * (1 - t)
+		index++
 	}
 
-	startFade := length - fadeOutSamples
-	for i := startFade; i < length; i++ {
-		factor := 1.0 - float32(i-startFade)/float32(fadeOutSamples)
-		adsrWave[i] *= factor
+	// If for any reason we have not filled all samples (due to rounding), fill the remainder with 0.
+	for index < totalSamples {
+		envelope[index] = 0
+		index++
 	}
 
-	return adsrWave
+	// Apply the envelope to each sample.
+	output := make(audioData, totalSamples)
+	for i := 0; i < totalSamples; i++ {
+		output[i] = wave[i] * envelope[i]
+	}
+
+	return output
 }
 
-// parseNote parses the note and its duration from a string like "A4 1".
+// parseNote parses a note string like "A4 1" into the note ("A4") and duration (1).
 func parseNote(noteStr string) (string, float64) {
 	parts := strings.Fields(noteStr)
 	if len(parts) != 2 {
-		return "", 0 // Invalid input
+		return "", 0
 	}
 	note := parts[0]
 	var duration float64
 	_, err := fmt.Sscanf(parts[1], "%f", &duration)
 	if err != nil {
-		return "", 0 // Invalid duration
+		return "", 0
 	}
 	return note, duration
 }
