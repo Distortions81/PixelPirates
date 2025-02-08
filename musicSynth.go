@@ -22,7 +22,6 @@ func playMusicPlaylist(g *Game, gameMode int, songList []songData) {
 	if len(songList) == 0 {
 		return
 	}
-	time.Sleep(time.Second * 2)
 	for {
 		for _, song := range songList {
 			if g.gameMode != gameMode {
@@ -124,8 +123,10 @@ func generateFromText(song *songData, ins *insData) audioData {
 	return finalWave
 }
 
+// playNote now uses the new waveform options.
+// It checks ins.waveform (a new string field you can add to insData).
 func playNote(freq float32, duration time.Duration, ins *insData) audioData {
-	// Handle rest
+	// Handle rest: frequency 0 returns silence.
 	if freq == 0 {
 		return make(audioData, int(float64(sampleRate)*duration.Seconds()))
 	}
@@ -134,11 +135,19 @@ func playNote(freq float32, duration time.Duration, ins *insData) audioData {
 	if freq == -1 {
 		wave = generateNoise(duration)
 	} else {
-		wave = generateWave(freq, duration, ins.square)
+		// Determine waveform type.
+		// If ins.waveform is empty, default to "mix" for backwards compatibility.
+		waveformType := ins.waveform
+		if waveformType == "" {
+			waveformType = "mix"
+		}
+		// ins.square is still used as the blend factor if you're using "mix"
+		wave = generateWave(freq, duration, waveformType, ins.square)
 	}
+
 	wave = applyADSR(wave, ins)
 
-	// Apply per-instrument volume
+	// Apply per-instrument volume.
 	for i := range wave {
 		wave[i] *= float32(ins.volume)
 	}
@@ -146,20 +155,29 @@ func playNote(freq float32, duration time.Duration, ins *insData) audioData {
 	return wave
 }
 
+// Define a global constant for white noise dB offset.
+const noiseDBOffset = -6.0 // Adjust this value as needed
+
 func generateNoise(duration time.Duration) audioData {
 	numSamples := int(float64(sampleRate) * duration.Seconds())
 	wave := make(audioData, numSamples)
 
-	// Generate white noise samples in the range [-1.0, 1.0]
-	// and write them as float32 (little-endian)
+	// Convert the noise dB offset to a linear compensation factor.
+	compensation := math32.Pow(10, float32(noiseDBOffset)/20)
+
+	// Generate white noise samples in the range [-1.0, 1.0] and apply the compensation.
 	for i := 0; i < numSamples; i++ {
-		sample := float32((rand.Float64()*2.0 - 1.0)) // in [-1.0, 1.0]
-		// Write the float32 sample
-		wave[i] = sample
+		// Generate a random sample between -1 and 1.
+		sample := float32(rand.Float64()*2.0 - 1.0)
+		// Multiply by the compensation factor.
+		wave[i] = sample * compensation
+
+		// Optionally, for a slightly smoother noise (as in the original code),
+		// you can repeat the same value over a few samples.
 		for x := 0; x < 8; x++ {
 			i++
 			if i < numSamples {
-				wave[i] = sample
+				wave[i] = sample * compensation
 			}
 		}
 	}
@@ -167,24 +185,77 @@ func generateNoise(duration time.Duration) audioData {
 	return wave
 }
 
-func generateWave(freq float32, duration time.Duration, waveBlend float32) audioData {
+// generateWave now accepts a waveform type and a blend factor.
+// It generates one of several waveforms and applies an amplitude compensation factor
+// computed on a logarithmic (dB) scale to help balance perceived loudness.
+func generateWave(freq float32, duration time.Duration, waveform string, blend float32) audioData {
 	samples := int(float64(sampleRate) * duration.Seconds())
 	wave := make(audioData, samples)
+	period := 1.0 / freq
+
+	// Define desired dB offsets for each waveform.
+	// (These values are suggestions – adjust as needed.)
+	var dbOffset float32
+	switch waveform {
+	case "sine":
+		dbOffset = 0.0 // no adjustment
+	case "square":
+		dbOffset = -2.0 // square tends to be louder; reduce by 2 dB
+	case "triangle":
+		dbOffset = 3.0 // triangle may sound too quiet; boost by 3 dB
+	case "sawtooth":
+		dbOffset = -8.0 // sawtooth is very bright; reduce by 8 dB
+	case "mix":
+		// For a mix of square and sine, take a weighted average of dB offsets.
+		dbOffset = blend*(-2.0) + (1-blend)*0.0
+	default:
+		dbOffset = blend*(-2.0) + (1-blend)*0.0
+	}
+	// Convert the dB offset to a linear compensation factor.
+	compensation := math32.Pow(10, dbOffset/20)
+
 	for i := 0; i < samples; i++ {
 		t := float32(i) / float32(sampleRate)
-		if freq == 0 {
-			wave[i] = 0
+
+		// Basic waveforms:
+		sineVal := math32.Sin(2 * math32.Pi * freq * t)
+
+		var squareVal float32
+		if sineVal < 0 {
+			squareVal = -1.0
 		} else {
-			sinVal := math32.Sin(2 * math32.Pi * freq * t)
-			var sqrVal float32 = 1.0
-			if sinVal < 0 {
-				sqrVal = -1.0
-			}
-			// waveBlend: 0.0 = pure sine, 1.0 = pure square
-			mix := waveBlend*sqrVal + (1.0-waveBlend)*sinVal
-			wave[i] = float32(mix)
+			squareVal = 1.0
 		}
+
+		// Triangle wave:
+		tmod := math32.Mod(t, period)
+		triangleVal := 4*math32.Abs(tmod/period-0.5) - 1.0
+
+		// Sawtooth wave:
+		sawtoothVal := 2*math32.Mod(t, period)/period - 1.0
+
+		// Select the waveform output:
+		var sample float32
+		switch waveform {
+		case "sine":
+			sample = sineVal
+		case "square":
+			sample = squareVal
+		case "triangle":
+			sample = triangleVal
+		case "sawtooth":
+			sample = sawtoothVal
+		case "mix":
+			// Blend: blend=0 gives pure sine; blend=1 gives pure square.
+			sample = blend*squareVal + (1-blend)*sineVal
+		default:
+			sample = blend*squareVal + (1-blend)*sineVal
+		}
+
+		// Apply the compensation factor.
+		wave[i] = sample * compensation
 	}
+
 	return wave
 }
 
@@ -193,7 +264,7 @@ func playChord(chord []string, duration time.Duration, ins *insData) audioData {
 	var waves []audioData
 	for _, note := range chord {
 		freq := calculateFrequency(note)
-		noteWave := generateWave(freq, duration, ins.square)
+		noteWave := generateWave(freq, duration, ins.waveform, ins.square)
 		noteWave = applyADSR(noteWave, ins)
 		// Apply volume
 		for i := range noteWave {

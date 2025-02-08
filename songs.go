@@ -10,8 +10,8 @@ type songData struct {
 }
 
 type insData struct {
-	name, data     string
-	volume, square float32
+	name, waveform, data string
+	volume, square       float32
 	/*
 		Attack: The time it takes for a sound to go from silence to its full volume when a key is first pressed.
 		Decay: The time it takes for the sound to drop from its peak volume to the sustain level.
@@ -38,10 +38,11 @@ var voyageOfTheAbyss = songData{
 	name: "Voyage of the Abyss - Nautical Odyssey",
 	bpm:  80, // 80 BPM → 160 beats (40 measures of 4/4)
 	ins: []insData{
-		// 1. Harmony: Chordal support reminiscent of rolling ocean swells.
+		// 1. Harmony: Chordal support with a sawtooth waveform for a shimmering texture.
 		{
-			name:   "Harmony",
-			volume: 0.6,
+			name:     "Harmony",
+			volume:   0.6,
+			waveform: "sawtooth",
 			data: "D4/F4/A4 4, D4/F4/A4 4, D4/F4/A4 4, D4/F4/A4 4, " +
 				"D4/F4/A4 4, D4/F4/A4 4, D4/F4/A4 4, D4/F4/A4 4," +
 				// Section 2:
@@ -60,10 +61,11 @@ var voyageOfTheAbyss = songData{
 			sustain: 0.80,
 			release: 0.20,
 		},
-		// 2. Bass: A deep, rocking pulse to drive the harmony.
+		// 2. Bass: Deep, rocking pulse rendered with a pure sine wave.
 		{
-			name:   "Bass",
-			volume: 0.5,
+			name:     "Bass",
+			volume:   0.5,
+			waveform: "sine",
 			data: "D2 2, A2 2, D2 2, A2 2, D2 2, A2 2, D2 2, A2 2," +
 				"D2 4, Bb1 4, C2 4, A1 4, " +
 				"D2 4, Bb1 4, C2 4, A1 4, " +
@@ -76,10 +78,11 @@ var voyageOfTheAbyss = songData{
 			sustain: 0.70,
 			release: 0.20,
 		},
-		// 3. Melody (Lead): Lowered for a deeper, more serious tone.
+		// 3. Melody (Lead): Lowered for a more serious tone, using a triangle wave.
 		{
-			name:   "Melody",
-			volume: 0.8,
+			name:     "Melody",
+			volume:   0.38,
+			waveform: "triangle",
 			data: "D3 1, F3 1, A3 1, D4 1, " +
 				"A3 1, F3 1, D3 1, A2 1, " +
 				"D3 0.5, E3 0.5, F3 1, G3 1, A3 1, " +
@@ -116,16 +119,17 @@ var voyageOfTheAbyss = songData{
 			decay:   0.15,
 			sustain: 0.85,
 			release: 0.35,
-			square:  0.05,
+			// The "square" parameter is ignored here because we’re not using "mix".
+			square: 0.05,
 		},
-		// 4. Kick: Deep, punchy hits on beats 1 and 3.
+		// 4. Kick: A deep, punchy hit using a sine wave.
 		{
-			name:   "Kick",
-			volume: 0.5,
+			name:     "Kick",
+			volume:   0.5,
+			waveform: "sine",
 			data: func() string {
 				var s string
-				// Each measure (4 beats): kick on beat 1 and beat 3.
-				// Pattern per measure: "C1 0.5, NN 0.5, NN 1, C1 0.5, NN 0.5, NN 1, "
+				// Each measure (4 beats): kick on beats 1 and 3.
 				for i := 0; i < 40; i++ {
 					s += "C1 0.5, NN 0.5, NN 1, C1 0.5, NN 0.5, NN 1, "
 				}
@@ -143,7 +147,7 @@ var voyageOfTheAbyss = songData{
 			volume: 0.4,
 			data: func() string {
 				var s string
-				// Each measure: silence for 1 beat, then a snare hit ("WN 0.25") then rest (0.75), twice.
+				// Each measure: silence for 1 beat, then a snare hit ("WN 0.25") then rest (0.75), repeated.
 				for i := 0; i < 40; i++ {
 					s += "NN 1, WN 0.25, NN 0.75, NN 1, WN 0.25, NN 0.75, "
 				}
@@ -155,34 +159,31 @@ var voyageOfTheAbyss = songData{
 			release: 0.05,
 			square:  0.0,
 		},
-		// 6. Waves: A re-triggering noise pattern that swells and recedes,
-		//    simulating the rising and falling of ocean waves.
+		// 6. Waves: A re-triggering noise pattern that swells and recedes (noise).
 		{
 			name:   "Waves",
-			volume: 0.12,
+			volume: 0.2,
 			data: func() string {
 				var s string
-				// Total 160 beats (40 measures). Here we use 20 cycles of 8 beats each.
-				// Each cycle: 4 beats of noise (a swell) followed by 4 beats of silence.
-				for i := 0; i < 10; i++ {
-					s += "WN 16, "
+				// 20 cycles of 8 beats each: 4 beats of noise followed by 4 beats of silence.
+				for i := 0; i < 20; i++ {
+					s += "WN 4, NN 4, "
 				}
 				return s
 			}(),
-			attack:  3.0,
+			attack:  1.5,
 			decay:   0.5,
 			sustain: 0.7,
-			release: 12.0,
+			release: 1.0,
 			square:  0.0,
 		},
-		// 7. Water Splashes: Sporadic bursts evoking the sound of waves crashing.
+		// 7. Water Splashes: Occasional bursts evoking crashing waves (noise).
 		{
 			name:   "Water Splashes",
 			volume: 0.3,
 			data: func() string {
 				var s string
-				// Each cycle: 16 beats (2 measures) → a short splash (2 beats) then silence (14 beats).
-				// 10 cycles × 16 beats = 160 beats total.
+				// 10 cycles of 16 beats each: 2 beats of noise then 14 beats of silence.
 				for i := 0; i < 10; i++ {
 					s += "WN 2, NN 14, "
 				}
