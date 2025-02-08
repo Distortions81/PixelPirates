@@ -14,7 +14,7 @@ import (
 	"github.com/chewxy/math32"
 )
 
-const maxVolume = 0.8
+const maxVolume = 0.5
 
 func playMusicPlaylist(g *Game, gameMode int, songList []songData) {
 	if *nomusic {
@@ -140,16 +140,15 @@ const noiseDBOffset = -3.0 // Adjust this value as needed
 func generateNoise(duration time.Duration) audioData {
 	numSamples := int(float64(sampleRate) * duration.Seconds())
 	wave := make(audioData, numSamples)
-	compensation := math32.Pow(10, float32(noiseDBOffset)/20)
 
 	for i := 0; i < numSamples; i++ {
 		sample := float32(rand.Float64()*2.0 - 1.0)
-		wave[i] = sample * compensation
+		wave[i] = sample
 		// Repeat the sample for smoothing.
 		for x := 0; x < 8; x++ {
 			i++
 			if i < numSamples {
-				wave[i] = sample * compensation
+				wave[i] = sample
 			}
 		}
 	}
@@ -161,23 +160,6 @@ func generateWave(freq float32, duration time.Duration, waveform string, blend f
 	samples := int(float64(sampleRate) * duration.Seconds())
 	wave := make(audioData, samples)
 	period := 1.0 / float64(freq)
-
-	var dbOffset float32
-	switch waveform {
-	case "sine":
-		dbOffset = 0.0
-	case "square":
-		dbOffset = -6.0
-	case "triangle":
-		dbOffset = 0.0
-	case "sawtooth":
-		dbOffset = -12.0
-	case "mix":
-		dbOffset = blend*(-2.0) + (1-blend)*0.0
-	default:
-		dbOffset = blend*(-2.0) + (1-blend)*0.0
-	}
-	compensation := math32.Pow(10, dbOffset/20)
 
 	for i := 0; i < samples; i++ {
 		t := float32(i) / float32(sampleRate)
@@ -209,7 +191,7 @@ func generateWave(freq float32, duration time.Duration, waveform string, blend f
 		default:
 			sample = blend*squareVal + (1-blend)*sineVal
 		}
-		wave[i] = sample * compensation
+		wave[i] = sample
 	}
 	return wave
 }
