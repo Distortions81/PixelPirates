@@ -13,7 +13,7 @@ import (
 	"github.com/chewxy/math32"
 )
 
-const maxVolume = 0.5
+const maxVolume = 1
 
 func playMusicPlaylist(g *Game, gameMode int, songList []songData) {
 	if *nomusic {
@@ -287,12 +287,10 @@ func playChord(chord []string, duration time.Duration, ins *insData) audioData {
 	return chordWave
 }
 
-// mixWaves sums multiple mono wave slices (all same sample rate)
-// 1) Averages by number of wave inputs
-// 2) Scales further only if needed to prevent clipping
+// mixWaves sums multiple mono wave slices (all with the same sample rate),
+// averages them, then normalizes the result so that the peak amplitude is exactly maxVolume.
 func mixWaves(waves ...audioData) audioData {
-
-	// 1. Determine the maximum length among all input waves
+	// 1. Determine the maximum length among all input waves.
 	var maxLen int
 	for _, w := range waves {
 		if len(w) > maxLen {
@@ -300,7 +298,7 @@ func mixWaves(waves ...audioData) audioData {
 		}
 	}
 
-	// 2. Sum the waves
+	// 2. Sum the waves.
 	mixed := make(audioData, maxLen)
 	for _, w := range waves {
 		for i := 0; i < len(w); i++ {
@@ -308,7 +306,15 @@ func mixWaves(waves ...audioData) audioData {
 		}
 	}
 
-	// 3. Find the peak amplitude (absolute value)
+	// 3. Average by the number of waves.
+	numWaves := float32(len(waves))
+	if numWaves > 1.0 {
+		for i := 0; i < maxLen; i++ {
+			mixed[i] /= numWaves
+		}
+	}
+
+	// 4. Find the peak amplitude (absolute value) of the mixed signal.
 	var maxAmp float32
 	for _, sample := range mixed {
 		absVal := sample
@@ -320,8 +326,8 @@ func mixWaves(waves ...audioData) audioData {
 		}
 	}
 
-	// 4. If the peak amplitude exceeds maxVolume, scale the whole wave down
-	if maxAmp > maxVolume {
+	// 5. If maxAmp is non-zero, compute a normalization scale factor and apply it.
+	if maxAmp > 0 {
 		scale := maxVolume / maxAmp
 		for i := range mixed {
 			mixed[i] *= scale
