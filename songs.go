@@ -38,9 +38,9 @@ var (
 	}
 
 	gameSongList = []songData{
-		spectersOfAshenTwilight,
 		infinitoRealms,
 		epicWarOfTheAncients,
+		spectersOfAshenTwilight,
 	}
 
 	islandSongList = []songData{
