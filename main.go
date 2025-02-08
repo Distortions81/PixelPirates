@@ -16,6 +16,7 @@ const (
 	dWinHeightHalf        = dWinHeight / 2
 	dWinWidthHalf         = dWinWidth / 2
 	magScale              = 4
+	maxScale              = 24
 	sampleRate            = 48000
 
 	dataDir    = "data/"
@@ -57,6 +58,7 @@ func main() {
 
 	ebiten.SetTPS(ebiten.SyncWithFPS)
 	ebiten.SetWindowSize(dWinWidth*magScale, dWinHeight*magScale)
+	ebiten.SetWindowSizeLimits(dWinWidth, dWinHeight, dWinWidth*maxScale, dWinHeight*maxScale)
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	ebiten.SetVsyncEnabled(true)
 	ebiten.SetScreenClearedEveryFrame(false)
