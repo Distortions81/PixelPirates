@@ -51,15 +51,17 @@ func playMusicPlaylist(g *Game, gameMode int, songList []songData) {
 
 func dumpMusic() {
 	os.Mkdir("dump", 0755)
-	for _, song := range titleSongList {
-		if *debugMode {
-			doLog(true, true, "Rendering: '%v'", song.name)
+	for _, list := range gameModePlaylists {
+		for _, song := range list {
+			if *debugMode {
+				doLog(true, true, "Rendering: '%v'", song.name)
+			}
+			output := playSong(song)
+			if song.reverb > 0 {
+				output = applyReverb(output, song.delay, song.feedback, song.reverb)
+			}
+			saveMono16BitWav("dump/"+song.name+".wav", output)
 		}
-		output := playSong(song)
-		if song.reverb > 0 {
-			output = applyReverb(output, song.delay, song.feedback, song.reverb)
-		}
-		saveMono16BitWav("dump/"+song.name+".wav", output)
 	}
 }
 
