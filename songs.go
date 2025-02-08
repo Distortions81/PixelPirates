@@ -159,20 +159,20 @@ var voyageOfTheAbyss = songData{
 		//    simulating the rising and falling of ocean waves.
 		{
 			name:   "Waves",
-			volume: 0.1,
+			volume: 0.12,
 			data: func() string {
 				var s string
 				// Total 160 beats (40 measures). Here we use 20 cycles of 8 beats each.
 				// Each cycle: 4 beats of noise (a swell) followed by 4 beats of silence.
-				for i := 0; i < 20; i++ {
-					s += "WN 16, NN 16, "
+				for i := 0; i < 10; i++ {
+					s += "WN 16, "
 				}
 				return s
 			}(),
 			attack:  3.0,
-			decay:   3.0,
+			decay:   0.5,
 			sustain: 0.7,
-			release: 6.0,
+			release: 12.0,
 			square:  0.0,
 		},
 		// 7. Water Splashes: Sporadic bursts evoking the sound of waves crashing.
