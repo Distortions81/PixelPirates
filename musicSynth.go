@@ -34,7 +34,7 @@ func playMusicPlaylist(g *Game, gameMode int, songList []songData) {
 			output := playSong(song)
 
 			if song.reverb > 0 {
-				//output = applyReverb(output, song.delay, song.feedback, song.reverb)
+				output = applyReverb(output, song.delay, song.feedback, song.reverb)
 			}
 			runtime.GC()
 			doLog(true, true, "Render took %v -- Now Playing: %v.", time.Since(startTime).Round(time.Millisecond), song.name)

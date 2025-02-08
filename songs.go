@@ -31,55 +31,39 @@ var (
 		voyageOfTheAbyss,
 	}
 
-	gameSongList = []songData{
-		voyageOfTheAbyss,
-	}
+	gameSongList = []songData{}
 )
 
-// An epic two-minute nautical theme called "Voyage of the Abyss"
-// BPM: 80  Total beats: 160 (i.e. 40 measures of 4/4)
-// Sections:
-//  • Section 1 (Measures 1–8): Gentle introduction (all Dm chords)
-//  • Section 2 (Measures 9–24): Main theme – a repeating progression (Dm – Bb – C – A)
-//  • Section 3 (Measures 25–32): A contrasting bridge (using Gm, A, F, then Dm)
-//  • Section 4 (Measures 33–40): Recapitulation of the main theme with a final cadence
-
 var voyageOfTheAbyss = songData{
-	name: "Voyage of the Abyss",
-	bpm:  80,
+	name: "Voyage of the Abyss - Nautical Odyssey",
+	bpm:  80, // 80 BPM → 160 beats (40 measures of 4/4)
 	ins: []insData{
+		// 1. Harmony: Chordal support reminiscent of rolling ocean swells.
 		{
 			name:   "Harmony",
 			volume: 0.6,
-			// For each measure the chord lasts 4 beats.
-			// Section 1: 8 measures of Dm
-			// Section 2: 16 measures – repeating [Dm, Bb, C, A] four times
-			// Section 3: 8 measures – [Gm, A, Gm, A, F, Gm, A, Dm]
-			// Section 4: 8 measures – [Dm, Bb, C, A, Dm, Bb, C, Dm]
-			data: "D4/F4/A4 4, D4/F4/A4 4, D4/F4/A4 4, D4/F4/A4 4, D4/F4/A4 4, D4/F4/A4 4, D4/F4/A4 4, D4/F4/A4 4," +
+			data: "D4/F4/A4 4, D4/F4/A4 4, D4/F4/A4 4, D4/F4/A4 4, " +
+				"D4/F4/A4 4, D4/F4/A4 4, D4/F4/A4 4, D4/F4/A4 4," +
 				// Section 2:
 				"D4/F4/A4 4, Bb3/D4/F4 4, C4/E4/G4 4, A3/C#4/E4 4, " +
 				"D4/F4/A4 4, Bb3/D4/F4 4, C4/E4/G4 4, A3/C#4/E4 4, " +
 				"D4/F4/A4 4, Bb3/D4/F4 4, C4/E4/G4 4, A3/C#4/E4 4, " +
 				"D4/F4/A4 4, Bb3/D4/F4 4, C4/E4/G4 4, A3/C#4/E4 4," +
 				// Section 3:
-				"G3/Bb3/D4 4, A3/C#4/E4 4, G3/Bb3/D4 4, A3/C#4/E4 4, F3/A3/C4 4, G3/Bb3/D4 4, A3/C#4/E4 4, D4/F4/A4 4," +
+				"G3/Bb3/D4 4, A3/C#4/E4 4, G3/Bb3/D4 4, A3/C#4/E4 4, " +
+				"F3/A3/C4 4, G3/Bb3/D4 4, A3/C#4/E4 4, D4/F4/A4 4," +
 				// Section 4:
-				"D4/F4/A4 4, Bb3/D4/F4 4, C4/E4/G4 4, A3/C#4/E4 4, D4/F4/A4 4, Bb3/D4/F4 4, C4/E4/G4 4, D4/F4/A4 4",
+				"D4/F4/A4 4, Bb3/D4/F4 4, C4/E4/G4 4, A3/C#4/E4 4, " +
+				"D4/F4/A4 4, Bb3/D4/F4 4, C4/E4/G4 4, D4/F4/A4 4",
 			attack:  0.05,
 			decay:   0.10,
 			sustain: 0.80,
 			release: 0.20,
 		},
+		// 2. Bass: A deep, rocking pulse to drive the harmony.
 		{
 			name:   "Bass",
 			volume: 0.5,
-			// The bass underpins the chords:
-			// Section 1: 8 measures of two-note patterns (D2 then A2 per measure)
-			// Section 2: 16 measures – one bass note per measure matching the chord roots:
-			//  Dm: D2, Bb: Bb1, C: C2, A: A1 (repeated 4×)
-			// Section 3: 8 measures – [G2, A1, G2, A1, F2, G2, A1, D2]
-			// Section 4: 8 measures – [Dm: D2, Bb: Bb1, C: C2, A: A1, D2, Bb1, C2, D2]
 			data: "D2 2, A2 2, D2 2, A2 2, D2 2, A2 2, D2 2, A2 2," +
 				"D2 4, Bb1 4, C2 4, A1 4, " +
 				"D2 4, Bb1 4, C2 4, A1 4, " +
@@ -92,97 +76,123 @@ var voyageOfTheAbyss = songData{
 			sustain: 0.70,
 			release: 0.20,
 		},
+		// 3. Melody (Lead): Lowered for a deeper, more serious tone.
 		{
 			name:   "Melody",
 			volume: 0.8,
-			// The melody unfolds its tale over 40 measures.
-			// Section 1 (Measures 1–8): A rising and falling arpeggio and gentle motif.
-			//  M1: D4 1, F4 1, A4 1, D5 1
-			//  M2: A4 1, F4 1, D4 1, A3 1
-			//  M3: D4 0.5, E4 0.5, F4 1, G4 1, A4 1
-			//  M4: A4 0.5, G4 0.5, F4 0.5, E4 0.5, D4 1, D4 1
-			//  M5: D4 1, E4 1, F4 1, G4 1
-			//  M6: G4 0.5, A4 0.5, Bb4 1, A4 1, G4 1
-			//  M7: F4 1, E4 1, D4 1, C4 1
-			//  M8: D4 2, D4 2
-			//
-			// Section 2 (Measures 9–24): The main theme – a buoyant, memorable motif
-			//  (M9)  Dm:   F4 0.5, A4 0.5, D5 1, C5 1, A4 1
-			//  (M10) Bb:   Bb4 0.5, D5 0.5, F5 1, D5 1, Bb4 1
-			//  (M11) C:    C5 1, E5 1, G5 1, E5 1
-			//  (M12) A:    C#5 0.5, E5 0.5, A5 1, G5 1, E5 1
-			//  (M13) Dm Variation: D5 0.5, F5 0.5, A5 1, F5 1, D5 1
-			//  (M14) Bb:   Bb4 0.5, D5 0.5, F5 1, D5 1, Bb4 1
-			//  (M15) C:    C5 1, E5 1, G5 1, E5 1
-			//  (M16) A:    A4 0.5, C#5 0.5, E5 1, C#5 1, A4 1
-			//  (M17–24) – Repeat a similar eight–measure pattern (with slight variations)
-			// Section 3 (Measures 25–32): A contrasting bridge
-			//  M25: Gm:  G4 1, Bb4 1, D5 1, Bb4 1
-			//  M26: A:   A4 1, C#5 1, E5 1, C#5 1
-			//  M27: Gm:  F4 0.5, G4 0.5, Bb4 1, D5 1, Bb4 1
-			//  M28: A:   A4 1, C#5 1, E5 1, A4 1
-			//  M29: F:   F4 1, A4 1, C5 1, A4 1
-			//  M30: Gm:  G4 1, Bb4 1, D5 1, Bb4 1
-			//  M31: A:   A4 0.5, C#5 0.5, E5 1, C#5 1, A4 1
-			//  M32: Dm:  D4 1, F4 1, A4 1, F4 1
-			// Section 4 (Measures 33–40): Return of the theme with a final cadence
-			//  M33: Dm:  F4 0.5, A4 0.5, D5 1, C5 1, A4 1
-			//  M34: Bb:  Bb4 0.5, D5 0.5, F5 1, D5 1, Bb4 1
-			//  M35: C:   C5 1, E5 1, G5 1, E5 1
-			//  M36: A:   C#5 0.5, E5 0.5, A5 1, G5 1, E5 1
-			//  M37: Dm:  D5 0.5, F5 0.5, A5 1, F5 1, D5 1
-			//  M38: Bb:  Bb4 0.5, D5 0.5, F5 1, D5 1, Bb4 1
-			//  M39: C:   C5 1, E5 1, G5 1, E5 1
-			//  M40: Final cadence: D4 2, F4 2
-			data: "D4 1, F4 1, A4 1, D5 1, " +
-				"A4 1, F4 1, D4 1, A3 1, " +
-				"D4 0.5, E4 0.5, F4 1, G4 1, A4 1, " +
-				"A4 0.5, G4 0.5, F4 0.5, E4 0.5, D4 1, D4 1, " +
-				"D4 1, E4 1, F4 1, G4 1, " +
-				"G4 0.5, A4 0.5, Bb4 1, A4 1, G4 1, " +
-				"F4 1, E4 1, D4 1, C4 1, " +
-				"D4 2, D4 2," +
-				// Section 2 (measures 9–16)
-				"F4 0.5, A4 0.5, D5 1, C5 1, A4 1, " +
-				"Bb4 0.5, D5 0.5, F5 1, D5 1, Bb4 1, " +
-				"C5 1, E5 1, G5 1, E5 1, " +
-				"C#5 0.5, E5 0.5, A5 1, G5 1, E5 1, " +
-				"D5 0.5, F5 0.5, A5 1, F5 1, D5 1, " +
-				"Bb4 0.5, D5 0.5, F5 1, D5 1, Bb4 1, " +
-				"C5 1, E5 1, G5 1, E5 1, " +
-				"A4 0.5, C#5 0.5, E5 1, C#5 1, A4 1, " +
-				// Section 2 (measures 17–24) – repeat similar motifs
-				"F4 0.5, A4 0.5, D5 1, C5 1, A4 1, " +
-				"Bb4 0.5, D5 0.5, F5 1, D5 1, Bb4 1, " +
-				"C5 1, E5 1, G5 1, E5 1, " +
-				"C#5 0.5, E5 0.5, A5 1, G5 1, E5 1, " +
-				"D5 0.5, F5 0.5, A5 1, F5 1, D5 1, " +
-				"Bb4 0.5, D5 0.5, F5 1, D5 1, Bb4 1, " +
-				"C5 1, E5 1, G5 1, E5 1, " +
-				"A4 0.5, C#5 0.5, E5 1, C#5 1, A4 1," +
-				// Section 3 (measures 25–32)
-				"G4 1, Bb4 1, D5 1, Bb4 1, " +
-				"A4 1, C#5 1, E5 1, C#5 1, " +
-				"F4 0.5, G4 0.5, Bb4 1, D5 1, Bb4 1, " +
-				"A4 1, C#5 1, E5 1, A4 1, " +
-				"F4 1, A4 1, C5 1, A4 1, " +
-				"G4 1, Bb4 1, D5 1, Bb4 1, " +
-				"A4 0.5, C#5 0.5, E5 1, C#5 1, A4 1, " +
-				"D4 1, F4 1, A4 1, F4 1," +
-				// Section 4 (measures 33–40)
-				"F4 0.5, A4 0.5, D5 1, C5 1, A4 1, " +
-				"Bb4 0.5, D5 0.5, F5 1, D5 1, Bb4 1, " +
-				"C5 1, E5 1, G5 1, E5 1, " +
-				"C#5 0.5, E5 0.5, A5 1, G5 1, E5 1, " +
-				"D5 0.5, F5 0.5, A5 1, F5 1, D5 1, " +
-				"Bb4 0.5, D5 0.5, F5 1, D5 1, Bb4 1, " +
-				"C5 1, E5 1, G5 1, E5 1, " +
-				"D4 2, F4 2",
+			data: "D3 1, F3 1, A3 1, D4 1, " +
+				"A3 1, F3 1, D3 1, A2 1, " +
+				"D3 0.5, E3 0.5, F3 1, G3 1, A3 1, " +
+				"A3 0.5, G3 0.5, F3 0.5, E3 0.5, D3 1, D3 1, " +
+				"D3 1, E3 1, F3 1, G3 1, " +
+				"G3 0.5, A3 0.5, Bb3 1, A3 1, G3 1, " +
+				"F3 1, E3 1, D3 1, C3 1, " +
+				"D3 2, D3 2, " +
+				"F3 0.5, A3 0.5, D4 1, C4 1, A3 1, " +
+				"Bb3 0.5, D4 0.5, F4 1, D4 1, Bb3 1, " +
+				"C4 1, E4 1, G4 1, E4 1, " +
+				"C#4 0.5, E4 0.5, A4 1, G4 1, E4 1, " +
+				"D4 0.5, F4 0.5, A4 1, F4 1, D4 1, " +
+				"Bb3 0.5, D4 0.5, F4 1, D4 1, Bb3 1, " +
+				"C4 1, E4 1, G4 1, E4 1, " +
+				"A3 0.5, C#4 0.5, E4 1, C#4 1, A3 1, " +
+				"G3 1, Bb3 1, D4 1, Bb3 1, " +
+				"A3 1, C#4 1, E4 1, C#4 1, " +
+				"F3 0.5, G3 0.5, Bb3 1, D4 1, Bb3 1, " +
+				"A3 1, C#4 1, E4 1, A3 1, " +
+				"F3 1, A3 1, C4 1, A3 1, " +
+				"G3 1, Bb3 1, D4 1, Bb3 1, " +
+				"A3 0.5, C#4 0.5, E4 1, C#4 1, A3 1, " +
+				"D3 1, F3 1, A3 1, F3 1, " +
+				"F3 0.5, A3 0.5, D4 1, C4 1, A3 1, " +
+				"Bb3 0.5, D4 0.5, F4 1, D4 1, Bb3 1, " +
+				"C4 1, E4 1, G4 1, E4 1, " +
+				"C#4 0.5, E4 0.5, A4 1, G4 1, E4 1, " +
+				"D4 0.5, F3 0.5, A3 1, F3 1, D3 1, " +
+				"Bb3 0.5, D3 0.5, F3 1, D3 1, Bb3 1, " +
+				"C3 1, E3 1, G3 1, E3 1, " +
+				"D3 2, F3 2",
+			attack:  0.15,
+			decay:   0.15,
+			sustain: 0.85,
+			release: 0.35,
+			square:  0.05,
+		},
+		// 4. Kick: Deep, punchy hits on beats 1 and 3.
+		{
+			name:   "Kick",
+			volume: 0.5,
+			data: func() string {
+				var s string
+				// Each measure (4 beats): kick on beat 1 and beat 3.
+				// Pattern per measure: "C1 0.5, NN 0.5, NN 1, C1 0.5, NN 0.5, NN 1, "
+				for i := 0; i < 40; i++ {
+					s += "C1 0.5, NN 0.5, NN 1, C1 0.5, NN 0.5, NN 1, "
+				}
+				return s
+			}(),
 			attack:  0.01,
 			decay:   0.05,
-			sustain: 0.90,
-			release: 0.30,
-			square:  0.2,
+			sustain: 0.2,
+			release: 0.1,
+			square:  0.0,
+		},
+		// 5. Snare: Crisp, quick white-noise hits on beats 2 and 4.
+		{
+			name:   "Snare",
+			volume: 0.4,
+			data: func() string {
+				var s string
+				// Each measure: silence for 1 beat, then a snare hit ("WN 0.25") then rest (0.75), twice.
+				for i := 0; i < 40; i++ {
+					s += "NN 1, WN 0.25, NN 0.75, NN 1, WN 0.25, NN 0.75, "
+				}
+				return s
+			}(),
+			attack:  0.005,
+			decay:   0.02,
+			sustain: 0.1,
+			release: 0.05,
+			square:  0.0,
+		},
+		// 6. Waves: A re-triggering noise pattern that swells and recedes,
+		//    simulating the rising and falling of ocean waves.
+		{
+			name:   "Waves",
+			volume: 0.1,
+			data: func() string {
+				var s string
+				// Total 160 beats (40 measures). Here we use 20 cycles of 8 beats each.
+				// Each cycle: 4 beats of noise (a swell) followed by 4 beats of silence.
+				for i := 0; i < 20; i++ {
+					s += "WN 16, NN 16, "
+				}
+				return s
+			}(),
+			attack:  3.0,
+			decay:   3.0,
+			sustain: 0.7,
+			release: 6.0,
+			square:  0.0,
+		},
+		// 7. Water Splashes: Sporadic bursts evoking the sound of waves crashing.
+		{
+			name:   "Water Splashes",
+			volume: 0.3,
+			data: func() string {
+				var s string
+				// Each cycle: 16 beats (2 measures) → a short splash (2 beats) then silence (14 beats).
+				// 10 cycles × 16 beats = 160 beats total.
+				for i := 0; i < 10; i++ {
+					s += "WN 2, NN 14, "
+				}
+				return s
+			}(),
+			attack:  0.05,
+			decay:   0.1,
+			sustain: 0.0,
+			release: 0.2,
+			square:  0.0,
 		},
 	},
 }
