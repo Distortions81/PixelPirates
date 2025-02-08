@@ -14,7 +14,10 @@ import (
 	"github.com/chewxy/math32"
 )
 
-const maxVolume = 0.5
+const (
+	maxVolume      = 0.7
+	noiseSmoothing = 7
+)
 
 func playMusicPlaylist(g *Game, gameMode int, songList []songData) {
 	if *nomusic {
@@ -38,7 +41,7 @@ func playMusicPlaylist(g *Game, gameMode int, songList []songData) {
 				output = applyReverb(output, song.delay, song.feedback, song.reverb)
 			}
 			runtime.GC()
-			doLog(true, true, "Render took %v -- Now Playing: %v. (%v sec)", time.Since(startTime).Round(time.Millisecond), song.name, len(output)/sampleRate)
+			doLog(true, true, "Render took %v -- Now Playing: %v (%v sec) ", time.Since(startTime).Round(time.Millisecond), song.name, len(output)/sampleRate)
 
 			playWave(g, true, output)
 		}
@@ -135,20 +138,21 @@ func playNote(freq float32, duration time.Duration, ins *insData) audioData {
 }
 
 // Global constant for white noise dB offset.
-const noiseDBOffset = -3.0 // Adjust this value as needed
+const noiseDBOffset = -6.0 // Adjust this value as needed
 
 func generateNoise(duration time.Duration) audioData {
 	numSamples := int(float64(sampleRate) * duration.Seconds())
 	wave := make(audioData, numSamples)
+	compensation := math32.Pow(10, float32(noiseDBOffset)/80)
 
 	for i := 0; i < numSamples; i++ {
 		sample := float32(rand.Float64()*2.0 - 1.0)
-		wave[i] = sample
+		wave[i] = sample * compensation
 		// Repeat the sample for smoothing.
-		for x := 0; x < 8; x++ {
+		for x := 0; x < noiseSmoothing; x++ {
 			i++
 			if i < numSamples {
-				wave[i] = sample
+				wave[i] = sample * compensation
 			}
 		}
 	}
@@ -160,6 +164,24 @@ func generateWave(freq float32, duration time.Duration, waveform string, blend f
 	samples := int(float64(sampleRate) * duration.Seconds())
 	wave := make(audioData, samples)
 	period := 1.0 / float64(freq)
+
+	var dbOffset float32
+	//We do some RMS volume correction
+	switch waveform {
+	case "sine":
+		dbOffset = 0
+	case "square":
+		dbOffset = -3.0
+	case "triangle":
+		dbOffset = -1.76
+	case "sawtooth":
+		dbOffset = -1.75
+	case "mix":
+		dbOffset = blend*(-3.0) + (1-blend)*0.0
+	default:
+		dbOffset = blend*(-3.0) + (1-blend)*0.0
+	}
+	compensation := math32.Pow(10, dbOffset/20)
 
 	for i := 0; i < samples; i++ {
 		t := float32(i) / float32(sampleRate)
@@ -191,7 +213,7 @@ func generateWave(freq float32, duration time.Duration, waveform string, blend f
 		default:
 			sample = blend*squareVal + (1-blend)*sineVal
 		}
-		wave[i] = sample
+		wave[i] = sample * compensation
 	}
 	return wave
 }

@@ -28,19 +28,408 @@ type insData struct {
 
 var (
 	gameModePlaylists = [GAME_MAX]playlistData{
-		GAME_TITLE: titleSongList,
-		GAME_PLAY:  gameSongList,
+		GAME_TITLE:  titleSongList,
+		GAME_PLAY:   gameSongList,
+		GAME_ISLAND: islandSongList,
 	}
 
 	titleSongList = []songData{
-		infinitoRealms,
-		epicWarOfTheAncients,
 		twilightReflections,
-		voyageOfTheAbyss,
 	}
 
-	gameSongList = []songData{}
+	gameSongList = []songData{
+		spectersOfAshenTwilight,
+		infinitoRealms,
+		epicWarOfTheAncients,
+	}
+
+	islandSongList = []songData{
+		voyageOfTheAbyss,
+	}
 )
+
+// --------------------------------------------------------------------------------
+// Chord Progression (72 measures total)
+// We’ll break it into 4 sections of 18 chords each, in E minor with occasional
+// borrowed chords (F, B major, etc.) for a moody, haunting vibe.
+// --------------------------------------------------------------------------------
+
+var chordProgression2 = []string{
+	// ------------------------------------------------------------------
+	// SECTION 1 (Measures 1-18)
+	// ------------------------------------------------------------------
+	"E2/G2/B2",   // 1:  Em
+	"E2/G2/B2",   // 2:  Em
+	"D2/F#2/A2",  // 3:  D
+	"D2/F#2/A2",  // 4:  D
+	"F2/A2/C3",   // 5:  F
+	"E2/G2/B2",   // 6:  Em
+	"G2/B2/D3",   // 7:  G
+	"E2/G2/B2",   // 8:  Em
+	"E2/G2/B2",   // 9:  Em
+	"B2/D#3/F#3", //10: B major
+	"C2/E2/G2",   // 11: C
+	"B2/D#3/F#3", //12: B
+	"E2/G2/B2",   // 13: Em
+	"E2/G2/B2",   // 14: Em
+	"A2/C3/E3",   // 15: Am
+	"B2/D#3/F#3", //16: B
+	"E2/G2/B2",   // 17: Em
+	"E2/G2/B2",   // 18: Em
+
+	// ------------------------------------------------------------------
+	// SECTION 2 (Measures 19-36)
+	// ------------------------------------------------------------------
+	"E2/G2/B2",   //19: Em
+	"G2/B2/D3",   //20: G
+	"C2/E2/G2",   //21: C
+	"D2/F#2/A2",  //22: D
+	"F2/A2/C3",   //23: F
+	"E2/G2/B2",   //24: Em
+	"B2/D#3/F#3", //25: B
+	"B2/D#3/F#3", //26: B
+	"F2/A2/C3",   //27: F
+	"G2/B2/D3",   //28: G
+	"A2/C3/E3",   //29: Am
+	"B2/D#3/F#3", //30: B
+	"E2/G2/B2",   //31: Em
+	"D2/F#2/A2",  //32: D
+	"C2/E2/G2",   //33: C
+	"F2/A2/C3",   //34: F
+	"E2/G2/B2",   //35: Em
+	"E2/G2/B2",   //36: Em
+
+	// ------------------------------------------------------------------
+	// SECTION 3 (Measures 37-54)
+	// ------------------------------------------------------------------
+	"E2/G2/B2",   //37: Em
+	"D2/F#2/A2",  //38: D
+	"D2/F#2/A2",  //39: D
+	"F2/A2/C3",   //40: F
+	"E2/G2/B2",   //41: Em
+	"E2/G2/B2",   //42: Em
+	"B2/D#3/F#3", //43: B
+	"B2/D#3/F#3", //44: B
+	"C2/E2/G2",   //45: C
+	"A2/C3/E3",   //46: Am
+	"D2/F#2/A2",  //47: D
+	"G2/B2/D3",   //48: G
+	"F2/A2/C3",   //49: F
+	"E2/G2/B2",   //50: Em
+	"D2/F#2/A2",  //51: D
+	"C2/E2/G2",   //52: C
+	"B2/D#3/F#3", //53: B
+	"E2/G2/B2",   //54: Em
+
+	// ------------------------------------------------------------------
+	// SECTION 4 (Measures 55-72)
+	// ------------------------------------------------------------------
+	"F2/A2/C3",   //55: F
+	"F2/A2/C3",   //56: F
+	"A2/C3/E3",   //57: Am
+	"B2/D#3/F#3", //58: B
+	"E2/G2/B2",   //59: Em
+	"E2/G2/B2",   //60: Em
+	"G2/B2/D3",   //61: G
+	"F2/A2/C3",   //62: F
+	"F2/A2/C3",   //63: F
+	"G2/B2/D3",   //64: G
+	"B2/D#3/F#3", //65: B
+	"A2/C3/E3",   //66: Am
+	"E2/G2/B2",   //67: Em
+	"D2/F#2/A2",  //68: D
+	"C2/E2/G2",   //69: C
+	"B2/D#3/F#3", //70: B
+	"E2/G2/B2",   //71: Em
+	"E2/G2/B2",   //72: Em
+}
+
+// Helper: writes <chord> <beats>, e.g. "E2/G2/B2 4,"
+func chordToMeasure2(chord string, beats float64) string {
+	return chord + fmt.Sprintf(" %.2f, ", beats)
+}
+
+// Increments note's octave, e.g. "E2" -> "E3".
+func incrementOctave2(note string) string {
+	if len(note) < 2 {
+		return note
+	}
+	lastChar := note[len(note)-1]
+	if lastChar < '0' || lastChar > '9' {
+		return note
+	}
+	octave := int(lastChar - '0')
+	octaveUp := octave + 1
+	return note[:len(note)-1] + fmt.Sprintf("%d", octaveUp)
+}
+
+// A handful of arpeggio patterns, referencing chord notes by index [0,1,2], plus [3]=octave-lift root.
+var arpPatterns2 = [][]int{
+	{0, 1, 2, 3}, // up
+	{3, 2, 1, 0}, // down
+	{0, 2, 1, 3}, // skip
+	{1, 0, 3, 2}, // skip alt
+	{0, 1, 3, 2}, // partial up
+	{2, 3, 1, 0}, // partial down
+	{1, 2, 0, 3}, // swirl
+	{3, 0, 2, 1}, // swirl alt
+}
+
+// Our new “haunting” track definition:
+var spectersOfAshenTwilight = songData{
+	name:     "Specters of Ashen Twilight - A Haunting Saga",
+	bpm:      80, // 72 measures => 288 beats => 3.6 mins at 80 BPM
+	reverb:   0.50,
+	delay:    0.2,
+	feedback: 0.5,
+
+	ins: []insData{
+		//----------------------------------------------------------------------
+		// 1. GhostPad (sawtooth) - Held chords each measure, slower attack.
+		//----------------------------------------------------------------------
+		{
+			name:     "GhostPad",
+			volume:   0.50,
+			waveform: "sawtooth",
+			data: func() string {
+				var s strings.Builder
+				for _, chord := range chordProgression2 {
+					s.WriteString(chordToMeasure2(chord, 4)) // hold each chord for 4 beats
+				}
+				return s.String()
+			}(),
+			attack:  0.15,
+			decay:   0.2,
+			sustain: 0.8,
+			release: 0.4,
+		},
+		//----------------------------------------------------------------------
+		// 2. Choir (square) - Bold secondary layer, half-measure hits.
+		//----------------------------------------------------------------------
+		{
+			name:     "Choir",
+			volume:   0.45,
+			waveform: "square",
+			data: func() string {
+				var s strings.Builder
+				// Each chord for 2 beats, then 2 beats of rest
+				for _, chord := range chordProgression2 {
+					s.WriteString(chord + " 2, NN 2, ")
+				}
+				return s.String()
+			}(),
+			attack:  0.1,
+			decay:   0.15,
+			sustain: 0.7,
+			release: 0.4,
+		},
+		//----------------------------------------------------------------------
+		// 3. Bass (sine) - Root note for each measure
+		//----------------------------------------------------------------------
+		{
+			name:     "Bass",
+			volume:   0.48,
+			waveform: "sine",
+			data: func() string {
+				var s strings.Builder
+				for _, chord := range chordProgression2 {
+					parts := strings.Split(chord, "/")
+					root := parts[0]
+					s.WriteString(root + " 4, ")
+				}
+				return s.String()
+			}(),
+			attack:  0.02,
+			decay:   0.1,
+			sustain: 0.65,
+			release: 0.3,
+		},
+		//----------------------------------------------------------------------
+		// 4. Arp (triangle) - Evolving patterns each measure for movement.
+		//----------------------------------------------------------------------
+		{
+			name:     "Arp",
+			volume:   0.33,
+			waveform: "triangle",
+			data: func() string {
+				var s strings.Builder
+				for measureIndex, chord := range chordProgression2 {
+					notes := strings.Split(chord, "/")
+					// fallback if chord is malformed
+					if len(notes) < 3 {
+						notes = []string{"E2", "G2", "B2"}
+					}
+					// pick pattern
+					patIndex := measureIndex % len(arpPatterns2)
+					pattern := arpPatterns2[patIndex]
+
+					// Build chordNotes with an octave-lifted root as the 4th index
+					chordNotes := []string{
+						notes[0],
+						notes[1],
+						notes[2],
+						incrementOctave2(notes[0]),
+					}
+					// 4 beats => 8 sub-beats @ 0.5 each.
+					for r := 0; r < 2; r++ {
+						for _, idx := range pattern {
+							s.WriteString(chordNotes[idx] + " 0.5, ")
+						}
+					}
+				}
+				return s.String()
+			}(),
+			attack:  0.03,
+			decay:   0.07,
+			sustain: 0.8,
+			release: 0.15,
+		},
+		//----------------------------------------------------------------------
+		// 5. DarkBell (sine) - Occasional eerie bell hits each measure, short & soft.
+		//----------------------------------------------------------------------
+		{
+			name:     "DarkBell",
+			volume:   0.25,
+			waveform: "sine",
+			data: func() string {
+				var s strings.Builder
+				// Let’s place 1 or 2 quick bell tones each measure at random offsets.
+				// For simplicity, we’ll do a small repeating pattern:
+				// measure => bell at beat 1.5 and maybe beat 3.5, then next measure silent or less frequent hits.
+				// We'll alternate every measure so it doesn't get too repetitive.
+				for i := 0; i < 72; i++ {
+					if i%2 == 0 {
+						// Even measure: 2 bell hits
+						s.WriteString("NN 1.5, A4 0.25, NN 0.25, NN 1, D5 0.25, NN 0.75, ")
+					} else {
+						// Odd measure: 1 bell hit
+						s.WriteString("NN 2, E5 0.25, NN 1.75, ")
+					}
+				}
+				return s.String()
+			}(),
+			attack:  0.01,
+			decay:   0.3,
+			sustain: 0.0,
+			release: 0.5,
+		},
+		//----------------------------------------------------------------------
+		// 6. Lead (sawtooth) - Minimal, haunting lines, repeated in short phrases.
+		//----------------------------------------------------------------------
+		{
+			name:     "Lead",
+			volume:   0.35,
+			waveform: "sawtooth",
+			data: func() string {
+				// We'll define short 4-measure phrases repeated or varied.
+				// Each measure is 4 beats => define a minimal line with half/quarter notes.
+				phrase1 := []string{
+					"E4 2, G4 2, ",             // m1
+					"B3 1, C4 1, A3 1, G3 1, ", // m2
+					"F3 2, E4 2, ",             // m3
+					"E3 2, NN 2, ",             // m4 (rests)
+				}
+				phrase2 := make([]string, len(phrase1))
+				copy(phrase2, phrase1)
+				// small variation in measure 2
+				phrase2[1] = "D4 1, C4 1, A3 1, G3 1, "
+
+				phrase3 := make([]string, len(phrase1))
+				copy(phrase3, phrase1)
+				phrase3[2] = "F4 1, E4 1, D4 1, C4 1, " // measure 3 changed
+				phrase3[3] = "NN 2, G4 2, "             // measure 4 changed
+
+				// We'll just cycle phrase1, phrase2, phrase3 across 72 measures => 18 cycles x 4 measures = 72
+				var s strings.Builder
+				allPhrases := [][]string{phrase1, phrase2, phrase3}
+				phraseIndex := 0
+				for i := 0; i < 18; i++ {
+					ph := allPhrases[phraseIndex]
+					for _, measureData := range ph {
+						s.WriteString(measureData)
+					}
+					phraseIndex = (phraseIndex + 1) % len(allPhrases)
+				}
+				return s.String()
+			}(),
+			attack:  0.08,
+			decay:   0.1,
+			sustain: 0.7,
+			release: 0.4,
+		},
+		//----------------------------------------------------------------------
+		// 7. Kick (sine) - Sparse, half-time hits for a slow, heavy feel.
+		//----------------------------------------------------------------------
+		{
+			name:     "Kick",
+			volume:   0.45,
+			waveform: "sine",
+			data: func() string {
+				var s strings.Builder
+				// For each measure (4 beats), let's place a kick on beat 1 and beat 3 for a half-time vibe:
+				// measure => Kick(1), silence(1), Kick(1), silence(1)
+				for i := 0; i < 72; i++ {
+					// Beat 1
+					s.WriteString("C1 0.5, NN 0.5, ")
+					// Beat 2
+					s.WriteString("NN 1, ")
+					// Beat 3
+					s.WriteString("C1 0.5, NN 0.5, ")
+					// Beat 4
+					s.WriteString("NN 1, ")
+				}
+				return s.String()
+			}(),
+			attack:  0.01,
+			decay:   0.07,
+			sustain: 0.2,
+			release: 0.1,
+		},
+		//----------------------------------------------------------------------
+		// 8. Snare (white noise) - Crisp backbeat on beats 2 and 4.
+		//----------------------------------------------------------------------
+		{
+			name:   "Snare",
+			volume: 0.36,
+			data: func() string {
+				var s strings.Builder
+				// Each measure:
+				//   Beat 1: silent
+				//   Beat 2: snare
+				//   Beat 3: silent
+				//   Beat 4: snare
+				for i := 0; i < 72; i++ {
+					s.WriteString("NN 1, WN 0.25, NN 0.75, NN 1, WN 0.25, NN 0.75, ")
+				}
+				return s.String()
+			}(),
+			attack:  0.005,
+			decay:   0.03,
+			sustain: 0.1,
+			release: 0.05,
+		},
+		//----------------------------------------------------------------------
+		// 9. Wind (noise) - A swirling noise bed, fades in/out every few measures.
+		//----------------------------------------------------------------------
+		{
+			name:   "Wind",
+			volume: 0.28,
+			data: func() string {
+				var s strings.Builder
+				// 72 measures total => let’s do 9 cycles of 8 measures each.
+				// Each cycle: 4 measures (16 beats) of noise, 4 measures (16 beats) silence.
+				for i := 0; i < 9; i++ {
+					s.WriteString("WN 16, NN 16, ")
+				}
+				return s.String()
+			}(),
+			attack:  1.2,
+			decay:   0.5,
+			sustain: 0.6,
+			release: 1.0,
+		},
+	},
+}
 
 // We’ll create a single slice of chord names—one chord per measure for 96 measures.
 // Then each instrument will build its data string based on that slice.
@@ -181,9 +570,11 @@ func chordToMeasure(chord string, beats float64) string {
 }
 
 var infinitoRealms = songData{
-	name:   "Infinito Realms - A Grand 3-Minute Odyssey",
-	bpm:    120, // 96 measures * 2s each = ~3:12 total
-	reverb: 0.30,
+	name:     "Infinito Realms - A Grand 3-Minute Odyssey",
+	bpm:      120, // 96 measures * 2s each = ~3:12 total
+	reverb:   0.50,
+	delay:    0.2,
+	feedback: 0.5,
 	ins: []insData{
 		//----------------------------------------------------------------------
 		// 1. Strings: Warm sawtooth pad, holding each measure's chord for 4 beats.
@@ -503,9 +894,11 @@ func incrementOctave(note string) string {
 }
 
 var epicWarOfTheAncients = songData{
-	name:   "Epic War of the Ancients - Battle Hymn",
-	bpm:    100, // 32 measures of 4/4 at 100 BPM => 128 total beats
-	reverb: 0.20,
+	name:     "Epic War of the Ancients - Battle Hymn",
+	bpm:      100, // 32 measures of 4/4 at 100 BPM => 128 total beats
+	reverb:   0.50,
+	delay:    0.2,
+	feedback: 0.5,
 	ins: []insData{
 		//---------------------------------------------------------------------
 		// 1. Strings: Sawtooth-based chordal pad in D minor / related chords.
@@ -784,8 +1177,11 @@ var epicWarOfTheAncients = songData{
 // The BPM is slower (90), giving a more tranquil vibe.
 
 var twilightReflections = songData{
-	name: "Twilight Reflections - Nocturnal Journey",
-	bpm:  90, // 90 BPM → 32 measures of 4/4 is 128 beats total
+	name:     "Twilight Reflections - Nocturnal Journey",
+	bpm:      90, // 90 BPM → 32 measures of 4/4 is 128 beats total
+	reverb:   0.50,
+	delay:    0.2,
+	feedback: 0.5,
 	ins: []insData{
 		//---------------------------------------------------------------------
 		// 1. Harmony: Smooth chordal pad using a sawtooth for a soft shimmer.
@@ -978,9 +1374,11 @@ var twilightReflections = songData{
 }
 
 var voyageOfTheAbyss = songData{
-	name:   "Voyage of the Abyss - Nautical Odyssey",
-	bpm:    80, // 80 BPM → 160 beats (40 measures of 4/4)
-	reverb: 0.0,
+	name:     "Voyage of the Abyss - Nautical Odyssey",
+	bpm:      80, // 80 BPM → 160 beats (40 measures of 4/4)
+	reverb:   0.50,
+	delay:    0.2,
+	feedback: 0.5,
 	ins: []insData{
 		// 1. Harmony: Chordal support with a sawtooth waveform for a shimmering texture.
 		{

@@ -114,13 +114,11 @@ func newGame() *Game {
 	if *qisland {
 		g.visiting = &islands[0]
 		g.gameMode = GAME_ISLAND
-		go playMusicPlaylist(g, g.gameMode, gameSongList)
 	} else if *qtest {
 		g.gameMode = GAME_PLAY
-		go playMusicPlaylist(g, g.gameMode, gameSongList)
-	} else {
-		go playMusicPlaylist(g, g.gameMode, titleSongList)
 	}
+
+	go playMusicPlaylist(g, g.gameMode, gameModePlaylists[g.gameMode])
 
 	g.startFade(g.gameMode, time.Second*2, false, COLOR_BLACK, FADE_IN)
 
