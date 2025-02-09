@@ -22,8 +22,6 @@ import (
 
 var efs embed.FS
 
-const loadEmbedSprites = false
-
 // Load sprites
 func loadImage(name string, unmanaged bool, doBlur bool) (*ebiten.Image, *ebiten.Image, error) {
 
@@ -33,7 +31,7 @@ func loadImage(name string, unmanaged bool, doBlur bool) (*ebiten.Image, *ebiten
 		pngData fs.File
 	)
 
-	if loadEmbedSprites {
+	if wasmMode {
 		pngData, err = efs.Open(spritesDir + name + ".png")
 	} else {
 		pngData, err = os.Open(spritesDir + name + ".png")
@@ -72,11 +70,10 @@ func loadImage(name string, unmanaged bool, doBlur bool) (*ebiten.Image, *ebiten
 	}
 
 	return img, blurImg, nil
-
 }
 
 func loadAnimationData(name string) (*animationData, error) {
-	if loadEmbedSprites {
+	if wasmMode {
 		jdata, err := efs.Open(spritesDir + name + ".json")
 		if err != nil {
 			return nil, err

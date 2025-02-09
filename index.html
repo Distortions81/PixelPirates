@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Go WASM Fullscreen Example</title>
+  <style>
+    /* Remove default margins and ensure body and html take full height */
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+      color: #fff;
+    }
+
+    /* The canvas fills the entire viewport */
+    #canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      background: #222;
+    }
+
+    /* Fullscreen toggle button styling */
+    #fullscreen-btn {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 1000;
+      padding: 8px 12px;
+      background: #444;
+      border: none;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <!-- Button to toggle fullscreen mode -->
+  <button id="fullscreen-btn">Toggle Fullscreen</button>
+  
+  <!-- Canvas that your WASM code can use for rendering -->
+  <canvas id="canvas"></canvas>
+  
+  <!-- Load the wasm_exec.js helper provided by Go -->
+  <script src="wasm_exec.js"></script>
+  <script>
+    // Get references to the canvas and the fullscreen button.
+    const canvas = document.getElementById('canvas');
+    const fullscreenBtn = document.getElementById('fullscreen-btn');
+
+    // Toggle fullscreen mode when the button is clicked.
+    fullscreenBtn.addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        canvas.requestFullscreen().catch(err => {
+          console.error("Error attempting to enable full-screen mode:", err);
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    });
+
+    // Resize the canvas to fill the window.
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // Create a new Go instance (provided by wasm_exec.js)
+    const go = new Go();
+
+    // Load and instantiate the WebAssembly module.
+    WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject)
+      .then((result) => {
+        // Run the WASM instance.
+        go.run(result.instance);
+      })
+      .catch((err) => {
+        console.error("Error loading WASM module:", err);
+      });
+  </script>
+</body>
+</html>

@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	_ "net/http/pprof"
+	"runtime"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -30,6 +31,11 @@ var (
 	fullscreen                                *bool
 )
 
+func isWasm() bool {
+	// In WASM, GOARCH is "wasm" and GOOS is "js"
+	return runtime.GOARCH == "wasm" && runtime.GOOS == "js"
+}
+
 func main() {
 	dump := flag.Bool("dumpMusic", false, "Dump songs out as WAV and quit.")
 	qtest = flag.Bool("qtest", false, "skip title screen")
@@ -40,6 +46,10 @@ func main() {
 
 	fullscreen := flag.Bool("fullscreen", false, "fullscreen mode.")
 	flag.Parse()
+
+	if isWasm() {
+		wasmMode = true
+	}
 
 	startLog()
 	logDaemon()

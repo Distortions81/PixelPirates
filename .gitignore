@@ -4,3 +4,4 @@ data/log
 internalimages_*
 debug.txt
 dump/
+main.wasm
