@@ -89,7 +89,7 @@ func (g *Game) drawFade(screen *ebiten.Image) {
 				doLog(true, true, "mode: %v to %v", modeNames[oldMode], modeNames[g.gameMode])
 			}
 			go func(g *Game) {
-				time.Sleep(g.fade.duration / 2)
+				time.Sleep(g.fade.duration)
 				playMusicPlaylist(g, g.gameMode, gameModePlaylists[g.gameMode])
 			}(g)
 		}

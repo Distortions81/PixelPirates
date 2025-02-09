@@ -39,9 +39,12 @@ func playMusicPlaylist(g *Game, gameMode int, songList []songData) {
 	}
 }
 
-const interval = time.Millisecond * (1000 / 32)
+var interval = time.Millisecond * (1000 / 32)
 
 func playSong(g *Game, song *songData) {
+	if wasmMode {
+		interval = time.Millisecond
+	}
 
 	startTime := time.Now()
 
@@ -125,12 +128,13 @@ func playSong(g *Game, song *songData) {
 
 		}
 
-		/*
+		if *debugMode {
 			took := time.Since(lastTime)
 			if loops > 0 && took > time.Millisecond*2 {
 				doLog(true, true, " render took: %v", took)
 			}
-		*/
+		}
+
 	}
 }
 

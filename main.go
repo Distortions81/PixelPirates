@@ -48,6 +48,10 @@ func main() {
 
 	if isWasm() {
 		wasmMode = true
+
+		value := true
+		ptr := &value
+		debugMode = ptr
 	}
 
 	startLog()

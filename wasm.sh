@@ -5,6 +5,8 @@ set -e
 export GOOS=js
 export GOARCH=wasm
 
+rm *.wasm *.gz
+
 # Source file and output name (adjust if needed)
 OUTPUT="main.wasm"
 
@@ -14,10 +16,10 @@ go build -ldflags="-s -w" -o "${OUTPUT}" .
 echo "Compilation complete: ${OUTPUT} generated."
 
 # Optimize the WASM binary using wasm-opt if available.
-if command -v wasm-opt -Oz >/dev/null 2>&1; then
+if command -v wasm-opt >/dev/null 2>&1; then
     echo "Optimizing ${OUTPUT} with wasm-opt..."
     # Attempt to enable bulk memory operations.
-    wasm-opt --enable-bulk-memory -Oz "${OUTPUT}" -o "${OUTPUT}"
+    wasm-opt --enable-bulk-memory -O3 "${OUTPUT}" -o "${OUTPUT}"
     echo "Optimization complete: ${OUTPUT} optimized."
 else
     echo "wasm-opt not found, skipping WASM optimization."
@@ -46,3 +48,5 @@ if command -v gzip -9 >/dev/null 2>&1; then
 else
     echo "gzip command not found, skipping compression."
 fi
+
+rm *.wasm
