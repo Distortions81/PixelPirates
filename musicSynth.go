@@ -105,10 +105,6 @@ func playWave(g *Game, music bool, wave audioData) {
 	}
 	player := g.audioContext.NewPlayerFromBytes(soundData)
 	player.Play()
-
-	for player.IsPlaying() {
-		time.Sleep(time.Millisecond * 10)
-	}
 }
 
 // / applyADSR applies an ADSR envelope to the input waveform 'wave'

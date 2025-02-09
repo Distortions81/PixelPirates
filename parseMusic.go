@@ -99,15 +99,13 @@ func playSong(g *Game, song *songData) {
 				numNotes := len(notes)
 				if numNotes > 1 {
 					output = mixWaves(notes...)
-					output = applyADSR(output, sn.ins, sn.volume*(1.0/float32(numNotes)))
 				} else if numNotes == 1 {
 					output = notes[0]
-					output = applyADSR(output, sn.ins, sn.volume)
-
 				} else {
 					return
 				}
 
+				output = applyADSR(output, sn.ins, sn.volume)
 				playWave(g, true, output)
 			}(sn)
 
