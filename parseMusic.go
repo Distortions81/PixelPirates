@@ -92,8 +92,6 @@ func playSong(g *Game, song *songData) {
 						noteWave = generateWave(freq, sn.Duration, sn.waveform)
 					} else if freq < 0 {
 						noteWave = generateNoise(sn.Duration)
-					} else {
-						continue
 					}
 					//fmt.Printf("[%s] Playing wave=%v freq=%f for %v\n", sn.waveform, sn.InstrName, sn.Frequency, sn.Duration)
 
@@ -127,10 +125,12 @@ func playSong(g *Game, song *songData) {
 
 		}
 
-		took := time.Since(lastTime)
-		if loops > 0 && took > time.Millisecond*2 {
-			doLog(true, true, " render took: %v", took)
-		}
+		/*
+			took := time.Since(lastTime)
+			if loops > 0 && took > time.Millisecond*2 {
+				doLog(true, true, " render took: %v", took)
+			}
+		*/
 	}
 }
 
