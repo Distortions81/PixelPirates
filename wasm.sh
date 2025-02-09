@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
 
 # Set environment variables for WebAssembly target.
 export GOOS=js
