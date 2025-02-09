@@ -24,20 +24,20 @@ func playMusicPlaylist(g *Game, gameMode int, songList []songData) {
 		return
 	}
 	for {
-		time.Sleep(time.Millisecond * 500)
-
 		for _, song := range songList {
 			if g.gameMode != gameMode {
 				return
 			}
 			doLog(true, false, "Playing %v for %v.", song.name, song.length.Round(time.Second).String())
 			playSong(g, &song)
+			time.Sleep(time.Millisecond * 500)
 		}
+		time.Sleep(time.Millisecond * 500)
 		doLog(true, true, "Restarting playlist...")
 	}
 }
 
-const interval = time.Millisecond * (1000 / 32)
+const interval = time.Millisecond * (1000 / 64)
 
 func playSong(g *Game, song *songData) {
 	// 3) "Play" them in order
@@ -67,47 +67,50 @@ func playSong(g *Game, song *songData) {
 
 			//Sleep until next note signature
 			waitUntil := sn.Start - time.Since(startTime)
-			if waitUntil > interval {
+			if waitUntil > interval { //Too far into future
 				deadCount++
 				if deadCount > 10 {
 					//At this point, all the notes are in the future.
 					break
 				}
 				continue
-			}
+				//Within reason, not too old
+				//Otherwise skip the note
+			} else if waitUntil <= interval {
 
-			go func(sn ScheduledNote) {
-				/*
-					fmt.Printf("[%s] Playing freq=%f for %v\n",
-						sn.InstrName, sn.Frequency, sn.Duration)
-				*/
+				go func(sn ScheduledNote) {
+					/*
+						fmt.Printf("[%s] Playing freq=%f for %v\n",
+							sn.InstrName, sn.Frequency, sn.Duration)
+					*/
 
-				var notes []audioData
-				for _, freq := range sn.Frequency {
-					var noteWave audioData
-					if freq > 0 {
-						noteWave = generateWave(freq, sn.Duration, sn.waveform)
-					} else if freq < 0 {
-						noteWave = generateNoise(sn.Duration)
-					} else {
-						continue
+					var notes []audioData
+					for _, freq := range sn.Frequency {
+						var noteWave audioData
+						if freq > 0 {
+							noteWave = generateWave(freq, sn.Duration, sn.waveform)
+						} else if freq < 0 {
+							noteWave = generateNoise(sn.Duration)
+						} else {
+							continue
+						}
+						notes = append(notes, noteWave)
 					}
-					notes = append(notes, noteWave)
-				}
 
-				var output audioData
-				numNotes := len(notes)
-				if numNotes > 1 {
-					output = mixWaves(notes...)
-				} else if numNotes == 1 {
-					output = notes[0]
-				} else {
-					return
-				}
+					var output audioData
+					numNotes := len(notes)
+					if numNotes > 1 {
+						output = mixWaves(notes...)
+					} else if numNotes == 1 {
+						output = notes[0]
+					} else {
+						return
+					}
 
-				output = applyADSR(output, sn.ins, sn.volume)
-				playWave(g, true, output, true)
-			}(sn)
+					output = applyADSR(output, sn.ins, sn.volume)
+					playWave(g, true, output, true)
+				}(sn)
+			}
 
 			if numNotes > 1 {
 				songCopy.notes = append(songCopy.notes[:z], songCopy.notes[z+1:]...)
