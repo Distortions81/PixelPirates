@@ -24,19 +24,20 @@ func playMusicPlaylist(g *Game, gameMode int, songList []songData) {
 		return
 	}
 	for {
+		time.Sleep(time.Second)
+
 		for _, song := range songList {
 			if g.gameMode != gameMode {
 				return
 			}
-			doLog(true, false, "Playing %v for %v.", song.name, song.length.String())
+			doLog(true, false, "Playing %v for %v.", song.name, song.length.Round(time.Second).String())
 			playSong(g, &song)
 		}
 		doLog(true, true, "Restarting playlist...")
-		time.Sleep(time.Second)
 	}
 }
 
-const interval = time.Millisecond * (1000 / 32)
+const interval = time.Millisecond * (1000 / 16)
 
 func playSong(g *Game, song *songData) {
 	// 3) "Play" them in order
@@ -45,6 +46,7 @@ func playSong(g *Game, song *songData) {
 
 	var songCopy = *song
 	loops := 0
+	lastTime := time.Now()
 
 	for {
 		if g.stopMusic {
@@ -55,17 +57,23 @@ func playSong(g *Game, song *songData) {
 		if numNotes < 1 {
 			break
 		}
-		time.Sleep(interval)
+		time.Sleep(interval - time.Since(lastTime))
+		lastTime = time.Now()
+		deadCount := 0
 		for z := numNotes - 1; z > 0; z-- {
 			loops++
 
 			sn := songCopy.notes[z]
 
-			// How long until we reach sn.Start since the beginning?
-			// This can be negative if we've already passed that time, so we clamp at 0.
+			//Sleep until next note signature
 			waitUntil := sn.Start - time.Since(startTime)
 			if waitUntil > interval {
-				break
+				deadCount++
+				if deadCount > 10 {
+					//At this point, all the notes are in the future.
+					break
+				}
+				continue
 			}
 
 			go func(sn ScheduledNote) {
@@ -103,7 +111,11 @@ func playSong(g *Game, song *songData) {
 				playWave(g, true, output)
 			}(sn)
 
-			songCopy.notes = append(songCopy.notes[:z], songCopy.notes[z+1:]...)
+			if numNotes > 1 {
+				songCopy.notes = append(songCopy.notes[:z], songCopy.notes[z+1:]...)
+			} else {
+				songCopy.notes = []ScheduledNote{}
+			}
 		}
 	}
 	doLog(true, true, "%v loops.", loops)
