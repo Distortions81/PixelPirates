@@ -141,7 +141,7 @@ func cloneAudioData(data audioData) *audioData {
 }
 
 func parseSong(song *songData) {
-	beatDuration := time.Minute / time.Duration(song.bpm)
+	beatDuration := time.Minute / time.Duration(song.bpm*2)
 
 	// 1) Build scheduled notes for all instruments
 	var scheduled []ScheduledNote
