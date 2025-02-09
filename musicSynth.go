@@ -31,7 +31,7 @@ func generateNoise(duration time.Duration) audioData {
 }
 
 // generateWave accepts a waveform type and blend factor.
-func generateWave(freq float64, duration time.Duration, waveform string) audioData {
+func generateWave(freq float64, duration time.Duration, waveform int) audioData {
 	samples := int(float64(sampleRate) * duration.Seconds())
 	wave := make(audioData, samples)
 	period := 1.0 / float64(freq)
@@ -39,13 +39,13 @@ func generateWave(freq float64, duration time.Duration, waveform string) audioDa
 	var dbOffset float64
 	//We do some RMS volume correction
 	switch waveform {
-	case "sine":
+	case WAVE_SINE:
 		dbOffset = 0
-	case "square":
+	case WAVE_SQUARE:
 		dbOffset = -3.0
-	case "triangle":
+	case WAVE_TRIANGLE:
 		dbOffset = -1.76
-	case "sawtooth":
+	case WAVE_SAW:
 		dbOffset = -1.75
 	default:
 		dbOffset = 0
@@ -69,13 +69,13 @@ func generateWave(freq float64, duration time.Duration, waveform string) audioDa
 
 		var sample float64
 		switch waveform {
-		case "sine":
+		case WAVE_SINE:
 			sample = sineVal
-		case "square":
+		case WAVE_SQUARE:
 			sample = squareVal
-		case "triangle":
+		case WAVE_TRIANGLE:
 			sample = triangleVal
-		case "sawtooth":
+		case WAVE_SAW:
 			sample = sawtoothVal
 		default:
 			sample = sineVal

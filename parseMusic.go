@@ -9,6 +9,13 @@ import (
 	"time"
 )
 
+const (
+	WAVE_SINE = iota
+	WAVE_SQUARE
+	WAVE_TRIANGLE
+	WAVE_SAW
+)
+
 func playMusicPlaylist(g *Game, gameMode int, songList []songData) {
 	if *nomusic {
 		return
@@ -25,47 +32,79 @@ func playMusicPlaylist(g *Game, gameMode int, songList []songData) {
 			playSong(g, &song)
 		}
 		doLog(true, true, "Restarting playlist...")
-		time.Sleep(time.Second * 5)
+		time.Sleep(time.Second)
 	}
 }
+
+const interval = time.Millisecond * (1000 / 32)
 
 func playSong(g *Game, song *songData) {
 	// 3) "Play" them in order
 	startTime := time.Now()
 	numIns := len(song.ins)
 
+	var songCopy = *song
+	loops := 0
+
 	for {
-		for s, sn := range song.notes {
-			if sn.played {
-				continue
-			}
+		if g.stopMusic {
+			g.stopMusic = false
+			break
+		}
+		numNotes := len(songCopy.notes)
+		if numNotes < 1 {
+			break
+		}
+		for z := numNotes - 1; z > 0; z-- {
+			loops++
+
+			sn := songCopy.notes[z]
+
 			// How long until we reach sn.Start since the beginning?
 			// This can be negative if we've already passed that time, so we clamp at 0.
 			waitUntil := sn.Start - time.Since(startTime)
-			if waitUntil > 0 {
-				continue
+			if waitUntil > interval {
+				break
 			}
 
-			// Now "play" the note
-			fmt.Printf("[%s] Playing freq=%f for %v\n",
-				sn.InstrName, sn.Frequency, sn.Duration)
+			go func(sn ScheduledNote) {
+				/*
+					fmt.Printf("[%s] Playing freq=%f for %v\n",
+						sn.InstrName, sn.Frequency, sn.Duration)
+				*/
 
-			var notes []audioData
-			for _, freq := range sn.Frequency {
-				noteWave := make(audioData, int(float64(sampleRate)*sn.Duration.Seconds()))
-				if freq > 0 {
-					noteWave = generateWave(freq, sn.Duration, sn.waveform)
-				} else if freq < 0 {
-					noteWave = generateNoise(sn.Duration)
+				var notes []audioData
+				for _, freq := range sn.Frequency {
+					var noteWave audioData
+					if freq > 0 {
+						noteWave = generateWave(freq, sn.Duration, sn.waveform)
+					} else if freq < 0 {
+						noteWave = generateNoise(sn.Duration)
+					} else {
+						continue
+					}
+					notes = append(notes, noteWave)
 				}
-				notes = append(notes, noteWave)
-			}
-			output := mixWaves(notes...)
-			output = applyADSR(output, sn.ins, sn.volume*(1.0/float32(numIns)))
-			song.notes[s].played = true
-			go playWave(g, true, output)
+
+				var output audioData
+				numNotes := len(notes)
+				if numNotes > 1 {
+					output = mixWaves(notes...)
+				} else if numNotes == 1 {
+					output = notes[0]
+				} else {
+					return
+				}
+
+				output = applyADSR(output, sn.ins, sn.volume*(1.0/float32(numIns)))
+				playWave(g, true, output)
+			}(sn)
+
+			songCopy.notes = append(songCopy.notes[:z], songCopy.notes[z+1:]...)
 		}
+		time.Sleep(interval)
 	}
+	doLog(true, true, "%v loops.", loops)
 }
 
 func parseSong(song *songData) {
@@ -114,7 +153,7 @@ func parseSong(song *songData) {
 
 		// 2) Sort all scheduled notes by their start time
 		sort.Slice(scheduled, func(i, j int) bool {
-			return scheduled[i].Start < scheduled[j].Start
+			return scheduled[i].Start > scheduled[j].Start
 		})
 	}
 

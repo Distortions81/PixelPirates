@@ -180,7 +180,7 @@ var spectersOfAshenTwilight = songData{
 		{
 			name:     "GhostPad",
 			volume:   0.50,
-			waveform: "sawtooth",
+			waveform: WAVE_SAW,
 			data: func() string {
 				var s strings.Builder
 				for _, chord := range chordProgression2 {
@@ -199,7 +199,7 @@ var spectersOfAshenTwilight = songData{
 		{
 			name:     "Choir",
 			volume:   0.45,
-			waveform: "square",
+			waveform: WAVE_SQUARE,
 			data: func() string {
 				var s strings.Builder
 				// Each chord for 2 beats, then 2 beats of rest
@@ -219,7 +219,7 @@ var spectersOfAshenTwilight = songData{
 		{
 			name:     "Bass",
 			volume:   0.48,
-			waveform: "sine",
+			waveform: WAVE_SINE,
 			data: func() string {
 				var s strings.Builder
 				for _, chord := range chordProgression2 {
@@ -240,7 +240,7 @@ var spectersOfAshenTwilight = songData{
 		{
 			name:     "Arp",
 			volume:   0.33,
-			waveform: "triangle",
+			waveform: WAVE_TRIANGLE,
 			data: func() string {
 				var s strings.Builder
 				for measureIndex, chord := range chordProgression2 {
@@ -280,7 +280,7 @@ var spectersOfAshenTwilight = songData{
 		{
 			name:     "DarkBell",
 			volume:   0.25,
-			waveform: "sine",
+			waveform: WAVE_SINE,
 			data: func() string {
 				var s strings.Builder
 				// Let’s place 1 or 2 quick bell tones each measure at random offsets.
@@ -309,7 +309,7 @@ var spectersOfAshenTwilight = songData{
 		{
 			name:     "Lead",
 			volume:   0.35,
-			waveform: "sawtooth",
+			waveform: WAVE_SAW,
 			data: func() string {
 				// We'll define short 4-measure phrases repeated or varied.
 				// Each measure is 4 beats => define a minimal line with half/quarter notes.
@@ -353,7 +353,7 @@ var spectersOfAshenTwilight = songData{
 		{
 			name:     "Kick",
 			volume:   0.45,
-			waveform: "sine",
+			waveform: WAVE_SINE,
 			data: func() string {
 				var s strings.Builder
 				// For each measure (4 beats), let's place a kick on beat 1 and beat 3 for a half-time vibe:
@@ -572,7 +572,7 @@ var infinitoRealms = songData{
 		{
 			name:     "Strings",
 			volume:   0.55,
-			waveform: "sawtooth",
+			waveform: WAVE_SAW,
 			data: func() string {
 				var s strings.Builder
 				for _, chord := range chordProgression {
@@ -591,7 +591,7 @@ var infinitoRealms = songData{
 		{
 			name:     "Brass",
 			volume:   0.5,
-			waveform: "square",
+			waveform: WAVE_SQUARE,
 			data: func() string {
 				var s strings.Builder
 				for _, chord := range chordProgression {
@@ -611,7 +611,7 @@ var infinitoRealms = songData{
 		{
 			name:     "Bass",
 			volume:   0.5,
-			waveform: "sine",
+			waveform: WAVE_SINE,
 			data: func() string {
 				var s strings.Builder
 				// We'll just take the first note from each chord’s string (root).
@@ -635,7 +635,7 @@ var infinitoRealms = songData{
 		{
 			name:     "Arp",
 			volume:   0.35,
-			waveform: "triangle",
+			waveform: WAVE_TRIANGLE,
 			data: func() string {
 				var s strings.Builder
 
@@ -708,7 +708,7 @@ var infinitoRealms = songData{
 		{
 			name:     "Lead",
 			volume:   0.40,
-			waveform: "sawtooth",
+			waveform: WAVE_SAW,
 			data: func() string {
 				// We'll define 6 small melodic phrases (each 16 measures).
 				// Each measure has 4 beats, so let's define each phrase as a string array of length 16.
@@ -773,7 +773,7 @@ var infinitoRealms = songData{
 		{
 			name:     "Kick",
 			volume:   0.5,
-			waveform: "sine",
+			waveform: WAVE_SINE,
 			data: func() string {
 				var s strings.Builder
 				// Each measure = 4 beats. We’ll do a kick on each beat:
@@ -897,7 +897,7 @@ var epicWarOfTheAncients = songData{
 		{
 			name:     "Strings",
 			volume:   0.6,
-			waveform: "sawtooth",
+			waveform: WAVE_SAW,
 			// Chords laid out in sections of 8 measures each:
 			// Section 1 (Measures 1-8):
 			//   Dm - Dm - C - C - Bb - F - Gm - A
@@ -927,7 +927,7 @@ var epicWarOfTheAncients = songData{
 		{
 			name:     "Brass",
 			volume:   0.55,
-			waveform: "square",
+			waveform: WAVE_SQUARE,
 			// Matches the chord progression from Strings, but we’ll sustain each chord for half a measure (2 beats) twice per measure.
 			data: "" +
 				// Section 1
@@ -949,7 +949,7 @@ var epicWarOfTheAncients = songData{
 		{
 			name:     "Bass",
 			volume:   0.5,
-			waveform: "sine",
+			waveform: WAVE_SINE,
 			// Root notes, each for 1 measure (4 beats), matching the chord roots from above.
 			data: "" +
 				// Section 1
@@ -971,7 +971,7 @@ var epicWarOfTheAncients = songData{
 		{
 			name:     "Lead",
 			volume:   0.45,
-			waveform: "triangle",
+			waveform: WAVE_TRIANGLE,
 			// 32 measures of melody, broken into four 8-measure sections.
 			// Each measure is 4 beats. Use a mixture of quarter/half notes.
 			data: "" +
@@ -1066,7 +1066,7 @@ var epicWarOfTheAncients = songData{
 		{
 			name:     "Kick",
 			volume:   0.5,
-			waveform: "sine",
+			waveform: WAVE_SINE,
 			data: func() string {
 				var s string
 				// 1 measure = 4 beats. We'll place:
@@ -1179,7 +1179,7 @@ var twilightReflections = songData{
 		{
 			name:     "Harmony",
 			volume:   0.55,
-			waveform: "sawtooth",
+			waveform: WAVE_SAW,
 			// Four sections, each 8 measures (each measure = 4 beats).
 			// Repeats are shown as pairs to keep it clear, but it’s just a sequence of 32 chords total.
 			data: "" +
@@ -1206,7 +1206,7 @@ var twilightReflections = songData{
 		{
 			name:     "Bass",
 			volume:   0.45,
-			waveform: "sine",
+			waveform: WAVE_SINE,
 			// One measure = 4 beats. We simply give the root note of each chord for a full measure.
 			// 32 measures total, matching the harmony’s chord progression.
 			data: "" +
@@ -1229,7 +1229,7 @@ var twilightReflections = songData{
 		{
 			name:     "Melody",
 			volume:   0.40,
-			waveform: "triangle",
+			waveform: WAVE_TRIANGLE,
 			// A simple 2-bar motif repeated or varied across sections.
 			// Each measure is 4 beats; we’ll use a mix of quarter (1) and half (2) notes.
 			data: "" +
@@ -1283,7 +1283,7 @@ var twilightReflections = songData{
 		{
 			name:     "Kick",
 			volume:   0.5,
-			waveform: "sine",
+			waveform: WAVE_SINE,
 			data: func() string {
 				var s string
 				// 32 measures, each measure = 4 beats:
@@ -1374,7 +1374,7 @@ var voyageOfTheAbyss = songData{
 		{
 			name:     "Harmony",
 			volume:   0.6,
-			waveform: "sawtooth",
+			waveform: WAVE_SAW,
 			data: "D4/F4/A4 4, D4/F4/A4 4, D4/F4/A4 4, D4/F4/A4 4, " +
 				"D4/F4/A4 4, D4/F4/A4 4, D4/F4/A4 4, D4/F4/A4 4," +
 				// Section 2:
@@ -1397,7 +1397,7 @@ var voyageOfTheAbyss = songData{
 		{
 			name:     "Bass",
 			volume:   0.5,
-			waveform: "sine",
+			waveform: WAVE_SINE,
 			data: "D2 2, A2 2, D2 2, A2 2, D2 2, A2 2, D2 2, A2 2," +
 				"D2 4, Bb1 4, C2 4, A1 4, " +
 				"D2 4, Bb1 4, C2 4, A1 4, " +
@@ -1414,7 +1414,7 @@ var voyageOfTheAbyss = songData{
 		{
 			name:     "Melody",
 			volume:   0.38,
-			waveform: "triangle",
+			waveform: WAVE_TRIANGLE,
 			data: "D3 1, F3 1, A3 1, D4 1, " +
 				"A3 1, F3 1, D3 1, A2 1, " +
 				"D3 0.5, E3 0.5, F3 1, G3 1, A3 1, " +
@@ -1451,14 +1451,14 @@ var voyageOfTheAbyss = songData{
 			decay:   0.15,
 			sustain: 0.85,
 			release: 0.35,
-			// The "square" parameter is ignored here because we’re not using "mix".
+			// The WAVE_SQUARE parameter is ignored here because we’re not using "mix".
 			square: 0.05,
 		},
 		// 4. Kick: A deep, punchy hit using a sine wave.
 		{
 			name:     "Kick",
 			volume:   0.5,
-			waveform: "sine",
+			waveform: WAVE_SINE,
 			data: func() string {
 				var s string
 				// Each measure (4 beats): kick on beats 1 and 3.

@@ -15,8 +15,9 @@ type songData struct {
 }
 
 type insData struct {
-	name, waveform, data string
-	volume, square       float64
+	name, data     string
+	volume, square float64
+	waveform       int
 	/*
 		Attack: The time it takes for a sound to go from silence to its full volume when a key is first pressed.
 		Decay: The time it takes for the sound to drop from its peak volume to the sustain level.
@@ -44,5 +45,5 @@ type ScheduledNote struct {
 	played   bool
 	ins      *insData
 	volume   float32
-	waveform string
+	waveform int
 }
