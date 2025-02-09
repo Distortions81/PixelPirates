@@ -5,8 +5,6 @@ import (
 	"math"
 	"math/rand/v2"
 	"time"
-
-	"github.com/chewxy/math32"
 )
 
 const (
@@ -126,36 +124,13 @@ func generateWave(freq float64, duration time.Duration, waveform int) audioData 
 	return output
 }
 
-func playWave(g *Game, music bool, wave audioData, fast bool) {
-	soundData := make([]byte, len(wave)*2)
-	var prevError float32
+func playWave(g *Game, music bool, wave audioData) {
+	soundData := make([]byte, len(wave)*4)
 
-	if fast {
-		for i, s := range wave {
-			if s > 1.0 {
-				s = 1.0
-			} else if s < -1.0 {
-				s = -1.0
-			}
-			intSample := int16(math.Round(float64(s) * 32767.0))
-			binary.LittleEndian.PutUint16(soundData[i*2:], uint16(intSample))
-		}
-	} else {
-		for i, sample := range wave {
-			shapedSample := sample + 0.5*prevError
-			if shapedSample > 1.0 {
-				shapedSample = 1.0
-			} else if shapedSample < -1.0 {
-				shapedSample = -1.0
-			}
-			intVal := int16(math32.Round(shapedSample * 32767))
-			soundData[i*2] = byte(intVal)
-			soundData[i*2+1] = byte(intVal >> 8)
-			actual := float32(intVal) / 32767.0
-			prevError = shapedSample - actual
-		}
+	for i, s := range wave {
+		binary.LittleEndian.PutUint32(soundData[i*4:], math.Float32bits(s))
 	}
-	player := g.audioContext.NewPlayerFromBytes(soundData)
+	player := g.audioContext.NewPlayerF32FromBytes(soundData)
 	player.Play()
 }
 

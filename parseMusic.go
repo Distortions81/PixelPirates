@@ -114,7 +114,7 @@ func playSong(g *Game, song *songData) {
 				output = applyADSR(output, sn.ins, sn.volume)
 
 				//playWave(g, true, applyReverb(output, sn.volume, song.delay, song.feedback), true)
-				playWave(g, true, output, true)
+				playWave(g, true, output)
 			}
 
 			//Delete note from list
