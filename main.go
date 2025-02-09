@@ -128,7 +128,7 @@ func newGame() *Game {
 		g.gameMode = GAME_PLAY
 	}
 
-	if ebiten.IsFocused() {
+	if !wasmMode {
 		go func() {
 			time.Sleep(time.Second)
 			playMusicPlaylist(g, g.gameMode, gameModePlaylists[g.gameMode])
