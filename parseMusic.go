@@ -41,7 +41,7 @@ const interval = time.Millisecond * (1000 / 32)
 func playSong(g *Game, song *songData) {
 	// 3) "Play" them in order
 	startTime := time.Now()
-	numIns := len(song.ins)
+	//numIns := len(song.ins)
 
 	var songCopy = *song
 	loops := 0
@@ -55,6 +55,7 @@ func playSong(g *Game, song *songData) {
 		if numNotes < 1 {
 			break
 		}
+		time.Sleep(interval)
 		for z := numNotes - 1; z > 0; z-- {
 			loops++
 
@@ -90,19 +91,20 @@ func playSong(g *Game, song *songData) {
 				numNotes := len(notes)
 				if numNotes > 1 {
 					output = mixWaves(notes...)
+					output = applyADSR(output, sn.ins, sn.volume*(1.0/float32(numNotes)))
 				} else if numNotes == 1 {
 					output = notes[0]
+					output = applyADSR(output, sn.ins, sn.volume)
+
 				} else {
 					return
 				}
 
-				output = applyADSR(output, sn.ins, sn.volume*(1.0/float32(numIns)))
 				playWave(g, true, output)
 			}(sn)
 
 			songCopy.notes = append(songCopy.notes[:z], songCopy.notes[z+1:]...)
 		}
-		time.Sleep(interval)
 	}
 	doLog(true, true, "%v loops.", loops)
 }

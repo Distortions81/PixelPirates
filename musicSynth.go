@@ -10,6 +10,7 @@ import (
 
 const (
 	noiseSmoothing = 7
+	maxVolume      = 1.0
 )
 
 func generateNoise(duration time.Duration) audioData {
@@ -213,6 +214,23 @@ func mixWaves(waves ...audioData) audioData {
 	if numWaves > 1.0 {
 		for i := 0; i < maxLen; i++ {
 			mixed[i] /= numWaves
+		}
+	}
+
+	var maxAmp float32
+	for _, sample := range mixed {
+		absVal := sample
+		if absVal < 0 {
+			absVal = -absVal
+		}
+		if absVal > maxAmp {
+			maxAmp = absVal
+		}
+	}
+	if maxAmp > 0 {
+		scale := maxVolume / maxAmp
+		for i := range mixed {
+			mixed[i] *= scale
 		}
 	}
 	return mixed
