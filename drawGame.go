@@ -39,7 +39,15 @@ func drawBoat(g *Game, screen *ebiten.Image) {
 	if time.Now().Unix()%3 == 0 {
 		offset.Y = 1
 	}
-	boatFrame := autoAnimatePingPong(g.boat2SP, 0, "sail")
+	dir := directionFromCoords(g.oldBoatPos.X-g.boatPos.X, g.oldBoatPos.Y-g.boatPos.Y)
+	dirName := "still"
+	if dir == DIR_WEST || dir == DIR_NORTH_WEST || dir == DIR_SOUTH_WEST {
+		dirName = "sail-rev"
+	}
+	if dir == DIR_EAST || dir == DIR_NORTH_EAST || dir == DIR_SOUTH_EAST {
+		dirName = "sail"
+	}
+	boatFrame := autoAnimatePingPong(g.boat2SP, 0, dirName)
 	if g.gameMode == GAME_PLAY {
 		op.GeoM.Translate(
 			float64((dWinWidth/4)-(boatFrame.Bounds().Dx())/2+offset.X),

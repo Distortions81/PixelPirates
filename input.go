@@ -19,6 +19,17 @@ const (
 	turboSpeed  = 10
 )
 
+const (
+	DIR_NORTH = iota
+	DIR_NORTH_EAST
+	DIR_EAST
+	DIR_SOUTH_EAST
+	DIR_SOUTH
+	DIR_SOUTH_WEST
+	DIR_WEST
+	DIR_NORTH_WEST
+)
+
 // Ebiten input handler
 func (g *Game) Update() error {
 
@@ -41,6 +52,7 @@ func (g *Game) Update() error {
 		}
 		return nil
 	} else if g.gameMode == GAME_PLAY {
+		g.oldBoatPos = g.boatPos
 
 		xBase := float64(time.Since(g.lastUpdate).Microseconds()) / boatYSpeed
 		yBase := float64(time.Since(g.lastUpdate).Microseconds()) / boatXSpeed
@@ -159,25 +171,25 @@ func directionFromCoords(x, y float64) int {
 	x = -x
 	switch {
 	case y > 0 && x == 0:
-		return 0 // north
+		return DIR_NORTH // north
 	case x > 0 && y > 0:
-		return 1 // north-east
+		return DIR_NORTH_EAST // north-east
 	case x > 0 && y == 0:
-		return 2 // east
+		return DIR_EAST // east
 	case x > 0 && y < 0:
-		return 3 // south-east
+		return DIR_SOUTH_EAST // south-east
 	case x == 0 && y < 0:
-		return 4 // south
+		return DIR_SOUTH // south
 	case x < 0 && y < 0:
-		return 5 // south-west
+		return DIR_SOUTH_WEST // south-west
 	case x < 0 && y == 0:
-		return 6 // west
+		return DIR_WEST // west
 	case x < 0 && y > 0:
-		return 7 // north-west
+		return DIR_NORTH_WEST // north-west
 	default:
 		// x == 0 && y == 0 → no movement
 		// or any unhandled case
-		return -1 //default south
+		return DIR_SOUTH //default south
 	}
 }
 

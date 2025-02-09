@@ -43,7 +43,7 @@ type Game struct {
 	fade fadeData
 
 	//Ocean specific
-	boatPos fPoint
+	boatPos, oldBoatPos fPoint
 	//Waves
 	wavesLines            [dWinHeightHalf]waveLine
 	airWaveLines          [dWinHeightHalf]waveLine
