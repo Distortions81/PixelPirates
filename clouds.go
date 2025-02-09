@@ -1,11 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
 const (
@@ -108,8 +106,10 @@ func renderCloudChunk(chunkNum int, cloud *cloudData) {
 		}
 	}
 	cloud.image.WritePixels(cBuf)
-	if *debugMode {
-		buf := fmt.Sprintf("%v: %v", chunkNum, cloud.id)
-		ebitenutil.DebugPrint(cloud.image, buf)
-	}
+	/*
+		if *debugMode {
+			buf := fmt.Sprintf("%v: %v", chunkNum, cloud.id)
+			ebitenutil.DebugPrint(cloud.image, buf)
+		}
+	*/
 }

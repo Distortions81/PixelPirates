@@ -52,6 +52,7 @@ func main() {
 		value := true
 		ptr := &value
 		debugMode = ptr
+		nomusic = ptr
 	}
 
 	startLog()
