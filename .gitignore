@@ -7,3 +7,5 @@ dump/
 main.wasm
 main.wasm.gz
 wasm_exec.js.gz
+output.wasm
+output.wasm.gz

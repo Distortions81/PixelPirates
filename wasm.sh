@@ -14,7 +14,7 @@ go build -ldflags="-s -w" -o "${OUTPUT}" .
 echo "Compilation complete: ${OUTPUT} generated."
 
 # Optimize the WASM binary using wasm-opt if available.
-if command -v wasm-opt >/dev/null 2>&1; then
+if command -v wasm-opt -Oz >/dev/null 2>&1; then
     echo "Optimizing ${OUTPUT} with wasm-opt..."
     # Attempt to enable bulk memory operations.
     wasm-opt --enable-bulk-memory -Oz "${OUTPUT}" -o "${OUTPUT}"
@@ -33,7 +33,7 @@ else
 fi
 
 # Check if gzip is available and compress the output files.
-if command -v gzip >/dev/null 2>&1; then
+if command -v gzip -9 >/dev/null 2>&1; then
     echo "Compressing ${OUTPUT} with gzip..."
     gzip -k -f "${OUTPUT}"
     echo "Compressed file created: ${OUTPUT}.gz"
