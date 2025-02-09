@@ -128,12 +128,14 @@ func playSong(g *Game, song *songData) {
 
 		}
 
-		if *debugMode {
-			took := time.Since(lastTime)
-			if loops > 0 && took > time.Millisecond*2 {
-				doLog(true, true, " render took: %v", took)
+		/*
+			if *debugMode {
+				took := time.Since(lastTime)
+				if loops > 0 && took > time.Millisecond*2 {
+					doLog(true, true, " render took: %v", took)
+				}
 			}
-		}
+		*/
 
 	}
 }
