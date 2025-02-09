@@ -106,7 +106,7 @@ func playSong(g *Game, song *songData) {
 				}
 
 				output = applyADSR(output, sn.ins, sn.volume)
-				playWave(g, true, output)
+				playWave(g, true, output, true)
 			}(sn)
 
 			if numNotes > 1 {
