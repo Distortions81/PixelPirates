@@ -18,8 +18,6 @@ const (
 
 const deadNotesGiveup = 10
 
-var sampleCache map[string]*audioData
-
 func playMusicPlaylist(g *Game, gameMode int, songList []songData) {
 	if *nomusic {
 		return
@@ -44,7 +42,6 @@ func playMusicPlaylist(g *Game, gameMode int, songList []songData) {
 const interval = time.Millisecond * (1000 / 32)
 
 func playSong(g *Game, song *songData) {
-	sampleCache = map[string]*audioData{}
 
 	startTime := time.Now()
 
@@ -75,7 +72,6 @@ func playSong(g *Game, song *songData) {
 			for _, freq := range sn.Frequency {
 				freqs = append(freqs, int(freq))
 			}
-			buf := fmt.Sprintf("%v %v %v", freqs, sn.Duration.Milliseconds(), sn.ins.id)
 
 			//Sleep until next note signature
 			waitUntil := sn.Start - time.Since(startTime)
@@ -89,43 +85,35 @@ func playSong(g *Game, song *songData) {
 				//Within reason, not too old
 				//Otherwise skip the note
 			} else if waitUntil <= interval {
-				sc := sampleCache[buf]
-				if sc != nil {
-					playWave(g, true, *sc, true)
-					//fmt.Printf("Used cached: %v\n", buf)
-				} else {
-					var notes []audioData
-					for _, freq := range sn.Frequency {
-						var noteWave audioData
-						if freq > 0 {
-							noteWave = generateWave(freq, sn.Duration, sn.waveform)
-						} else if freq < 0 {
-							noteWave = generateNoise(sn.Duration)
-						} else {
-							continue
-						}
-						//fmt.Printf("[%s] Playing wave=%v freq=%f for %v\n", sn.waveform, sn.InstrName, sn.Frequency, sn.Duration)
-
-						notes = append(notes, noteWave)
-					}
-
-					var output audioData
-					numNotes := len(notes)
-					if numNotes > 1 {
-						output = mixWaves(numNotes, int(float64(sampleRate)*sn.Duration.Seconds()), notes...)
-					} else if numNotes == 1 {
-						output = notes[0]
+				var notes []audioData
+				for _, freq := range sn.Frequency {
+					var noteWave audioData
+					if freq > 0 {
+						noteWave = generateWave(freq, sn.Duration, sn.waveform)
+					} else if freq < 0 {
+						noteWave = generateNoise(sn.Duration)
 					} else {
 						continue
 					}
+					//fmt.Printf("[%s] Playing wave=%v freq=%f for %v\n", sn.waveform, sn.InstrName, sn.Frequency, sn.Duration)
 
-					output = applyADSR(output, sn.ins, sn.volume)
-					sampleCache[buf] = cloneAudioData(output)
-
-					//playWave(g, true, applyReverb(output, sn.volume, song.delay, song.feedback), true)
-					playWave(g, true, output, true)
-					fmt.Printf("RENDERED: %v\n", buf)
+					notes = append(notes, noteWave)
 				}
+
+				var output audioData
+				numNotes := len(notes)
+				if numNotes > 1 {
+					output = mixWaves(numNotes, int(float64(sampleRate)*sn.Duration.Seconds()), notes...)
+				} else if numNotes == 1 {
+					output = notes[0]
+				} else {
+					continue
+				}
+
+				output = applyADSR(output, sn.ins, sn.volume)
+
+				//playWave(g, true, applyReverb(output, sn.volume, song.delay, song.feedback), true)
+				playWave(g, true, output, true)
 			}
 
 			//Delete note from list
@@ -144,8 +132,6 @@ func playSong(g *Game, song *songData) {
 			doLog(true, true, " render took: %v", took)
 		}
 	}
-	sampleCache = map[string]*audioData{}
-	doLog(true, true, "%v loops, cleared cached %v samples.", loops, len(sampleCache))
 }
 
 func cloneAudioData(data audioData) *audioData {
