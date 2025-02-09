@@ -98,7 +98,7 @@ func playSong(g *Game, song *songData) {
 				var output audioData
 				numNotes := len(notes)
 				if numNotes > 1 {
-					output = mixWaves(notes...)
+					output = mixWaves(numNotes, int(float64(sampleRate)*sn.Duration.Seconds()), notes...)
 				} else if numNotes == 1 {
 					output = notes[0]
 				} else {
@@ -106,6 +106,7 @@ func playSong(g *Game, song *songData) {
 				}
 
 				output = applyADSR(output, sn.ins, sn.volume)
+				//playWave(g, true, applyReverb(output, sn.volume, song.delay, song.feedback), true)
 				playWave(g, true, output, true)
 			}
 
@@ -116,8 +117,14 @@ func playSong(g *Game, song *songData) {
 				songCopy.notes = []ScheduledNote{}
 			}
 		}
+		/*
+			took := time.Since(lastTime)
+			if took > time.Millisecond*2 {
+				doLog(true, true, " render took: %v", took)
+			}
+		*/
 	}
-	doLog(true, true, "%v loops.", loops)
+	//cdoLog(true, true, "%v loops.", loops)
 }
 
 func parseSong(song *songData) {

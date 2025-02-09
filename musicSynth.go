@@ -19,7 +19,7 @@ func generateNoise(duration time.Duration) audioData {
 	wave := make(audioData, numSamples)
 
 	for i := 0; i < numSamples; i++ {
-		sample := float32(rand.Float64()*2.0 - 1.0)
+		sample := float32(rand.Float32()*2.0 - 1.0)
 		wave[i] = sample
 		// Repeat the sample for smoothing.
 		for x := 0; x < noiseSmoothing; x++ {
@@ -203,13 +203,7 @@ func applyADSR(wave audioData, ins *insData, volume float32) audioData {
 }
 
 // mixWaves using the maximum length.
-func mixWaves(waves ...audioData) audioData {
-	var maxLen int
-	for _, w := range waves {
-		if len(w) > maxLen {
-			maxLen = len(w)
-		}
-	}
+func mixWaves(numNotes, maxLen int, waves ...audioData) audioData {
 
 	mixed := make(audioData, maxLen)
 	for _, w := range waves {
@@ -219,27 +213,9 @@ func mixWaves(waves ...audioData) audioData {
 			}
 		}
 	}
-	numWaves := float32(len(waves))
-	if numWaves > 1.0 {
+	if numNotes > 1 {
 		for i := 0; i < maxLen; i++ {
-			mixed[i] /= numWaves
-		}
-	}
-
-	var maxAmp float32
-	for _, sample := range mixed {
-		absVal := sample
-		if absVal < 0 {
-			absVal = -absVal
-		}
-		if absVal > maxAmp {
-			maxAmp = absVal
-		}
-	}
-	if maxAmp > 0 {
-		scale := maxVolume / maxAmp
-		for i := range mixed {
-			mixed[i] *= scale
+			mixed[i] /= float32(numNotes)
 		}
 	}
 	return mixed
