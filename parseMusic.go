@@ -18,6 +18,8 @@ const (
 
 const deadNotesGiveup = 10
 
+var sampleCache map[string]*audioData
+
 func playMusicPlaylist(g *Game, gameMode int, songList []songData) {
 	if *nomusic {
 		return
@@ -42,6 +44,8 @@ func playMusicPlaylist(g *Game, gameMode int, songList []songData) {
 const interval = time.Millisecond * (1000 / 32)
 
 func playSong(g *Game, song *songData) {
+	sampleCache = map[string]*audioData{}
+
 	startTime := time.Now()
 
 	numNotes := len(song.notes)
@@ -57,7 +61,7 @@ func playSong(g *Game, song *songData) {
 			break
 		}
 
-		if numNotes < 1 {
+		if numNotes <= 1 {
 			break
 		}
 		time.Sleep(interval - time.Since(lastTime))
@@ -67,6 +71,11 @@ func playSong(g *Game, song *songData) {
 			loops++
 
 			sn := notes[z]
+			var freqs []int
+			for _, freq := range sn.Frequency {
+				freqs = append(freqs, int(freq))
+			}
+			buf := fmt.Sprintf("%v %v %v", freqs, sn.Duration.Milliseconds(), sn.ins.id)
 
 			//Sleep until next note signature
 			waitUntil := sn.Start - time.Since(startTime)
@@ -80,37 +89,43 @@ func playSong(g *Game, song *songData) {
 				//Within reason, not too old
 				//Otherwise skip the note
 			} else if waitUntil <= interval {
-				/*
-					fmt.Printf("[%s] Playing freq=%f for %v\n",
-						sn.InstrName, sn.Frequency, sn.Duration)
-				*/
+				sc := sampleCache[buf]
+				if sc != nil {
+					playWave(g, true, *sc, true)
+					//fmt.Printf("Used cached: %v\n", buf)
+				} else {
+					var notes []audioData
+					for _, freq := range sn.Frequency {
+						var noteWave audioData
+						if freq > 0 {
+							noteWave = generateWave(freq, sn.Duration, sn.waveform)
+						} else if freq < 0 {
+							noteWave = generateNoise(sn.Duration)
+						} else {
+							continue
+						}
+						//fmt.Printf("[%s] Playing wave=%v freq=%f for %v\n", sn.waveform, sn.InstrName, sn.Frequency, sn.Duration)
 
-				var notes []audioData
-				for _, freq := range sn.Frequency {
-					var noteWave audioData
-					if freq > 0 {
-						noteWave = generateWave(freq, sn.Duration, sn.waveform)
-					} else if freq < 0 {
-						noteWave = generateNoise(sn.Duration)
+						notes = append(notes, noteWave)
+					}
+
+					var output audioData
+					numNotes := len(notes)
+					if numNotes > 1 {
+						output = mixWaves(numNotes, int(float64(sampleRate)*sn.Duration.Seconds()), notes...)
+					} else if numNotes == 1 {
+						output = notes[0]
 					} else {
 						continue
 					}
-					notes = append(notes, noteWave)
-				}
 
-				var output audioData
-				numNotes := len(notes)
-				if numNotes > 1 {
-					output = mixWaves(numNotes, int(float64(sampleRate)*sn.Duration.Seconds()), notes...)
-				} else if numNotes == 1 {
-					output = notes[0]
-				} else {
-					continue
-				}
+					output = applyADSR(output, sn.ins, sn.volume)
+					sampleCache[buf] = cloneAudioData(output)
 
-				output = applyADSR(output, sn.ins, sn.volume)
-				//playWave(g, true, applyReverb(output, sn.volume, song.delay, song.feedback), true)
-				playWave(g, true, output, true)
+					//playWave(g, true, applyReverb(output, sn.volume, song.delay, song.feedback), true)
+					playWave(g, true, output, true)
+					fmt.Printf("RENDERED: %v\n", buf)
+				}
 			}
 
 			//Delete note from list
@@ -121,15 +136,22 @@ func playSong(g *Game, song *songData) {
 				notes = []ScheduledNote{}
 				numNotes = 0
 			}
+
 		}
-		/*
-			took := time.Since(lastTime)
-			if took > time.Millisecond*2 {
-				doLog(true, true, " render took: %v", took)
-			}
-		*/
+
+		took := time.Since(lastTime)
+		if loops > 0 && took > time.Millisecond*2 {
+			doLog(true, true, " render took: %v", took)
+		}
 	}
-	//cdoLog(true, true, "%v loops.", loops)
+	sampleCache = map[string]*audioData{}
+	doLog(true, true, "%v loops, cleared cached %v samples.", loops, len(sampleCache))
+}
+
+func cloneAudioData(data audioData) *audioData {
+	cloned := make(audioData, len(data))
+	copy(cloned, data)
+	return &cloned
 }
 
 func parseSong(song *songData) {
@@ -140,6 +162,7 @@ func parseSong(song *songData) {
 
 	var songLength time.Duration
 	for i, ins := range song.ins {
+		song.ins[i].id = i
 		var elapsed time.Duration
 
 		chords := strings.Split(ins.data, ",")
@@ -163,7 +186,7 @@ func parseSong(song *songData) {
 				Frequency: newChord.freq,
 				Duration:  time.Duration(noteDuration),
 				InstrName: ins.name,
-				ins:       &ins,
+				ins:       &song.ins[i],
 				waveform:  ins.waveform,
 				volume:    float32(ins.volume),
 			})

@@ -16,6 +16,7 @@ type songData struct {
 
 type insData struct {
 	name, data     string
+	id             int
 	volume, square float64
 	waveform       int
 	/*

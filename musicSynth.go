@@ -12,34 +12,60 @@ import (
 const (
 	noiseSmoothing = 7
 	maxVolume      = 0.5
+
+	preRenderNoiseSamples = sampleRate * 6
 )
 
-func generateNoise(duration time.Duration) audioData {
-	numSamples := int(float64(sampleRate) * duration.Seconds())
-	wave := make(audioData, numSamples)
+var noiseSamples audioData
 
-	for i := 0; i < numSamples; i++ {
+func init() {
+	noiseSamples = make(audioData, preRenderNoiseSamples)
+	for i := 0; i < preRenderNoiseSamples; i++ {
 		sample := float32(rand.Float32()*2.0 - 1.0)
-		wave[i] = sample
+		noiseSamples[i] = sample
 		// Repeat the sample for smoothing.
 		for x := 0; x < noiseSmoothing; x++ {
 			i++
-			if i < numSamples {
-				wave[i] = sample
+			if i < preRenderNoiseSamples {
+				noiseSamples[i] = sample
 			}
 		}
 	}
-	return wave
 }
 
-// generateWave accepts a waveform type and blend factor.
-func generateWave(freq float64, duration time.Duration, waveform int) audioData {
-	samples := int(float64(sampleRate) * duration.Seconds())
-	wave := make(audioData, samples)
-	period := 1.0 / float64(freq)
+func generateNoise(duration time.Duration) audioData {
+	// Calculate the number of samples needed for the duration.
+	numSamples := int(float64(sampleRate) * duration.Seconds())
 
+	// Create a slice to hold the output noise.
+	output := make(audioData, numSamples)
+
+	// Pick a random starting offset in the pre-rendered noise slice.
+	offset := rand.IntN(len(noiseSamples))
+
+	// Fill the output slice using modulo arithmetic to loop through noiseSamples.
+	for i := 0; i < numSamples; i++ {
+		output[i] = noiseSamples[(offset+i)%len(noiseSamples)]
+	}
+
+	return output
+}
+
+// generateWave accepts a frequency, duration, and waveform type and returns the corresponding audio data.
+// It pre-renders one period of the waveform and then re-uses that data.
+func generateWave(freq float64, duration time.Duration, waveform int) audioData {
+	// Total number of samples for the given duration.
+	totalSamples := int(float64(sampleRate) * duration.Seconds())
+
+	// Calculate the period in seconds and the number of samples in one period.
+	period := 1.0 / freq
+	periodSamples := int(math.Round(period * float64(sampleRate)))
+	if periodSamples <= 0 {
+		periodSamples = 1
+	}
+
+	// RMS volume correction offsets for different waveforms.
 	var dbOffset float64
-	//We do some RMS volume correction
 	switch waveform {
 	case WAVE_SINE:
 		dbOffset = 0
@@ -54,37 +80,50 @@ func generateWave(freq float64, duration time.Duration, waveform int) audioData 
 	}
 	compensation := math.Pow(10, dbOffset/20)
 
-	for i := 0; i < samples; i++ {
-		t := float64(i) / float64(sampleRate)
-		sineVal := math.Sin(2 * math.Pi * freq * t)
+	// Pre-render one period of the waveform.
+	onePeriod := make([]float64, periodSamples)
+	for j := 0; j < periodSamples; j++ {
+		// Compute the normalized phase [0, 1) for the sample.
+		phase := float64(j) / float64(periodSamples)
 
-		var squareVal float64
-		if sineVal < 0 {
-			squareVal = -1.0
-		} else {
-			squareVal = 1.0
-		}
-
-		tmod := float64(math.Mod(float64(t), period))
-		triangleVal := 4*math.Abs(tmod/float64(period)-0.5) - 1.0
-		sawtoothVal := 2*float64(math.Mod(float64(t), period))/float64(period) - 1.0
+		// Pre-calculate the sine value (one cycle) for use in different waveforms.
+		sineVal := math.Sin(2 * math.Pi * phase)
 
 		var sample float64
 		switch waveform {
 		case WAVE_SINE:
 			sample = sineVal
 		case WAVE_SQUARE:
-			sample = squareVal
+			// A square wave: 1 for positive half cycle, -1 for negative.
+			if sineVal < 0 {
+				sample = -1.0
+			} else {
+				sample = 1.0
+			}
 		case WAVE_TRIANGLE:
-			sample = triangleVal
+			// A triangle wave: linear ramp up then down.
+			// Map phase from [0,1) to [-1, 1] in a triangle shape.
+			sample = 4*math.Abs(phase-0.5) - 1.0
 		case WAVE_SAW:
-			sample = sawtoothVal
+			// A sawtooth wave: a linear ramp from -1 to 1.
+			sample = 2*phase - 1.0
 		default:
+			// Default to sine wave.
 			sample = sineVal
 		}
-		wave[i] = float32(sample * compensation)
+
+		// Apply the compensation factor.
+		onePeriod[j] = sample * compensation
 	}
-	return wave
+
+	// Allocate the output buffer and fill it by looping over the pre-rendered period.
+	output := make(audioData, totalSamples)
+	for i := 0; i < totalSamples; i++ {
+		// Use modulo to repeat the one period cycle.
+		output[i] = float32(onePeriod[i%periodSamples])
+	}
+
+	return output
 }
 
 func playWave(g *Game, music bool, wave audioData, fast bool) {
