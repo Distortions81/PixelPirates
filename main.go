@@ -46,7 +46,7 @@ func main() {
 	doLog(true, true, "Game res: %v,%v (%vx) : (%v, %v)", dWinWidth, dWinHeight, magScale, dWinWidth*magScale, dWinHeight*magScale)
 
 	if *dump {
-		dumpMusic()
+		//dumpMusic()
 		fmt.Println("Music dump complete.")
 		return
 	}

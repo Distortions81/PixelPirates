@@ -5,25 +5,15 @@ import (
 	"strings"
 )
 
-type playlistData []songData
-
-type songData struct {
-	name                    string
-	ins                     []insData
-	bpm                     int
-	reverb, delay, feedback float32
-}
-
-type insData struct {
-	name, waveform, data string
-	volume, square       float32
-	/*
-		Attack: The time it takes for a sound to go from silence to its full volume when a key is first pressed.
-		Decay: The time it takes for the sound to drop from its peak volume to the sustain level.
-		Sustain: The constant volume level maintained while a key is held down.
-		Release: The time it takes for the sound to fade from the sustain level to silence when the key is released.
-	*/
-	attack, decay, sustain, release float32
+func init() {
+	count := 0
+	for _, playlist := range gameModePlaylists {
+		for s, _ := range playlist {
+			parseSong(&playlist[s])
+			count++
+		}
+	}
+	fmt.Printf("Parsed %v songs.\n", count)
 }
 
 var (
