@@ -44,7 +44,8 @@ const interval = time.Millisecond * (1000 / 32)
 func playSong(g *Game, song *songData) {
 	startTime := time.Now()
 
-	var notes []ScheduledNote = make([]ScheduledNote, len(song.notes))
+	numNotes := len(song.notes)
+	var notes []ScheduledNote = make([]ScheduledNote, numNotes)
 	copy(notes, song.notes)
 
 	loops := 0
@@ -56,7 +57,6 @@ func playSong(g *Game, song *songData) {
 			break
 		}
 
-		numNotes := len(notes)
 		if numNotes < 1 {
 			break
 		}
@@ -116,8 +116,10 @@ func playSong(g *Game, song *songData) {
 			//Delete note from list
 			if numNotes > 1 {
 				notes = append(notes[:z], notes[z+1:]...)
+				numNotes--
 			} else {
 				notes = []ScheduledNote{}
+				numNotes = 0
 			}
 		}
 		/*
