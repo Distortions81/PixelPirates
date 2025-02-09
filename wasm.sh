@@ -20,3 +20,18 @@ if [ -f "${WASM_EXEC}" ]; then
 else
     echo "Error: wasm_exec.js not found in $(go env GOROOT)/misc/wasm. Please check your Go installation."
 fi
+
+# Check if gzip is available and compress the output files.
+if command -v gzip >/dev/null 2>&1; then
+    echo "Compressing ${OUTPUT} with gzip..."
+    gzip -k -f "${OUTPUT}"
+    echo "Compressed file created: ${OUTPUT}.gz"
+    
+    if [ -f "wasm_exec.js" ]; then
+        echo "Compressing wasm_exec.js with gzip..."
+        gzip -k -f "wasm_exec.js"
+        echo "Compressed file created: wasm_exec.js.gz"
+    fi
+else
+    echo "gzip command not found, skipping compression."
+fi

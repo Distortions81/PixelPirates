@@ -5,3 +5,5 @@ internalimages_*
 debug.txt
 dump/
 main.wasm
+main.wasm.gz
+wasm_exec.js.gz

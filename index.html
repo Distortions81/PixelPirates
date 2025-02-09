@@ -1,25 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ebiten WASM Game</title>
-    <script src="wasm_exec.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pixel Pirates</title>
+  <script src="wasm_exec.js"></script>
+  <!-- Include pako library for gzip decompression -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.0.4/pako.min.js"></script>
 </head>
 <body>
-    <h1>Ebiten WASM Game</h1>
-    <canvas id="gameCanvas"></canvas>
+  <h1>Loading...</h1>
+  <canvas id="gameCanvas"></canvas>
 
-    <script>
-        if (!WebAssembly) {
-            alert("Your browser does not support WebAssembly.");
-        } else {
-            const go = new Go(); // Defined in wasm_exec.js
+  <script>
+    if (!WebAssembly) {
+      alert("Your browser does not support WebAssembly.");
+    } else {
+      const go = new Go(); // Defined in wasm_exec.js
 
-            WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject)
-                .then(result => go.run(result.instance))
-                .catch(err => console.error("Error loading WASM:", err));
-        }
-    </script>
+      // Fetch the gzipped WebAssembly module.
+      fetch("main.wasm.gz")
+        .then(response => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok: " + response.statusText);
+          }
+          return response.arrayBuffer();
+        })
+        .then(buffer => {
+          // Convert the ArrayBuffer to a Uint8Array, then decompress using pako.
+          const compressedData = new Uint8Array(buffer);
+          const decompressedData = pako.ungzip(compressedData);
+          // Instantiate the decompressed WebAssembly module.
+          return WebAssembly.instantiate(decompressedData.buffer, go.importObject);
+        })
+        .then(result => {
+          go.run(result.instance);
+        })
+        .catch(err => console.error("Error loading WASM:", err));
+    }
+  </script>
 </body>
 </html>
