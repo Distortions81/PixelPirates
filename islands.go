@@ -161,12 +161,9 @@ func (g *Game) drawIsland(screen *ebiten.Image) {
 		dirName   string
 		playerImg *ebiten.Image
 	)
-	if faceDir < 0 {
+	if faceDir == DIR_NONE {
 		dirName = "idle"
 		lface := g.playerFacing
-		if lface < 0 {
-			lface = 4
-		}
 		playerImg = getAniFrame(int64(faceFix[lface]), g.defPlayerSP, 0)
 	} else {
 		dirName = fmt.Sprintf("%v move", moveFix[faceDir])
@@ -181,6 +178,6 @@ func (g *Game) drawIsland(screen *ebiten.Image) {
 }
 
 var (
-	moveFix [8]int = [8]int{12, 2, 3, 4, 6, 8, 9, 10}
-	faceFix [8]int = [8]int{4, 3, 2, 1, 0, 7, 6, 5}
+	moveFix [9]int = [9]int{12, 12, 2, 3, 4, 6, 8, 9, 10}
+	faceFix [9]int = [9]int{0, 4, 3, 2, 1, 0, 7, 6, 5}
 )

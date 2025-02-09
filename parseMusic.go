@@ -64,6 +64,7 @@ func playSong(g *Game, song *songData) {
 		if numNotes <= 1 {
 			break
 		}
+
 		time.Sleep(interval - time.Since(lastTime))
 		lastTime = time.Now()
 		deadCount := 0

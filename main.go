@@ -52,7 +52,7 @@ func main() {
 		value := true
 		ptr := &value
 		debugMode = ptr
-		nomusic = ptr
+		//nomusic = ptr
 	}
 
 	startLog()
@@ -77,6 +77,7 @@ func main() {
 	ebiten.SetVsyncEnabled(true)
 	ebiten.SetScreenClearedEveryFrame(false)
 	ebiten.SetFullscreen(*fullscreen)
+	ebiten.SetRunnableOnUnfocused(false)
 	ebiten.SetWindowTitle("Pixel Pirates")
 
 	loadSprites()
@@ -126,17 +127,18 @@ func newGame() *Game {
 	g.worldGradDirty = true
 
 	if *qisland {
-		g.visiting = &islands[0]
+		g.canVisit = &islands[0]
+		visitIsland(g)
 		g.gameMode = GAME_ISLAND
 	} else if *qtest {
 		g.gameMode = GAME_PLAY
 	}
 
 	if !wasmMode {
-		go func() {
+		go func(g *Game) {
 			time.Sleep(time.Second)
 			playMusicPlaylist(g, g.gameMode, gameModePlaylists[g.gameMode])
-		}()
+		}(g)
 	}
 
 	g.startFade(g.gameMode, time.Second*2, false, COLOR_BLACK, FADE_IN)

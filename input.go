@@ -20,7 +20,8 @@ const (
 )
 
 const (
-	DIR_NORTH = iota
+	DIR_NONE = iota
+	DIR_NORTH
 	DIR_NORTH_EAST
 	DIR_EAST
 	DIR_SOUTH_EAST
@@ -189,7 +190,7 @@ func directionFromCoords(x, y float64) int {
 	default:
 		// x == 0 && y == 0 → no movement
 		// or any unhandled case
-		return DIR_SOUTH //default south
+		return DIR_NONE //default south
 	}
 }
 
