@@ -9,8 +9,19 @@ export GOARCH=wasm
 OUTPUT="main.wasm"
 
 echo "Compiling for WebAssembly..."
-go build -o "${OUTPUT}" .
+# Strip debug information to reduce size
+go build -ldflags="-s -w" -o "${OUTPUT}" .
 echo "Compilation complete: ${OUTPUT} generated."
+
+# Optimize the WASM binary using wasm-opt if available.
+if command -v wasm-opt >/dev/null 2>&1; then
+    echo "Optimizing ${OUTPUT} with wasm-opt..."
+    # Attempt to enable bulk memory operations.
+    wasm-opt --enable-bulk-memory -Oz "${OUTPUT}" -o "${OUTPUT}"
+    echo "Optimization complete: ${OUTPUT} optimized."
+else
+    echo "wasm-opt not found, skipping WASM optimization."
+fi
 
 # Locate wasm_exec.js in your Go installation and copy it.
 WASM_EXEC="$(go env GOROOT)/misc/wasm/wasm_exec.js"

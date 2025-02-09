@@ -18,7 +18,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-//go:embed data
+//go:embed data/sprites/boats data/sprites/characters data/sprites/islands data/sprites/title data/sprites/world
 
 var efs embed.FS
 
