@@ -24,7 +24,7 @@ func playMusicPlaylist(g *Game, gameMode int, songList []songData) {
 		return
 	}
 	for {
-		time.Sleep(time.Second)
+		time.Sleep(time.Millisecond * 500)
 
 		for _, song := range songList {
 			if g.gameMode != gameMode {

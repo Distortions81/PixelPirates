@@ -11,7 +11,7 @@ import (
 
 const (
 	noiseSmoothing = 7
-	maxVolume      = 0.7
+	maxVolume      = 0.5
 )
 
 func generateNoise(duration time.Duration) audioData {
