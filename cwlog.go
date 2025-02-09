@@ -59,7 +59,8 @@ func doLog(withTrace, debug bool, format string, args ...interface{}) {
 		buf = fmt.Sprintf("%v: %v\n", date, text)
 	}
 
-	fmt.Print(buf)
+	short := fmt.Sprintf(format, args...)
+	fmt.Print(short)
 
 	if !logData.logReady || logData.logDesc == nil {
 		return
