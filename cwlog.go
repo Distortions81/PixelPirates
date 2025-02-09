@@ -60,7 +60,7 @@ func doLog(withTrace, debug bool, format string, args ...interface{}) {
 	}
 
 	short := fmt.Sprintf(format, args...)
-	fmt.Print(short)
+	fmt.Println(short)
 
 	if !logData.logReady || logData.logDesc == nil {
 		return
