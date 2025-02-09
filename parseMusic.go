@@ -37,7 +37,7 @@ func playMusicPlaylist(g *Game, gameMode int, songList []songData) {
 	}
 }
 
-const interval = time.Millisecond * (1000 / 16)
+const interval = time.Millisecond * (1000 / 32)
 
 func playSong(g *Game, song *songData) {
 	// 3) "Play" them in order
