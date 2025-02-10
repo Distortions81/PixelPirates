@@ -82,16 +82,6 @@ func main() {
 
 	loadSprites()
 
-	if *qlive {
-		go func() {
-			for {
-				loadSprites()
-				time.Sleep(time.Second * 1)
-				doLog(true, true, "Reloading textures.")
-			}
-		}()
-	}
-
 	if err := ebiten.RunGameWithOptions(newGame(), &ebiten.RunGameOptions{GraphicsLibrary: ebiten.GraphicsLibraryOpenGL}); err != nil {
 		return
 	}
@@ -120,6 +110,16 @@ func newGame() *Game {
 	initNoise(g)
 	initSprites(g)
 	initIslands(g)
+
+	if *qlive {
+		go func() {
+			for {
+				loadSprite("island-scene1", islands[0].visitSprite, true)
+				time.Sleep(time.Second * 1)
+				doLog(true, true, "Reloading textures.")
+			}
+		}()
+	}
 
 	g.audioContext = audio.NewContext(sampleRate)
 	g.cloudChunks = map[int]*cloudData{}

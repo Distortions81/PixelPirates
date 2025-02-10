@@ -34,7 +34,6 @@ func initSprites(g *Game) {
 }
 
 func loadSprites() {
-
 	for name, sprite := range spriteList {
 		loadSprite(name, sprite, false)
 	}
