@@ -177,6 +177,7 @@ func (g *Game) drawIsland(screen *ebiten.Image) {
 	}
 }
 
+// TODO: Update sprite tags instead,
 var (
 	moveFix [9]int = [9]int{12, 12, 2, 3, 4, 6, 8, 9, 10}
 	faceFix [9]int = [9]int{0, 4, 3, 2, 1, 0, 7, 6, 5}
