@@ -2,6 +2,9 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"path"
+	"strings"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -22,6 +25,7 @@ type islandData struct {
 
 	sprite      *spriteItem
 	visitSprite *spriteItem
+	objects     []*spriteItem
 }
 
 type islandChunkData struct {
@@ -36,8 +40,7 @@ var islands []islandData = []islandData{
 func visitIsland(g *Game) {
 	g.visiting = g.canVisit
 
-	loadSprite(g.visiting.visitName, g.visiting.visitSprite, true)
-	g.visiting.visitSprite = spriteList[g.visiting.visitName]
+	loadSprite(islandsDir+g.visiting.visitName+"/"+g.visiting.visitName, g.visiting.visitSprite, true)
 
 	if g.visiting.spawn.X == 0 && g.visiting.spawn.Y == 0 {
 		bounds := g.visiting.visitSprite.image.Bounds()
@@ -56,12 +59,33 @@ func initIslands(g *Game) {
 	g.islandChunks = map[int]*islandChunkData{}
 
 	for i, island := range islands {
+		fPath := islandsDir + island.visitName + "/"
 		islandChunkPos := island.pos / islandChunkSize
 		if g.islandChunks[islandChunkPos] == nil {
 			g.islandChunks[islandChunkPos] = &islandChunkData{}
+			islandDir, err := os.ReadDir(dataDir + spritesDir + fPath)
+			if err != nil {
+				doLog(true, false, "initIslands: readSprites: %v", err.Error())
+				return
+			}
+			islands[i].visitSprite = &spriteItem{}
+			islands[i].sprite = &spriteItem{doReflect: true}
+			for _, item := range islandDir {
+
+				if strings.HasSuffix(item.Name(), ".png") {
+					fileName := path.Base(item.Name())
+					trimName := strings.TrimSuffix(fileName, ".png")
+
+					if strings.EqualFold(trimName, island.visitName) {
+						loadSprite(fPath+trimName, islands[i].visitSprite, true)
+					} else {
+						newSprite := &spriteItem{}
+						loadSprite(fPath+trimName, newSprite, false)
+						islands[i].objects = append(islands[i].objects, newSprite)
+					}
+				}
+			}
 		}
-		islands[i].sprite = spriteList[island.spriteName]
-		islands[i].visitSprite = spriteList[island.visitName]
 
 		doLog(true, true, "Storing island: #%v '%v' in block %v.", i+1, island.name, islandChunkPos)
 
@@ -78,7 +102,7 @@ func drawIslands(g *Game, screen *ebiten.Image) {
 
 	for i, island := range islands {
 		if island.sprite.image == nil {
-			loadSprite(island.spriteName, island.sprite, true)
+			loadSprite(islandsDir+island.visitName+"/"+island.spriteName, island.sprite, true)
 		}
 		islandPosX := -(paralaxPos + float64(-island.pos))
 		islandPosY := dWinHeightHalf - float64(island.sprite.image.Bounds().Dy()) + islandY

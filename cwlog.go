@@ -25,13 +25,13 @@ type logDataStruct struct {
  * Log this, can use printf arguments
  * Write to buffer, async write
  */
-func doLog(withTrace, debug bool, format string, args ...interface{}) {
+func doLog(withTrace, verbose bool, format string, args ...interface{}) {
 
 	if wasmMode {
 		return
 	}
 
-	if !*debugMode && debug {
+	if !*debugMode && verbose {
 		return
 	}
 

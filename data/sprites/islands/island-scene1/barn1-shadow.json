@@ -1,0 +1,26 @@
+{ "frames": {
+   "island-scene1 (Shadows).aseprite": {
+    "frame": { "x": 0, "y": 0, "w": 214, "h": 138 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 160, "y": 622, "w": 214, "h": 138 },
+    "sourceSize": { "w": 1600, "h": 900 },
+    "duration": 100
+   }
+ },
+ "meta": {
+  "app": "http://www.aseprite.org/",
+  "version": "1.3.12-x64",
+  "image": "barn1-shadow.png",
+  "format": "RGBA8888",
+  "size": { "w": 214, "h": 138 },
+  "scale": "1",
+  "frameTags": [
+  ],
+  "layers": [
+   { "name": "Shadows", "opacity": 130, "blendMode": "normal" }
+  ],
+  "slices": [
+  ]
+ }
+}

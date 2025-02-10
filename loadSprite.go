@@ -8,7 +8,6 @@ import (
 	"image/png"
 	"io"
 	"io/fs"
-	"log"
 	"os"
 	"regexp"
 	"sort"
@@ -32,9 +31,9 @@ func loadImage(name string, unmanaged bool, doBlur bool) (*ebiten.Image, *ebiten
 	)
 
 	if wasmMode {
-		pngData, err = efs.Open(spritesDir + name + ".png")
+		pngData, err = efs.Open(name + ".png")
 	} else {
-		pngData, err = os.Open(spritesDir + name + ".png")
+		pngData, err = os.Open(name + ".png")
 	}
 	if err != nil {
 		doLog(true, false, "loadSprite: Open: %v", err)
@@ -74,7 +73,7 @@ func loadImage(name string, unmanaged bool, doBlur bool) (*ebiten.Image, *ebiten
 
 func loadAnimationData(name string) (*animationData, error) {
 	if wasmMode {
-		jdata, err := efs.Open(spritesDir + name + ".json")
+		jdata, err := efs.Open(dataDir + spritesDir + name + ".json")
 		if err != nil {
 			return nil, err
 		}
@@ -92,7 +91,7 @@ func loadAnimationData(name string) (*animationData, error) {
 
 		return &aniJSON, nil
 	} else {
-		buf, err := os.ReadFile(spritesDir + name + ".json")
+		buf, err := os.ReadFile(dataDir + spritesDir + name + ".json")
 		if err != nil {
 			return nil, err
 		}
@@ -132,7 +131,8 @@ func decodeAniJSON(data []byte) (animationData, error) {
 	// Extract and sort frame names based on the numerical part.
 	sorted, err := getSortedFrameNames(root.Frames)
 	if err != nil {
-		log.Fatalf("Error sorting frame names: %v", err)
+		doLog(true, false, "Error sorting frame names: %v", err)
+		return animationData{}, err
 	}
 	root.sortedFrames = sorted
 	root.numFrames = int64(len(sorted))

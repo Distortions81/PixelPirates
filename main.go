@@ -20,8 +20,8 @@ const (
 	sampleRate            = 48000
 
 	dataDir    = "data/"
-	spritesDir = dataDir + "sprites/"
-	txtDir     = dataDir + "txt/"
+	spritesDir = "sprites/"
+	islandsDir = "islands/"
 )
 
 var (
@@ -111,15 +111,17 @@ func newGame() *Game {
 	initSprites(g)
 	initIslands(g)
 
-	if *qlive {
-		go func() {
-			for {
-				loadSprite("island-scene1", islands[0].visitSprite, true)
-				time.Sleep(time.Second * 1)
-				doLog(true, true, "Reloading textures.")
-			}
-		}()
-	}
+	/*
+		if *qlive {
+			go func() {
+				for {
+					loadSprite(islandsDir+"island-scene1/island-scene1", islands[0].visitSprite, true)
+					time.Sleep(time.Second * 1)
+					doLog(true, true, "Reloading textures.")
+				}
+			}()
+		}
+	*/
 
 	g.audioContext = audio.NewContext(sampleRate)
 	g.cloudChunks = map[int]*cloudData{}

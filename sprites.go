@@ -21,7 +21,6 @@ var spriteList map[string]*spriteItem = map[string]*spriteItem{
 	"boat2":   {Path: "boats/"},
 
 	//Islands
-	"island-scene1":  {Path: "islands/", onDemand: true, unmanged: true},
 	"default-player": {Path: "characters/", onDemand: true},
 }
 
@@ -47,8 +46,8 @@ func loadSprite(name string, sprite *spriteItem, demanded bool) {
 		unmanaged := false
 
 		aniData, err := loadAnimationData(sprite.Path + name)
-		if err == nil {
-			spriteList[name].animation = aniData
+		if err == nil && aniData != nil {
+			sprite.animation = aniData
 			//Don't put atlases on the main atlas
 			unmanaged = true
 		}
@@ -56,13 +55,16 @@ func loadSprite(name string, sprite *spriteItem, demanded bool) {
 			unmanaged = true
 		}
 
-		image, blurImg, err = loadImage(sprite.Path+name, unmanaged, sprite.doReflect)
+		image, blurImg, err = loadImage(dataDir+spritesDir+sprite.Path+name, unmanaged, sprite.doReflect)
+		if err != nil {
+			doLog(true, false, "loadImage Failed: %v", err)
+			return
+		}
 		doLog(true, true, "loading sprite '"+name+"'")
 	}
-	if err == nil {
-		spriteList[name].image = image
-		spriteList[name].blurred = blurImg
-		spriteList[name].Name = name
+	if err == nil && image != nil {
+		sprite.image = image
+		sprite.blurred = blurImg
 	} else {
 		doLog(true, false, "loading sprite '"+name+"' failed.")
 	}
