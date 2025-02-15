@@ -5,8 +5,6 @@ import (
 	"math"
 	"math/rand/v2"
 	"time"
-
-	"github.com/hajimehoshi/ebiten/v2"
 )
 
 const (
@@ -127,10 +125,6 @@ func generateWave(freq float64, duration time.Duration, waveform int) audioData 
 }
 
 func playWave(g *Game, music bool, wave audioData) {
-	if !ebiten.IsFocused() {
-		return
-	}
-
 	soundData := make([]byte, len(wave)*4)
 
 	for i, s := range wave {

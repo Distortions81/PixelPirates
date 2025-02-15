@@ -85,7 +85,7 @@ func loadAnimationData(name string) (*animationData, error) {
 
 		aniJSON, err := decodeAniJSON(buf)
 		if err != nil {
-			doLog(true, false, "loadAnimationData: Embedded: %v", err)
+			//doLog(true, false, "loadAnimationData: Embedded: %v", err)
 			return nil, err
 		}
 
@@ -98,7 +98,7 @@ func loadAnimationData(name string) (*animationData, error) {
 
 		aniJSON, err := decodeAniJSON(buf)
 		if err != nil {
-			doLog(true, false, "loadAnimationData: Embedded: %v", err)
+			//doLog(true, false, "loadAnimationData: Embedded: %v", err)
 			return nil, err
 		}
 
@@ -123,7 +123,7 @@ func decodeAniJSON(data []byte) (animationData, error) {
 			continue
 		}
 		if *debugMode {
-			//doLog(true, true, "Animation: %v, %v->%v", item.Name, item.From, item.To)
+			doLog(true, true, "Animation: %v, %v->%v", item.Name, item.From, item.To)
 		}
 		root.animations[item.Name] = frameRange{start: item.From, end: item.To}
 	}
@@ -131,7 +131,7 @@ func decodeAniJSON(data []byte) (animationData, error) {
 	// Extract and sort frame names based on the numerical part.
 	sorted, err := getSortedFrameNames(root.Frames)
 	if err != nil {
-		doLog(true, false, "Error sorting frame names: %v", err)
+		//doLog(true, false, "Error sorting frame names: %v", err)
 		return animationData{}, err
 	}
 	root.sortedFrames = sorted

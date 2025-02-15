@@ -1,0 +1,26 @@
+{ "frames": {
+   "island-scene1 (Water).aseprite": {
+    "frame": { "x": 0, "y": 0, "w": 1571, "h": 132 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 12, "y": 768, "w": 1571, "h": 132 },
+    "sourceSize": { "w": 1600, "h": 900 },
+    "duration": 100
+   }
+ },
+ "meta": {
+  "app": "http://www.aseprite.org/",
+  "version": "1.3.12-x64",
+  "image": "shore.png",
+  "format": "RGBA8888",
+  "size": { "w": 1571, "h": 132 },
+  "scale": "1",
+  "frameTags": [
+  ],
+  "layers": [
+   { "name": "Water", "opacity": 255, "blendMode": "normal" }
+  ],
+  "slices": [
+  ]
+ }
+}

@@ -77,7 +77,7 @@ func main() {
 	ebiten.SetVsyncEnabled(true)
 	ebiten.SetScreenClearedEveryFrame(false)
 	ebiten.SetFullscreen(*fullscreen)
-	ebiten.SetRunnableOnUnfocused(false)
+	ebiten.SetRunnableOnUnfocused(true)
 	ebiten.SetWindowTitle("Pixel Pirates")
 
 	loadSprites()

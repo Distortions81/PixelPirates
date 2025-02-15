@@ -20,7 +20,6 @@ var spriteList map[string]*spriteItem = map[string]*spriteItem{
 	"island1": {Path: "world/", doReflect: true, onDemand: true},
 	"boat2":   {Path: "boats/"},
 
-	//Islands
 	"default-player": {Path: "characters/", onDemand: true},
 }
 
@@ -34,6 +33,9 @@ func initSprites(g *Game) {
 
 func loadSprites() {
 	for name, sprite := range spriteList {
+		if sprite.onDemand {
+			continue
+		}
 		loadSprite(name, sprite, false)
 	}
 }
