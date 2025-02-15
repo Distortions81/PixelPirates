@@ -85,7 +85,7 @@ func loadAnimationData(name string) (*animationData, error) {
 
 		aniJSON, err := decodeAniJSON(buf)
 		if err != nil {
-			//doLog(true, false, "loadAnimationData: Embedded: %v", err)
+			doLog(true, false, "loadAnimationData: Embedded: %v", err)
 			return nil, err
 		}
 
@@ -98,7 +98,7 @@ func loadAnimationData(name string) (*animationData, error) {
 
 		aniJSON, err := decodeAniJSON(buf)
 		if err != nil {
-			//doLog(true, false, "loadAnimationData: Embedded: %v", err)
+			doLog(true, false, "loadAnimationData: Embedded: %v", err)
 			return nil, err
 		}
 
@@ -130,29 +130,34 @@ func decodeAniJSON(data []byte) (animationData, error) {
 
 	// Extract and sort frame names based on the numerical part.
 	sorted, err := getSortedFrameNames(root.Frames)
+
 	if err != nil {
-		//doLog(true, false, "Error sorting frame names: %v", err)
-		return animationData{}, err
+		root.numFrames = 0
+		for name, _ := range root.Frames {
+			root.sortedFrames = append(root.sortedFrames, name)
+			root.numFrames++
+		}
+	} else {
+		root.sortedFrames = sorted
+		root.numFrames = int64(len(sorted))
 	}
-	root.sortedFrames = sorted
-	root.numFrames = int64(len(sorted))
 
 	doLog(true, true, "Decoded animation for: %v", root.Meta.Image)
 	if *debugMode {
-		/*
-			fmt.Println("Frames:")
-			for _, fKey := range root.sortedFrames {
-				frameData := root.Frames[fKey]
-				doLog(true, "Frame Name: %s", fKey)
-				doLog(true, "  Position: (%d, %d)", frameData.Frame.X, frameData.Frame.Y)
-				doLog(true, "  Size: %dx%d", frameData.Frame.W, frameData.Frame.H)
-				doLog(true, "  Rotated: %t", frameData.Rotated)
-				doLog(true, "  Trimmed: %t", frameData.Trimmed)
-				doLog(true, "  Sprite Source Size: (%d, %d, %dx%d)", frameData.SpriteSourceSize.X, frameData.SpriteSourceSize.Y, frameData.SpriteSourceSize.W, frameData.SpriteSourceSize.H)
-				doLog(true, "  Source Size: %dx%d", frameData.SourceSize.W, frameData.SourceSize.H)
-				doLog(true, "  Duration: %dms", frameData.Duration)
-				fmt.Println()
-			} */
+
+		fmt.Println("Frames:")
+		for _, fKey := range root.sortedFrames {
+			frameData := root.Frames[fKey]
+			doLog(true, false, "Frame Name: %s", fKey)
+			doLog(true, false, "  Position: (%d, %d)", frameData.Frame.X, frameData.Frame.Y)
+			doLog(true, false, "  Size: %dx%d", frameData.Frame.W, frameData.Frame.H)
+			doLog(true, false, "  Rotated: %t", frameData.Rotated)
+			doLog(true, false, "  Trimmed: %t", frameData.Trimmed)
+			doLog(true, false, "  Sprite Source Size: (%d, %d, %dx%d)", frameData.SpriteSourceSize.X, frameData.SpriteSourceSize.Y, frameData.SpriteSourceSize.W, frameData.SpriteSourceSize.H)
+			doLog(true, false, "  Source Size: %dx%d", frameData.SourceSize.W, frameData.SourceSize.H)
+			doLog(true, false, "  Duration: %dms", frameData.Duration)
+			fmt.Println()
+		}
 	}
 
 	return root, nil

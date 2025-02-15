@@ -76,7 +76,8 @@ func initIslands(g *Game) {
 					fileName := path.Base(item.Name())
 					trimName := strings.TrimSuffix(fileName, ".png")
 
-					if strings.EqualFold(trimName, island.visitName) {
+					if strings.EqualFold(trimName, island.spriteName) {
+					} else if strings.EqualFold(trimName, island.visitName) {
 						loadSprite(fPath+trimName, islands[i].visitSprite, true)
 					} else {
 						newSprite := &spriteItem{}
@@ -195,10 +196,16 @@ func (g *Game) drawIsland(screen *ebiten.Image) {
 	}
 	screen.DrawImage(playerImg, op)
 
-	if *debugMode {
-		buf := fmt.Sprintf("Test Island scene, E to Exit. %0.0f,%0.0f", g.playPos.X, g.playPos.Y)
-		ebitenutil.DebugPrint(screen, buf)
+	for _, obj := range g.visiting.objects {
+		op := &ebiten.DrawImageOptions{}
+		name := obj.animation.sortedFrames[0]
+		frame := obj.animation.Frames[name]
+		op.GeoM.Translate(float64(frame.SpriteSourceSize.X-int(g.playPos.X)), float64(frame.SpriteSourceSize.Y-int(g.playPos.Y)))
+		screen.DrawImage(obj.image, op)
 	}
+
+	buf := fmt.Sprintf("Test Island scene, E to Exit. %0.0f,%0.0f", g.playPos.X, g.playPos.Y)
+	ebitenutil.DebugPrint(screen, buf)
 }
 
 // TODO: Update sprite tags instead,
