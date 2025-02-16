@@ -53,31 +53,15 @@ func BresenhamLine(a, b iPoint) []iPoint {
 func checkPixelCollision(g *Game) fPoint {
 
 	var prev iPoint = g.oldPlayPos.QuantizePoint()
-
-	visiting := g.visiting
-	img := getAniFrame(0, g.defPlayerSP, 0)
-	if img == nil || visiting == nil {
-		return fPoint{X: float64(prev.X), Y: float64(prev.Y)}
-	}
-	width := img.Bounds().Dx()
-	height := img.Bounds().Dy()
-
 	//Check all pixels in source to destination
 	points := BresenhamLine(g.oldPlayPos.QuantizePoint(), g.playPos.QuantizePoint())
 	points = SortLinePoints(points, g.oldPlayPos.QuantizePoint(), g.playPos.QuantizePoint())
 
+	//Only search pixels around the feet that collide
 	for _, p := range points {
-		for y := 0; y < height; y++ {
-			for x := 0; x < width; x++ {
-				img := img.At(x, y)
-				_, _, _, alpha := img.RGBA()
-				if alpha < 255 {
-					continue
-				}
-
-				if g.visiting.collision[iPoint{X: dWinWidthHalf - (width / 2) + int(p.X) + x, Y: dWinHeightHalf - (height / 2) + int(p.Y) + y}] {
-					return fPoint{X: float64(prev.X), Y: float64(prev.Y)}
-				}
+		for _, pixel := range g.defCollision.collision {
+			if g.visiting.collision[iPoint{X: dWinWidthHalf - (pWidth / 2) + int(p.X) + pixel.X, Y: dWinHeightHalf - (pHeight / 2) + int(p.Y) + pixel.Y}] {
+				return fPoint{X: float64(prev.X), Y: float64(prev.Y)}
 			}
 		}
 		prev = p

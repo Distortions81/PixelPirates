@@ -8,6 +8,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+var pWidth, pHeight int
+
 // For some currently hardcoded sprites
 // Sprites with an animation json auto load as unmanged
 var spriteList map[string]*spriteItem = map[string]*spriteItem{
@@ -20,7 +22,8 @@ var spriteList map[string]*spriteItem = map[string]*spriteItem{
 	"island1": {Path: "world/", doReflect: true, onDemand: true},
 	"boat2":   {Path: "boats/"},
 
-	"default-player": {Path: "characters/", onDemand: true},
+	"default-player":           {Path: "characters/", onDemand: true},
+	"default-player-collision": {Path: "characters/"},
 }
 
 func initSprites(g *Game) {
@@ -29,6 +32,7 @@ func initSprites(g *Game) {
 
 	g.sunSP = spriteList["sun"]
 	g.boat2SP = spriteList["boat2"]
+	g.defCollision = spriteList["default-player-collision"]
 }
 
 func loadSprites() {
@@ -80,6 +84,7 @@ type spriteItem struct {
 	doReflect      bool
 	onDemand       bool
 	unmanged       bool
+	collision      []iPoint
 
 	animation *animationData
 }

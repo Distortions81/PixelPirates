@@ -69,7 +69,7 @@ type Game struct {
 	worldGradDirty bool
 
 	//Hardcoded sprites
-	defPlayerSP, boat2SP, sunSP, titleSP, clickStartSP *spriteItem
+	defPlayerSP, defCollision, boat2SP, sunSP, titleSP, clickStartSP *spriteItem
 }
 
 type colorData struct {

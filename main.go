@@ -159,7 +159,14 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	g.frameNumber++
 	startTime := time.Now()
 
+	//Operations that can only happen after game start
 	if g.frameNumber == 1 {
+		//Save player size
+		img := getAniFrame(0, g.defPlayerSP, 0)
+		pWidth = img.Bounds().Dx()
+		pHeight = img.Bounds().Dy()
+
+		savePlayerCollisionList()
 		makeCollisionMaps()
 	}
 
@@ -199,6 +206,19 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 func (point fPoint) QuantizePoint() iPoint {
 	return iPoint{X: int(point.X), Y: int(point.Y)}
+}
+
+func savePlayerCollisionList() {
+	for x := 0; x < g.defCollision.image.Bounds().Dx(); x++ {
+		for y := 0; y < g.defCollision.image.Bounds().Dy(); y++ {
+			img := g.defCollision.image.At(x, y)
+			_, _, _, alpha := img.RGBA()
+			if alpha > 254 {
+				g.defCollision.collision = append(g.defCollision.collision,
+					iPoint{X: x, Y: y})
+			}
+		}
+	}
 }
 
 func SortLinePoints(points []iPoint, a, b iPoint) []iPoint {
