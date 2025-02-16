@@ -44,6 +44,9 @@ var islands []islandData = []islandData{
 }
 
 func visitIsland(g *Game) {
+	if g.canVisit == nil {
+		return
+	}
 	g.visiting = g.canVisit
 
 	loadSprite(islandsDir+g.visiting.visitName+"/"+g.visiting.visitName, g.visiting.visitSprite, true)
