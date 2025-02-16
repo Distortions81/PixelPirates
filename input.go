@@ -135,7 +135,7 @@ func (g *Game) Update() error {
 		blank := fPoint{}
 		if stopPos := checkPixelCollision(g); stopPos != blank {
 			g.playPos = stopPos
-			doLog(true, false, "World collision: %v,%v", int(g.playPos.X), int(g.playPos.Y))
+			//doLog(true, false, "World collision: %v,%v", int(g.playPos.X), int(g.playPos.Y))
 		}
 		face := directionFromCoords(oldPos.X-g.playPos.X, oldPos.Y-g.playPos.Y)
 		if face >= 0 {

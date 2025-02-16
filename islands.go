@@ -224,10 +224,12 @@ func (g *Game) drawIsland(screen *ebiten.Image) {
 			float64(frame.SpriteSourceSize.X-int(g.playPos.X)),
 			float64(frame.SpriteSourceSize.Y-int(g.playPos.Y))+offsety)
 
-		if *debugMode {
-			if strings.Contains(obj.Name, "collision") ||
-				strings.Contains(obj.Name, "spawn") {
+		if strings.Contains(obj.Name, "collision") ||
+			strings.Contains(obj.Name, "spawn") {
+			if *debugMode {
 				op.ColorScale.ScaleAlpha(0.15)
+			} else {
+				continue
 			}
 		}
 		screen.DrawImage(obj.image, op)
