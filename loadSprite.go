@@ -144,7 +144,6 @@ func decodeAniJSON(data []byte) (animationData, error) {
 
 	doLog(true, true, "Decoded animation for: %v", root.Meta.Image)
 	if *debugMode {
-
 		fmt.Println("Frames:")
 		for _, fKey := range root.sortedFrames {
 			frameData := root.Frames[fKey]
@@ -153,8 +152,11 @@ func decodeAniJSON(data []byte) (animationData, error) {
 			doLog(true, false, "  Size: %dx%d", frameData.Frame.W, frameData.Frame.H)
 			doLog(true, false, "  Rotated: %t", frameData.Rotated)
 			doLog(true, false, "  Trimmed: %t", frameData.Trimmed)
-			doLog(true, false, "  Sprite Source Size: (%d, %d, %dx%d)", frameData.SpriteSourceSize.X, frameData.SpriteSourceSize.Y, frameData.SpriteSourceSize.W, frameData.SpriteSourceSize.H)
-			doLog(true, false, "  Source Size: %dx%d", frameData.SourceSize.W, frameData.SourceSize.H)
+			doLog(true, false, "  Sprite Source Size: (%d, %d, %dx%d)",
+				frameData.SpriteSourceSize.X, frameData.SpriteSourceSize.Y,
+				frameData.SpriteSourceSize.W, frameData.SpriteSourceSize.H)
+			doLog(true, false, "  Source Size: %dx%d",
+				frameData.SourceSize.W, frameData.SourceSize.H)
 			doLog(true, false, "  Duration: %dms", frameData.Duration)
 			fmt.Println()
 		}

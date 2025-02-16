@@ -42,17 +42,22 @@ func visitIsland(g *Game) {
 
 	loadSprite(islandsDir+g.visiting.visitName+"/"+g.visiting.visitName, g.visiting.visitSprite, true)
 
-	if g.visiting.spawn.X == 0 && g.visiting.spawn.Y == 0 {
-		bounds := g.visiting.visitSprite.image.Bounds()
-		g.visiting.spawn = fPoint{X: float64(bounds.Dx()) / 2, Y: float64(bounds.Dy())}
-	}
-
 	//Dynamically load player animations if needed.
 	sp := spriteList["default-player"]
 	loadSprite("default-player", sp, true)
 	g.defPlayerSP = sp
 
-	g.playPos = g.canVisit.spawn
+	fixPos := g.visiting.spawn
+	frameRange := sp.animation.animations["idle"]
+	name := sp.animation.sortedFrames[frameRange.start]
+	frame := g.defPlayerSP.animation.Frames[name]
+
+	fixPos.X -= (dWinWidth / 2)
+	fixPos.Y -= (dWinHeight / 2)
+
+	fixPos.X += float64(frame.SpriteSourceSize.W / 2)
+	fixPos.Y += float64(frame.SpriteSourceSize.H / 2)
+	g.playPos = fixPos
 }
 
 func initIslands(g *Game) {
@@ -80,7 +85,7 @@ func initIslands(g *Game) {
 					} else if strings.EqualFold(trimName, island.visitName) {
 						loadSprite(fPath+trimName, islands[i].visitSprite, true)
 					} else {
-						newSprite := &spriteItem{}
+						newSprite := &spriteItem{Name: trimName}
 						loadSprite(fPath+trimName, newSprite, false)
 						islands[i].objects = append(islands[i].objects, newSprite)
 					}
@@ -88,6 +93,16 @@ func initIslands(g *Game) {
 			}
 		}
 
+		for _, item := range islands[i].objects {
+			if strings.Contains(item.Name, "spawn") {
+				name := item.animation.sortedFrames[0]
+				frame := item.animation.Frames[name]
+				newSpawn := fPoint{X: float64(frame.SpriteSourceSize.X), Y: float64(frame.SpriteSourceSize.Y)}
+				islands[i].spawn = newSpawn
+				doLog(true, false, "Found Spawn for: %v at %v,%v", island.name, newSpawn.X, newSpawn.Y)
+				break
+			}
+		}
 		doLog(true, true, "Storing island: #%v '%v' in block %v.", i+1, island.name, islandChunkPos)
 
 		g.islandChunks[islandChunkPos].islands = append(g.islandChunks[islandChunkPos].islands, islands[i])
@@ -200,7 +215,14 @@ func (g *Game) drawIsland(screen *ebiten.Image) {
 		op := &ebiten.DrawImageOptions{}
 		name := obj.animation.sortedFrames[0]
 		frame := obj.animation.Frames[name]
-		op.GeoM.Translate(float64(frame.SpriteSourceSize.X-int(g.playPos.X)), float64(frame.SpriteSourceSize.Y-int(g.playPos.Y)))
+
+		if strings.Contains(obj.Name, "collision") ||
+			strings.Contains(obj.Name, "spawn") {
+			continue
+		}
+		op.GeoM.Translate(
+			float64(frame.SpriteSourceSize.X-int(g.playPos.X)),
+			float64(frame.SpriteSourceSize.Y-int(g.playPos.Y)))
 		screen.DrawImage(obj.image, op)
 	}
 
