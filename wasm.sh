@@ -4,25 +4,28 @@
 export GOOS=js
 export GOARCH=wasm
 
-rm *.wasm *.gz
+rm *.wasm *.gz *.opt
 
 # Source file and output name (adjust if needed)
 OUTPUT="main.wasm"
+OUTPUTOPT="main.wasm.opt"
 
 echo "Compiling for WebAssembly..."
 # Strip debug information to reduce size
-go build -ldflags="-s -w" -o "${OUTPUT}" .
+GOOS=js GOARCH=wasm go build -o ${OUTPUT} -ldflags="-s -w" -gcflags="-trimpath=${PWD}" -trimpath . 
 echo "Compilation complete: ${OUTPUT} generated."
 
 # Optimize the WASM binary using wasm-opt if available.
-#if command -v wasm-opt >/dev/null 2>&1; then
-#    echo "Optimizing ${OUTPUT} with wasm-opt..."
-#    # Attempt to enable bulk memory operations.
-#    wasm-opt --enable-bulk-memory -O3 "${OUTPUT}" -o "${OUTPUT}"
-#    echo "Optimization complete: ${OUTPUT} optimized."
-#else
-#    echo "wasm-opt not found, skipping WASM optimization."
-#fi
+if command -v wasm-opt >/dev/null 2>&1; then
+    echo "Optimizing ${OUTPUT} with wasm-opt..."
+    # Attempt to enable bulk memory operations.
+    wasm-opt --enable-bulk-memory -O4 "${OUTPUT}" -o "${OUTPUTOPT}"
+    echo "Optimization complete: ${OUTPUT} optimized."
+    rm ${OUTPUT}
+    mv ${OUTPUTOPT} ${OUTPUT}
+else
+    echo "wasm-opt not found, skipping WASM optimization."
+fi
 
 # Locate wasm_exec.js in your Go installation and copy it.
 WASM_EXEC="$(go env GOROOT)/misc/wasm/wasm_exec.js"
@@ -34,7 +37,7 @@ else
 fi
 
 # Check if gzip is available and compress the output files.
-if command -v gzip -9 >/dev/null 2>&1; then
+if command -v gzip -1 >/dev/null 2>&1; then
     echo "Compressing ${OUTPUT} with gzip..."
     gzip -k -f "${OUTPUT}"
     echo "Compressed file created: ${OUTPUT}.gz"
@@ -42,4 +45,4 @@ else
     echo "gzip command not found, skipping compression."
 fi
 
-rm *.wasm
+rm *.wasm *.opt
