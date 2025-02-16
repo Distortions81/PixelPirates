@@ -26,9 +26,8 @@ const (
 )
 
 var (
-	wasmMode                                  bool
-	nomusic, qtest, qlive, qisland, debugMode *bool
-	fullscreen                                *bool
+	wasmMode                                              bool
+	qtest, qisland, qlive, nomusic, debugMode, fullscreen *bool
 )
 
 func isWasm() bool {
@@ -37,34 +36,33 @@ func isWasm() bool {
 }
 
 func main() {
-	dump := flag.Bool("dumpMusic", false, "Dump songs out as WAV and quit.")
 	qtest = flag.Bool("qtest", false, "skip title screen")
 	qisland = flag.Bool("qisland", false, "go directly to welcome island")
 	qlive = flag.Bool("qlive", false, "live reload textures (slow)")
 	nomusic = flag.Bool("nomusic", false, "disable music")
 	debugMode = flag.Bool("debug", false, "debug info")
-
 	fullscreen := flag.Bool("fullscreen", false, "fullscreen mode.")
 	flag.Parse()
 
 	if isWasm() {
 		wasmMode = true
 
-		value := true
-		ptr := &value
-		debugMode = ptr
-		//nomusic = ptr
+		tvalue := true
+		tptr := &tvalue
+		fvalue := false
+		fptr := &fvalue
+
+		qtest = fptr
+		qisland = fptr
+		nomusic = tptr
+		debugMode = fptr
+		fullscreen = fptr
 	}
 
 	startLog()
 	logDaemon()
 	doLog(true, true, "Game res: %v,%v (%vx) : (%v, %v)", dWinWidth, dWinHeight, magScale, dWinWidth*magScale, dWinHeight*magScale)
 
-	if *dump {
-		//dumpMusic()
-		fmt.Println("Music dump complete.")
-		return
-	}
 	/*
 		go func() {
 			http.ListenAndServe("localhost:6060", nil)
@@ -161,8 +159,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	//Operations that can only happen after game start
 	if g.frameNumber == 1 {
-
 		visitIsland(g)
+		return
 	}
 
 	switch g.gameMode {

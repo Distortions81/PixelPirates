@@ -13,7 +13,6 @@ func init() {
 			count++
 		}
 	}
-	fmt.Printf("Parsed %v songs.\n", count)
 }
 
 var (

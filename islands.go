@@ -82,11 +82,17 @@ func initIslands(g *Game) {
 	g.islandChunks = map[int]*islandChunkData{}
 
 	for i, island := range islands {
-		fPath := islandsDir + island.visitName + "/"
+		fPath := islandsDir + island.visitName
 		islandChunkPos := island.pos / islandChunkSize
 		if g.islandChunks[islandChunkPos] == nil {
 			g.islandChunks[islandChunkPos] = &islandChunkData{}
-			islandDir, err := os.ReadDir(dataDir + spritesDir + fPath)
+			var islandDir []os.DirEntry
+			var err error
+			if !wasmMode {
+				islandDir, err = os.ReadDir(dataDir + spritesDir + fPath)
+			} else {
+				islandDir, err = efs.ReadDir(dataDir + spritesDir + fPath)
+			}
 			if err != nil {
 				doLog(true, false, "initIslands: readSprites: %v", err.Error())
 				return
@@ -101,10 +107,10 @@ func initIslands(g *Game) {
 
 					if strings.EqualFold(trimName, island.spriteName) {
 					} else if strings.EqualFold(trimName, island.visitName) {
-						loadSprite(fPath+trimName, islands[i].visitSprite, true)
+						loadSprite(fPath+"/"+trimName, islands[i].visitSprite, true)
 					} else {
 						newSprite := &spriteItem{Name: trimName}
-						loadSprite(fPath+trimName, newSprite, false)
+						loadSprite(fPath+"/"+trimName, newSprite, false)
 						islands[i].objects = append(islands[i].objects, newSprite)
 					}
 				}

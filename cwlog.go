@@ -30,7 +30,6 @@ func doLog(withTrace, verbose bool, format string, args ...interface{}) {
 	if wasmMode {
 		return
 	}
-
 	if !*debugMode && verbose {
 		return
 	}
