@@ -132,6 +132,7 @@ func playWave(g *Game, music bool, wave audioData) {
 	}
 	player := g.audioContext.NewPlayerF32FromBytes(soundData)
 	player.SetBufferSize(time.Second * 10)
+	player.SetVolume(maxVolume)
 	player.Play()
 }
 

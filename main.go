@@ -47,14 +47,14 @@ func main() {
 	if isWasm() {
 		wasmMode = true
 
-		tvalue := true
-		tptr := &tvalue
+		//tvalue := true
+		//tptr := &tvalue
 		fvalue := false
 		fptr := &fvalue
 
 		qtest = fptr
 		qisland = fptr
-		nomusic = tptr
+		nomusic = fptr
 		debugMode = fptr
 		fullscreen = fptr
 	}
