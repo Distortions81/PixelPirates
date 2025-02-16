@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"runtime"
+	"sort"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -194,4 +195,46 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		g.displayStamp = time.Now()
 	}
 
+}
+
+func (point fPoint) QuantizePoint() iPoint {
+	return iPoint{X: int(point.X), Y: int(point.Y)}
+}
+
+func SortLinePoints(points []iPoint, a, b iPoint) []iPoint {
+	// Direction vector for the line
+	dx := b.X - a.X
+	dy := b.Y - a.Y
+
+	// We only need the dot product with (dx, dy) to establish ordering.
+	// That is, for each point p = (px, py), we compute:
+	//     t = (px - a.X)*dx + (py - a.Y)*dy
+	// We do NOT need to divide by (dx^2 + dy^2) for sorting because
+	// the ratio is monotonic and the denominator would be constant anyway.
+
+	type paramPoint struct {
+		pt   iPoint
+		dist int
+	}
+
+	paramPoints := make([]paramPoint, len(points))
+	for i, p := range points {
+		px, py := p.X, p.Y
+		// Dot product relative to (a.X,a.Y):
+		t := (px-a.X)*dx + (py-a.Y)*dy
+		paramPoints[i] = paramPoint{pt: p, dist: t}
+	}
+
+	// Sort by dist (the dot product value).
+	sort.Slice(paramPoints, func(i, j int) bool {
+		return paramPoints[i].dist < paramPoints[j].dist
+	})
+
+	// Extract the sorted points
+	sortedPoints := make([]iPoint, len(points))
+	for i, pp := range paramPoints {
+		sortedPoints[i] = pp.pt
+	}
+
+	return sortedPoints
 }

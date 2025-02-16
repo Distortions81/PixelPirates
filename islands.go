@@ -242,3 +242,18 @@ var (
 	moveFix [9]int = [9]int{12, 12, 2, 3, 4, 6, 8, 9, 10}
 	faceFix [9]int = [9]int{0, 4, 3, 2, 1, 0, 7, 6, 5}
 )
+
+func findSpawns() {
+	for i, island := range islands {
+		for _, item := range island.objects {
+			if strings.Contains(item.Name, "spawn") {
+				name := item.animation.sortedFrames[0]
+				frame := item.animation.Frames[name]
+				newSpawn := fPoint{X: float64(frame.SpriteSourceSize.X), Y: float64(frame.SpriteSourceSize.Y)}
+				islands[i].spawn = newSpawn
+				doLog(true, false, "Found Spawn for: %v at %v,%v", island.name, newSpawn.X, newSpawn.Y)
+				break
+			}
+		}
+	}
+}

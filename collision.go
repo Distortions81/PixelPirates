@@ -1,46 +1,88 @@
 package main
 
 import (
+	"math"
 	"strings"
 )
 
-func checkPixelCollision(g *Game) bool {
+func BresenhamLine(a, b iPoint) []iPoint {
+	var points []iPoint
+
+	dx := int(math.Abs(float64(b.X - a.X)))
+	sx := 1
+	if a.X > b.X {
+		sx = -1
+	}
+
+	dy := -int(math.Abs(float64(b.Y - a.Y)))
+	sy := 1
+	if a.Y > b.Y {
+		sy = -1
+	}
+
+	err := dx + dy
+	x, y := a.X, a.Y
+
+	for {
+		// Add the current point.
+		points = append(points, iPoint{X: x, Y: y})
+
+		// Break if we’ve reached the end point.
+		if x == b.X && y == b.Y {
+			break
+		}
+
+		// e2 is twice the 'error' term.
+		e2 := 2 * err
+
+		// Move in x if the error is larger in that dimension.
+		if e2 >= dy {
+			err += dy
+			x += sx
+		}
+		// Move in y if the error is larger in that dimension.
+		if e2 <= dx {
+			err += dx
+			y += sy
+		}
+	}
+
+	return points
+}
+
+func checkPixelCollision(g *Game) fPoint {
+
+	var prev iPoint = g.oldPlayPos.QuantizePoint()
+
 	visiting := g.visiting
 	img := getAniFrame(0, g.defPlayerSP, 0)
 	if img == nil || visiting == nil {
-		return false
+		return fPoint{X: float64(prev.X), Y: float64(prev.Y)}
 	}
 	width := img.Bounds().Dx()
 	height := img.Bounds().Dy()
 
-	for y := 0; y < height; y++ {
-		for x := 0; x < width; x++ {
-			img := img.At(x, y)
-			_, _, _, alpha := img.RGBA()
-			if alpha < 254 {
-				continue
-			}
-			if g.visiting.collision[iPoint{X: dWinWidthHalf - (width / 2) + int(g.playPos.X) + x, Y: dWinHeightHalf - (height / 2) + int(g.playPos.Y) + y}] {
-				return true
-			}
-		}
-	}
-	return false
-}
+	//Check all pixels in source to destination
+	points := BresenhamLine(g.oldPlayPos.QuantizePoint(), g.playPos.QuantizePoint())
+	points = SortLinePoints(points, g.oldPlayPos.QuantizePoint(), g.playPos.QuantizePoint())
 
-func findSpawns() {
-	for i, island := range islands {
-		for _, item := range island.objects {
-			if strings.Contains(item.Name, "spawn") {
-				name := item.animation.sortedFrames[0]
-				frame := item.animation.Frames[name]
-				newSpawn := fPoint{X: float64(frame.SpriteSourceSize.X), Y: float64(frame.SpriteSourceSize.Y)}
-				islands[i].spawn = newSpawn
-				doLog(true, false, "Found Spawn for: %v at %v,%v", island.name, newSpawn.X, newSpawn.Y)
-				break
+	for _, p := range points {
+		for y := 0; y < height; y++ {
+			for x := 0; x < width; x++ {
+				img := img.At(x, y)
+				_, _, _, alpha := img.RGBA()
+				if alpha < 255 {
+					continue
+				}
+
+				if g.visiting.collision[iPoint{X: dWinWidthHalf - (width / 2) + int(p.X) + x, Y: dWinHeightHalf - (height / 2) + int(p.Y) + y}] {
+					return fPoint{X: float64(prev.X), Y: float64(prev.Y)}
+				}
 			}
 		}
+		prev = p
 	}
+	return fPoint{}
 }
 
 func makeCollisionMaps() {
