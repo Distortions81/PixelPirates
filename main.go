@@ -161,13 +161,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	//Operations that can only happen after game start
 	if g.frameNumber == 1 {
-		//Save player size
-		img := getAniFrame(0, g.defPlayerSP, 0)
-		pWidth = img.Bounds().Dx()
-		pHeight = img.Bounds().Dy()
 
-		savePlayerCollisionList(g)
-		makeCollisionMaps()
 	}
 
 	switch g.gameMode {
@@ -209,6 +203,9 @@ func (point fPoint) QuantizePoint() iPoint {
 }
 
 func savePlayerCollisionList(g *Game) {
+	if len(g.defCollision.collision) > 0 {
+		return
+	}
 	for x := 0; x < g.defCollision.image.Bounds().Dx(); x++ {
 		for y := 0; y < g.defCollision.image.Bounds().Dy(); y++ {
 			img := g.defCollision.image.At(x, y)

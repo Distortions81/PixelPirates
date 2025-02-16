@@ -64,6 +64,15 @@ func visitIsland(g *Game) {
 	fixPos.X += float64(frame.SpriteSourceSize.W / 2)
 	fixPos.Y += float64(frame.SpriteSourceSize.H / 2)
 	g.playPos = fixPos
+
+	//Save player size
+	img := getAniFrame(0, g.defPlayerSP, 0)
+	pWidth = img.Bounds().Dx()
+	pHeight = img.Bounds().Dy()
+
+	savePlayerCollisionList(g)
+	makeCollisionMaps(g)
+
 }
 
 func initIslands(g *Game) {

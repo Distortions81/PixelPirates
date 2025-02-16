@@ -69,24 +69,29 @@ func checkPixelCollision(g *Game) fPoint {
 	return fPoint{}
 }
 
-func makeCollisionMaps() {
-	for i, island := range islands {
-		for _, item := range island.objects {
-			if strings.Contains(item.Name, "collision") {
-				islands[i].collision = map[iPoint]bool{}
-				count := 0
-				for x := 0; x < item.image.Bounds().Dx(); x++ {
-					for y := 0; y < item.image.Bounds().Dy(); y++ {
-						pixel := item.image.At(x, y)
-						_, _, _, alpha := pixel.RGBA()
-						if alpha > 128 {
-							islands[i].collision[iPoint{X: x, Y: y}] = true
-							count++
-						}
+func makeCollisionMaps(g *Game) {
+	if g.visiting == nil {
+		return
+	}
+	if len(g.visiting.collision) > 0 {
+		return
+	}
+	island := g.visiting
+	for _, item := range island.objects {
+		if strings.Contains(item.Name, "collision") {
+			g.visiting.collision = map[iPoint]bool{}
+			count := 0
+			for x := 0; x < item.image.Bounds().Dx(); x++ {
+				for y := 0; y < item.image.Bounds().Dy(); y++ {
+					pixel := item.image.At(x, y)
+					_, _, _, alpha := pixel.RGBA()
+					if alpha > 128 {
+						g.visiting.collision[iPoint{X: x, Y: y}] = true
+						count++
 					}
 				}
-				doLog(true, false, "Got collision map for island: %v (%v pixels)", island.name, count)
 			}
+			doLog(true, false, "Got collision map for island: %v (%v pixels)", island.name, count)
 		}
 	}
 }
