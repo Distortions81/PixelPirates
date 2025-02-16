@@ -222,13 +222,10 @@ func (g *Game) drawIsland(screen *ebiten.Image) {
 			strings.Contains(obj.Name, "spawn") {
 			continue
 		}
+		//TODO: Replace with sprite values
 		offsety := 0.0
 		if strings.Contains(obj.Name, "shore") {
-			// Modulo by 10,000 ms (10 seconds) to get a repeating range [0..9999]
-			// Then divide by 10,000 to get a fractional value [0..1)
 			fraction := float64(time.Now().UnixMilli()%10000) / 10000.0
-
-			// Use that fraction to compute a sine wave over one full cycle (2π)
 			offsety = math.Sin(2*math.Pi*fraction)*25 + 50
 		}
 
