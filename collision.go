@@ -1,34 +1,66 @@
 package main
 
 import (
-	"image"
-	"image/color"
+	"strings"
 )
 
-func getPixelData(img image.Image) [][]color.Color {
-	bounds := img.Bounds()
-	width, height := bounds.Max.X, bounds.Max.Y
-	pixels := make([][]color.Color, height)
-	for y := 0; y < height; y++ {
-		pixels[y] = make([]color.Color, width)
-		for x := 0; x < width; x++ {
-			pixels[y][x] = img.At(x, y)
-		}
+func checkPixelCollision(g *Game) bool {
+	visiting := g.visiting
+	img := getAniFrame(0, g.defPlayerSP, 0)
+	if img == nil || visiting == nil {
+		return false
 	}
-	return pixels
-}
+	width := img.Bounds().Dx()
+	height := img.Bounds().Dy()
 
-func checkPixelCollision(img1Pixels [][]color.Color, img2Pixels [][]color.Color, x1, y1, x2, y2 int) bool {
-	for y := 0; y < len(img1Pixels); y++ {
-		for x := 0; x < len(img1Pixels[0]); x++ {
-			if x+x1 >= 0 && x+x1 < len(img2Pixels[0]) && y+y1 >= 0 && y+y1 < len(img2Pixels) {
-				_, _, _, a1 := img1Pixels[y][x].RGBA()
-				_, _, _, a2 := img2Pixels[y+y1][x+x1].RGBA()
-				if a1 > 0 && a2 > 0 {
-					return true
-				}
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			img := img.At(x, y)
+			_, _, _, alpha := img.RGBA()
+			if alpha < 254 {
+				continue
+			}
+			if g.visiting.collision[iPoint{X: dWinWidthHalf - (width / 2) + int(g.playPos.X) + x, Y: dWinHeightHalf - (height / 2) + int(g.playPos.Y) + y}] {
+				return true
 			}
 		}
 	}
 	return false
+}
+
+func findSpawns() {
+	for i, island := range islands {
+		for _, item := range island.objects {
+			if strings.Contains(item.Name, "spawn") {
+				name := item.animation.sortedFrames[0]
+				frame := item.animation.Frames[name]
+				newSpawn := fPoint{X: float64(frame.SpriteSourceSize.X), Y: float64(frame.SpriteSourceSize.Y)}
+				islands[i].spawn = newSpawn
+				doLog(true, false, "Found Spawn for: %v at %v,%v", island.name, newSpawn.X, newSpawn.Y)
+				break
+			}
+		}
+	}
+}
+
+func makeCollisionMaps() {
+	for i, island := range islands {
+		for _, item := range island.objects {
+			if strings.Contains(item.Name, "collision") {
+				islands[i].collision = map[iPoint]bool{}
+				count := 0
+				for x := 0; x < item.image.Bounds().Dx(); x++ {
+					for y := 0; y < item.image.Bounds().Dy(); y++ {
+						pixel := item.image.At(x, y)
+						_, _, _, alpha := pixel.RGBA()
+						if alpha > 128 {
+							islands[i].collision[iPoint{X: x, Y: y}] = true
+							count++
+						}
+					}
+				}
+				doLog(true, false, "Got collision map for island: %v (%v pixels)", island.name, count)
+			}
+		}
+	}
 }

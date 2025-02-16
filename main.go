@@ -158,6 +158,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	g.frameNumber++
 	startTime := time.Now()
 
+	if g.frameNumber == 1 {
+		makeCollisionMaps()
+	}
+
 	switch g.gameMode {
 	case GAME_TITLE:
 		g.drawTitle(screen)

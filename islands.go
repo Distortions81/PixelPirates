@@ -12,6 +12,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
+var playerImg *ebiten.Image
+
 const (
 	islandChunkSize = dWinWidthHalf
 	checkChunks     = 4
@@ -28,6 +30,8 @@ type islandData struct {
 	sprite      *spriteItem
 	visitSprite *spriteItem
 	objects     []*spriteItem
+
+	collision map[iPoint]bool
 }
 
 type islandChunkData struct {
@@ -95,16 +99,8 @@ func initIslands(g *Game) {
 			}
 		}
 
-		for _, item := range islands[i].objects {
-			if strings.Contains(item.Name, "spawn") {
-				name := item.animation.sortedFrames[0]
-				frame := item.animation.Frames[name]
-				newSpawn := fPoint{X: float64(frame.SpriteSourceSize.X), Y: float64(frame.SpriteSourceSize.Y)}
-				islands[i].spawn = newSpawn
-				doLog(true, false, "Found Spawn for: %v at %v,%v", island.name, newSpawn.X, newSpawn.Y)
-				break
-			}
-		}
+		findSpawns()
+
 		doLog(true, true, "Storing island: #%v '%v' in block %v.", i+1, island.name, islandChunkPos)
 
 		g.islandChunks[islandChunkPos].islands = append(g.islandChunks[islandChunkPos].islands, islands[i])
@@ -200,8 +196,7 @@ func (g *Game) drawIsland(screen *ebiten.Image) {
 
 	faceDir := directionFromCoords(g.oldPlayPos.X-g.playPos.X, g.oldPlayPos.Y-g.playPos.Y)
 	var (
-		dirName   string
-		playerImg *ebiten.Image
+		dirName string
 	)
 	if faceDir == DIR_NONE {
 		dirName = "idle"
@@ -218,10 +213,6 @@ func (g *Game) drawIsland(screen *ebiten.Image) {
 		name := obj.animation.sortedFrames[0]
 		frame := obj.animation.Frames[name]
 
-		if strings.Contains(obj.Name, "collision") ||
-			strings.Contains(obj.Name, "spawn") {
-			continue
-		}
 		//TODO: Replace with sprite values
 		offsety := 0.0
 		if strings.Contains(obj.Name, "shore") {
@@ -233,6 +224,12 @@ func (g *Game) drawIsland(screen *ebiten.Image) {
 			float64(frame.SpriteSourceSize.X-int(g.playPos.X)),
 			float64(frame.SpriteSourceSize.Y-int(g.playPos.Y))+offsety)
 
+		if *debugMode {
+			if strings.Contains(obj.Name, "collision") ||
+				strings.Contains(obj.Name, "spawn") {
+				op.ColorScale.ScaleAlpha(0.15)
+			}
+		}
 		screen.DrawImage(obj.image, op)
 	}
 
