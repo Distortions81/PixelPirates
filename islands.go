@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"path"
 	"strings"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -220,9 +222,20 @@ func (g *Game) drawIsland(screen *ebiten.Image) {
 			strings.Contains(obj.Name, "spawn") {
 			continue
 		}
+		offsety := 0.0
+		if strings.Contains(obj.Name, "shore") {
+			// Modulo by 10,000 ms (10 seconds) to get a repeating range [0..9999]
+			// Then divide by 10,000 to get a fractional value [0..1)
+			fraction := float64(time.Now().UnixMilli()%10000) / 10000.0
+
+			// Use that fraction to compute a sine wave over one full cycle (2π)
+			offsety = math.Sin(2*math.Pi*fraction)*25 + 50
+		}
+
 		op.GeoM.Translate(
 			float64(frame.SpriteSourceSize.X-int(g.playPos.X)),
-			float64(frame.SpriteSourceSize.Y-int(g.playPos.Y)))
+			float64(frame.SpriteSourceSize.Y-int(g.playPos.Y))+offsety)
+
 		screen.DrawImage(obj.image, op)
 	}
 
