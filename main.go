@@ -166,7 +166,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		pWidth = img.Bounds().Dx()
 		pHeight = img.Bounds().Dy()
 
-		savePlayerCollisionList()
+		savePlayerCollisionList(g)
 		makeCollisionMaps()
 	}
 
@@ -208,7 +208,7 @@ func (point fPoint) QuantizePoint() iPoint {
 	return iPoint{X: int(point.X), Y: int(point.Y)}
 }
 
-func savePlayerCollisionList() {
+func savePlayerCollisionList(g *Game) {
 	for x := 0; x < g.defCollision.image.Bounds().Dx(); x++ {
 		for y := 0; y < g.defCollision.image.Bounds().Dy(); y++ {
 			img := g.defCollision.image.At(x, y)
