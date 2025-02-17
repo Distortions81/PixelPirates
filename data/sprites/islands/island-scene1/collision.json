@@ -1,5 +1,5 @@
 { "frames": {
-   "island-scene1 (Collision).aseprite": {
+   "island-scene1.aseprite": {
     "frame": { "x": 0, "y": 0, "w": 1600, "h": 900 },
     "rotated": false,
     "trimmed": false,
