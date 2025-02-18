@@ -17,9 +17,9 @@ const (
 )
 
 var modeNames [GAME_MAX]string = [GAME_MAX]string{
-	"title",
-	"play",
-	"island",
+	"TITLE",
+	"PLAY",
+	"ISLAND",
 }
 
 type Game struct {

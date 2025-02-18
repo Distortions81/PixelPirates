@@ -54,9 +54,7 @@ func loadSprite(name string, sprite *spriteItem, demanded bool) {
 	sprite.Fullpath = fullpath
 
 	aniData, err := loadAnimationData(fullpath)
-	if err == nil && aniData != nil {
-		sprite.animation = aniData
-	}
+	sprite.animation = aniData
 
 	if !sprite.onDemand || demanded {
 		image, blurImg, err = loadImage(fullpath, sprite.unmanged, sprite.doReflect)
@@ -64,15 +62,12 @@ func loadSprite(name string, sprite *spriteItem, demanded bool) {
 			doLog(true, false, "loadImage Failed: %v", err)
 			return
 		}
-		doLog(true, true, "loading sprite '"+name+"'")
+		doLog(true, true, "loadSprite '"+name+"'")
 	}
-	if err == nil && image != nil {
+	if err == nil {
 		sprite.image = image
 		sprite.blurred = blurImg
-	} else {
-		doLog(true, false, "loading sprite '"+name+"' failed.")
 	}
-
 }
 
 type spriteItem struct {

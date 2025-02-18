@@ -116,15 +116,23 @@ func decodeAniJSON(data []byte) (animationData, error) {
 
 	root.animations = map[string]frameRange{}
 
+	var buf string
 	for _, item := range root.Meta.FrameTags {
 		if item.From+item.To == 0 {
 			doLog(true, false, "Empty Animation: '%v', %v->%v", item.Name, item.From, item.To)
 			continue
 		}
 		if *debugMode {
-			doLog(true, true, "Animation: %v, %v->%v", item.Name, item.From, item.To)
+			if buf != "" {
+				buf = buf + ", "
+			}
+			buf = buf + fmt.Sprintf("%v: %v->%v", item.Name, item.From, item.To)
 		}
 		root.animations[item.Name] = frameRange{start: item.From, end: item.To}
+	}
+	if buf != "" {
+		doLog(true, true, "Parsing animation for: %v", root.Meta.Image)
+		doLog(true, true, buf)
 	}
 
 	// Extract and sort frame names based on the numerical part.
@@ -141,7 +149,6 @@ func decodeAniJSON(data []byte) (animationData, error) {
 		root.numFrames = int64(len(sorted))
 	}
 
-	doLog(true, true, "Decoded animation for: %v", root.Meta.Image)
 	/*
 		if *debugMode {
 			fmt.Println("Frames:")
