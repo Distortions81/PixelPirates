@@ -159,6 +159,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	//Operations that can only happen after game start
 	if g.frameNumber == 1 {
+		savePlayerCollisionList(g)
 		visitIsland(g)
 		return
 	}

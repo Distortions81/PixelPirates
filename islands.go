@@ -51,14 +51,22 @@ func visitIsland(g *Game) {
 
 	loadSprite(islandsDir+g.visiting.visitName+"/"+g.visiting.visitName, g.visiting.visitSprite, true)
 
-	//Dynamically load player animations if needed.
-	sp := spriteList["default-player"]
-	loadSprite("default-player", sp, true)
-	g.defPlayerSP = sp
+	//Load objects
+	for _, obj := range g.visiting.objects {
+		obj.image, _, _ = loadImage(obj.Fullpath, true, false)
+		aniData, err := loadAnimationData(obj.Fullpath)
+		if err == nil && aniData != nil {
+			obj.animation = aniData
+			doLog(true, true, "loaded animation: %v", obj.Fullpath)
+		}
+		doLog(true, true, "loaded sprite: %v", obj.Fullpath)
+	}
 
-	fixPos := g.visiting.spawn
-	frameRange := sp.animation.animations["idle"]
-	name := sp.animation.sortedFrames[frameRange.start]
+	makeCollisionMaps(g)
+	fixPos := findSpawns()
+
+	frameRange := g.defPlayerSP.animation.animations["idle"]
+	name := g.defPlayerSP.animation.sortedFrames[frameRange.start]
 	frame := g.defPlayerSP.animation.Frames[name]
 
 	fixPos.X -= (dWinWidth / 2)
@@ -67,15 +75,6 @@ func visitIsland(g *Game) {
 	fixPos.X += float64(frame.SpriteSourceSize.W / 2)
 	fixPos.Y += float64(frame.SpriteSourceSize.H / 2)
 	g.playPos = fixPos
-
-	//Save player size
-	img := getAniFrame(0, g.defPlayerSP, 0)
-	pWidth = img.Bounds().Dx()
-	pHeight = img.Bounds().Dy()
-
-	savePlayerCollisionList(g)
-	makeCollisionMaps(g)
-
 }
 
 func initIslands(g *Game) {
@@ -97,7 +96,7 @@ func initIslands(g *Game) {
 				doLog(true, false, "initIslands: readSprites: %v", err.Error())
 				return
 			}
-			islands[i].visitSprite = &spriteItem{}
+			islands[i].visitSprite = &spriteItem{onDemand: true, unmanged: true}
 			islands[i].sprite = &spriteItem{doReflect: true}
 			for _, item := range islandDir {
 
@@ -107,17 +106,15 @@ func initIslands(g *Game) {
 
 					if strings.EqualFold(trimName, island.spriteName) {
 					} else if strings.EqualFold(trimName, island.visitName) {
-						loadSprite(fPath+"/"+trimName, islands[i].visitSprite, true)
+						loadSprite(fPath+"/"+trimName, islands[i].visitSprite, false)
 					} else {
-						newSprite := &spriteItem{Name: trimName}
+						newSprite := &spriteItem{Name: trimName, onDemand: true, unmanged: true, Fullpath: dataDir + spritesDir + fPath + "/" + trimName}
 						loadSprite(fPath+"/"+trimName, newSprite, false)
 						islands[i].objects = append(islands[i].objects, newSprite)
 					}
 				}
 			}
 		}
-
-		findSpawns()
 
 		doLog(true, true, "Storing island: #%v '%v' in block %v.", i+1, island.name, islandChunkPos)
 
@@ -263,7 +260,7 @@ var (
 	faceFix [9]int = [9]int{0, 4, 3, 2, 1, 0, 7, 6, 5}
 )
 
-func findSpawns() {
+func findSpawns() fPoint {
 	for i, island := range islands {
 		for _, item := range island.objects {
 			if strings.Contains(item.Name, "spawn") {
@@ -272,8 +269,10 @@ func findSpawns() {
 				newSpawn := fPoint{X: float64(frame.SpriteSourceSize.X), Y: float64(frame.SpriteSourceSize.Y)}
 				islands[i].spawn = newSpawn
 				doLog(true, false, "Found Spawn for: %v at %v,%v", island.name, newSpawn.X, newSpawn.Y)
-				break
+				return newSpawn
 			}
 		}
 	}
+
+	return fPoint{}
 }

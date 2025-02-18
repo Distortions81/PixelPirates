@@ -72,7 +72,7 @@ func loadImage(name string, unmanaged bool, doBlur bool) (*ebiten.Image, *ebiten
 
 func loadAnimationData(name string) (*animationData, error) {
 	if wasmMode {
-		jdata, err := efs.Open(dataDir + spritesDir + name + ".json")
+		jdata, err := efs.Open(name + ".json")
 		if err != nil {
 			return nil, err
 		}
@@ -90,7 +90,7 @@ func loadAnimationData(name string) (*animationData, error) {
 
 		return &aniJSON, nil
 	} else {
-		buf, err := os.ReadFile(dataDir + spritesDir + name + ".json")
+		buf, err := os.ReadFile(name + ".json")
 		if err != nil {
 			return nil, err
 		}

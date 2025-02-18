@@ -22,7 +22,7 @@ var spriteList map[string]*spriteItem = map[string]*spriteItem{
 	"island1": {Path: "world/", doReflect: true, onDemand: true},
 	"boat2":   {Path: "boats/"},
 
-	"default-player":           {Path: "characters/", onDemand: true},
+	"default-player":           {Path: "characters/"},
 	"default-player-collision": {Path: "characters/"},
 }
 
@@ -33,6 +33,13 @@ func initSprites(g *Game) {
 	g.sunSP = spriteList["sun"]
 	g.boat2SP = spriteList["boat2"]
 	g.defCollision = spriteList["default-player-collision"]
+	g.defPlayerSP = spriteList["default-player"]
+
+	//Save player size
+	img := getAniFrame(0, g.defPlayerSP, 0)
+	pWidth = img.Bounds().Dx()
+	pHeight = img.Bounds().Dy()
+
 }
 
 func loadSprites() {
@@ -47,21 +54,24 @@ func loadSprites() {
 func loadSprite(name string, sprite *spriteItem, demanded bool) {
 	var image, blurImg *ebiten.Image
 	var err error
+	unmanaged := false
+	fullpath := dataDir + spritesDir + sprite.Path + name
+	sprite.Fullpath = fullpath
+
+	aniData, err := loadAnimationData(fullpath)
+	if err == nil && aniData != nil {
+		sprite.animation = aniData
+		//Don't put atlases on the main atlas
+		//unmanaged = true
+	}
 
 	if !sprite.onDemand || demanded {
-		unmanaged := false
 
-		aniData, err := loadAnimationData(sprite.Path + name)
-		if err == nil && aniData != nil {
-			sprite.animation = aniData
-			//Don't put atlases on the main atlas
-			unmanaged = true
-		}
 		if sprite.unmanged {
 			unmanaged = true
 		}
 
-		image, blurImg, err = loadImage(dataDir+spritesDir+sprite.Path+name, unmanaged, sprite.doReflect)
+		image, blurImg, err = loadImage(fullpath, unmanaged, sprite.doReflect)
 		if err != nil {
 			doLog(true, false, "loadImage Failed: %v", err)
 			return
@@ -78,7 +88,7 @@ func loadSprite(name string, sprite *spriteItem, demanded bool) {
 }
 
 type spriteItem struct {
-	Name, Path string
+	Name, Path, Fullpath string
 
 	image, blurred *ebiten.Image
 	doReflect      bool
