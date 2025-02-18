@@ -19,7 +19,7 @@ type cloudData struct {
 	lastUsed       uint64
 }
 
-func drawCloudsNew(g *Game, screen *ebiten.Image) {
+func drawClouds(g *Game, screen *ebiten.Image) {
 
 	draws := 0
 

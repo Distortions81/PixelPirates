@@ -25,7 +25,7 @@ func (g *Game) drawGame(screen *ebiten.Image) {
 
 	drawWorldGrad(g, screen)
 	drawSun(g, screen)
-	drawCloudsNew(g, screen)
+	drawClouds(g, screen)
 	drawWaves(g, screen)
 	drawIslands(g, screen)
 	drawAir(g, screen)
