@@ -39,14 +39,10 @@ func initSprites(g *Game) {
 	img := getAniFrame(0, g.defPlayerSP, 0)
 	pWidth = img.Bounds().Dx()
 	pHeight = img.Bounds().Dy()
-
 }
 
 func loadSprites() {
 	for name, sprite := range spriteList {
-		if sprite.onDemand {
-			continue
-		}
 		loadSprite(name, sprite, false)
 	}
 }
@@ -54,24 +50,16 @@ func loadSprites() {
 func loadSprite(name string, sprite *spriteItem, demanded bool) {
 	var image, blurImg *ebiten.Image
 	var err error
-	unmanaged := false
 	fullpath := dataDir + spritesDir + sprite.Path + name
 	sprite.Fullpath = fullpath
 
 	aniData, err := loadAnimationData(fullpath)
 	if err == nil && aniData != nil {
 		sprite.animation = aniData
-		//Don't put atlases on the main atlas
-		//unmanaged = true
 	}
 
 	if !sprite.onDemand || demanded {
-
-		if sprite.unmanged {
-			unmanaged = true
-		}
-
-		image, blurImg, err = loadImage(fullpath, unmanaged, sprite.doReflect)
+		image, blurImg, err = loadImage(fullpath, sprite.unmanged, sprite.doReflect)
 		if err != nil {
 			doLog(true, false, "loadImage Failed: %v", err)
 			return

@@ -54,11 +54,6 @@ func visitIsland(g *Game) {
 	//Load objects
 	for _, obj := range g.visiting.objects {
 		obj.image, _, _ = loadImage(obj.Fullpath, true, false)
-		aniData, err := loadAnimationData(obj.Fullpath)
-		if err == nil && aniData != nil {
-			obj.animation = aniData
-			doLog(true, true, "loaded animation: %v", obj.Fullpath)
-		}
 		doLog(true, true, "loaded sprite: %v", obj.Fullpath)
 	}
 

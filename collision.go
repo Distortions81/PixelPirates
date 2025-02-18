@@ -91,7 +91,7 @@ func makeCollisionMaps(g *Game) {
 					}
 				}
 			}
-			doLog(true, false, "Got collision map for island: %v (%v pixels)", island.name, count)
+			doLog(true, false, "Parsed collision map for island: %v (%v points)", island.name, count)
 		}
 	}
 }
