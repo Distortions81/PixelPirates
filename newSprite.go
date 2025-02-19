@@ -16,6 +16,7 @@ const (
 	infoJsonFile    = "info.json"
 	mainSpriteName  = "world.png"
 	spriteSheetName = "spritesheet.png"
+	spriteSheetJson = "spritesheet.json"
 )
 
 func scanIslandsFolder() {
