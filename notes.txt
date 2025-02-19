@@ -1,0 +1,2 @@
+scan folders, look for json for islands. add info.json with island location
+rewrite sprite code to load sprite sheets, and automatically return correct animations and images.
