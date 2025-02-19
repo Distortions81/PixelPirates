@@ -4,7 +4,6 @@ import (
 	"embed"
 	"encoding/json"
 	"fmt"
-	"io"
 	"os"
 	"regexp"
 	"sort"
@@ -15,38 +14,26 @@ import (
 var efs embed.FS
 
 func loadAnimationData(name string) (*animationData, error) {
+	var data []byte
+	var err error
+
 	if wasmMode {
-		jdata, err := efs.Open(name + ".json")
-		if err != nil {
-			return nil, err
-		}
-		buf, err := io.ReadAll(jdata)
-		if err != nil {
-			doLog(true, false, "loadAnimationData: Embedded: %v", err)
-			return nil, err
-		}
-
-		aniJSON, err := decodeAniJSON(buf)
-		if err != nil {
-			doLog(true, false, "loadAnimationData: Embedded: %v", err)
-			return nil, err
-		}
-
-		return &aniJSON, nil
+		data, err = efs.ReadFile(name)
 	} else {
-		buf, err := os.ReadFile(name + ".json")
-		if err != nil {
-			return nil, err
-		}
-
-		aniJSON, err := decodeAniJSON(buf)
-		if err != nil {
-			doLog(true, false, "loadAnimationData: Embedded: %v", err)
-			return nil, err
-		}
-
-		return &aniJSON, nil
+		data, err = os.ReadFile(name)
 	}
+	if err != nil {
+		doLog(true, false, "loadAnimationData: %v: %v", name, err)
+		return nil, err
+	}
+
+	aniJSON, err := decodeAniJSON(data)
+	if err != nil {
+		doLog(true, false, "loadAnimationData: decodeAniJSON: %v: %v", name, err)
+		return nil, err
+	}
+
+	return &aniJSON, nil
 }
 
 func decodeAniJSON(data []byte) (animationData, error) {
