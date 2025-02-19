@@ -5,7 +5,18 @@ import (
 	"strings"
 )
 
-const infoJsonFile = "info.json"
+type islandInfoData struct {
+	Name, Desc string
+
+	Distance,
+	Level int
+}
+
+const (
+	infoJsonFile    = "info.json"
+	mainSpriteName  = "world.png"
+	spriteSheetName = "spritesheet.png"
+)
 
 func scanIslandsFolder() {
 	var dir []os.DirEntry
