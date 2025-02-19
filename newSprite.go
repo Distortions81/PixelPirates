@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"image"
 	"image/png"
 	"io/fs"
@@ -25,8 +26,69 @@ const (
 	spriteSheetJson = "spritesheet.json"
 )
 
+func readInfoJson(path string) (islandInfoData, error) {
+	var fileData []byte
+	var err error
+
+	if wasmMode {
+		fileData, err = efs.ReadFile(path)
+	} else {
+		fileData, err = os.ReadFile(path)
+	}
+	if err != nil {
+		doLog(true, false, "readInfoJson: readFile: %v", err)
+		return islandInfoData{}, err
+	}
+
+	var info islandInfoData
+	err = json.Unmarshal(fileData, &info)
+	if err != nil {
+		doLog(true, false, "decodeAniJSON: %v", err)
+		return islandInfoData{}, err
+	}
+
+	return info, nil
+}
+
+func scanIslandsFolder() error {
+	var dir []os.DirEntry
+	var err error
+	dirPath := dataDir + spritesDir + islandsDir
+
+	doLog(true, true, "scanIslandsFolder: Scanning.")
+
+	if wasmMode {
+		dir, err = efs.ReadDir(dirPath)
+	} else {
+		dir, err = os.ReadDir(dirPath)
+	}
+	if err != nil {
+		doLog(true, false, "scanIslandsFolder: readDir: %v", err)
+		return err
+	}
+
+	var islandFolders []string
+	for _, item := range dir {
+		if item.IsDir() {
+			islandFolders = append(islandFolders, item.Name())
+		}
+	}
+	doLog(true, true, "Islands found: %v", strings.Join(islandFolders, ", "))
+
+	for _, island := range islandFolders {
+		infoPath := dirPath + "/" + island + "/" + infoJsonFile
+		_, err := os.ReadFile(infoPath)
+		if err != nil {
+			doLog(true, false, "Island '%v' has no %v file.", island, infoJsonFile)
+			return err
+		}
+		info, err := readInfoJson(island)
+
+	}
+}
+
 // Load sprites
-func loadImage(name string, unmanaged bool, doBlur bool) (*ebiten.Image, *ebiten.Image, error) {
+func loadImage(path string, unmanaged bool, doBlur bool) (*ebiten.Image, *ebiten.Image, error) {
 
 	//Open file
 	var (
@@ -35,9 +97,9 @@ func loadImage(name string, unmanaged bool, doBlur bool) (*ebiten.Image, *ebiten
 	)
 
 	if wasmMode {
-		pngData, err = efs.Open(name)
+		pngData, err = efs.Open(path)
 	} else {
-		pngData, err = os.Open(name)
+		pngData, err = os.Open(path)
 	}
 	if err != nil {
 		doLog(true, false, "loadSprite: Open: %v", err)
@@ -73,38 +135,4 @@ func loadImage(name string, unmanaged bool, doBlur bool) (*ebiten.Image, *ebiten
 	}
 
 	return img, blurImg, nil
-}
-
-func scanIslandsFolder() {
-	var dir []os.DirEntry
-	var err error
-	dirPath := dataDir + spritesDir + islandsDir
-
-	doLog(true, true, "scanIslandsFolder: Scanning.")
-
-	if wasmMode {
-		dir, err = efs.ReadDir(dirPath)
-	} else {
-		dir, err = os.ReadDir(dirPath)
-	}
-	if err != nil {
-		doLog(true, false, "scanIslandsFolder: readDir: %v", err)
-		return
-	}
-
-	var islandsList []string
-	for _, item := range dir {
-		if item.IsDir() {
-			islandsList = append(islandsList, item.Name())
-		}
-	}
-	doLog(true, true, "Islands found: %v", strings.Join(islandsList, ", "))
-
-	for _, island := range islandsList {
-		_, err := os.ReadFile(dirPath + "/" + island + "/" + infoJsonFile)
-		if err != nil {
-			doLog(true, false, "Island '%v' has no %v file.", island, infoJsonFile)
-			return
-		}
-	}
 }
