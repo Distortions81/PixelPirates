@@ -4,71 +4,15 @@ import (
 	"embed"
 	"encoding/json"
 	"fmt"
-	"image"
-	"image/png"
 	"io"
-	"io/fs"
 	"os"
 	"regexp"
 	"sort"
 	"strconv"
-
-	"github.com/anthonynsimon/bild/blur"
-	"github.com/hajimehoshi/ebiten/v2"
 )
 
 //go:embed data/sprites/boats data/sprites/characters  data/sprites/islands data/sprites/title data/sprites/world
 var efs embed.FS
-
-// Load sprites
-func loadImage(name string, unmanaged bool, doBlur bool) (*ebiten.Image, *ebiten.Image, error) {
-
-	//Open file
-	var (
-		err     error
-		pngData fs.File
-	)
-
-	if wasmMode {
-		pngData, err = efs.Open(name + ".png")
-	} else {
-		pngData, err = os.Open(name + ".png")
-	}
-	if err != nil {
-		doLog(true, false, "loadSprite: Open: %v", err)
-		return nil, nil, err
-	}
-
-	//Decode png
-	m, err := png.Decode(pngData)
-	if err != nil {
-		doLog(true, false, "loadSprite: Decode: %v", err)
-		return nil, nil, err
-	}
-
-	//Create image
-	var (
-		img, blurImg *ebiten.Image
-		newBlur      image.Image
-	)
-	if doBlur {
-		newBlur = blur.Box(m, islandReflectionBlur)
-	}
-
-	if unmanaged {
-		img = ebiten.NewImageFromImageWithOptions(m, &ebiten.NewImageFromImageOptions{Unmanaged: true})
-		if doBlur {
-			blurImg = ebiten.NewImageFromImageWithOptions(newBlur, &ebiten.NewImageFromImageOptions{Unmanaged: true})
-		}
-	} else {
-		img = ebiten.NewImageFromImage(m)
-		if doBlur {
-			blurImg = ebiten.NewImageFromImage(newBlur)
-		}
-	}
-
-	return img, blurImg, nil
-}
 
 func loadAnimationData(name string) (*animationData, error) {
 	if wasmMode {
