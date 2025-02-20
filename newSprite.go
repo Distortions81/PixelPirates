@@ -12,10 +12,12 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-type islandInfoData struct {
-	Name, Desc string
+var islands []islandData
 
-	Distance,
+type islandInfoData struct {
+	Comment, Name, Desc string
+
+	Pos,
 	Level int
 }
 
@@ -26,14 +28,37 @@ const (
 	spriteSheetJson = "spritesheet.json"
 )
 
+func writeInfoJson(path string, island islandInfoData) error {
+
+	if wasmMode {
+		return nil
+	}
+
+	data, err := json.MarshalIndent(island, "", "  ")
+	if err != nil {
+		doLog(true, false, "writeInfoJson: jsonMarshal: %v", err)
+		return err
+	}
+
+	err = os.WriteFile(path, data, 0755)
+	if err != nil {
+		doLog(true, false, "writeInfoJson: WriteFile: %v", err)
+		return err
+	}
+
+	return nil
+}
+
 func readInfoJson(path string) (islandInfoData, error) {
 	var fileData []byte
 	var err error
 
+	fpath := dataDir + spritesDir + islandsDir + path
+
 	if wasmMode {
-		fileData, err = efs.ReadFile(path)
+		fileData, err = efs.ReadFile(fpath + "/info.json")
 	} else {
-		fileData, err = os.ReadFile(path)
+		fileData, err = os.ReadFile(fpath + "/info.json")
 	}
 	if err != nil {
 		doLog(true, false, "readInfoJson: readFile: %v", err)
@@ -54,6 +79,7 @@ func scanIslandsFolder() error {
 	var dir []os.DirEntry
 	var err error
 	dirPath := dataDir + spritesDir + islandsDir
+	islands = []islandData{}
 
 	doLog(true, true, "scanIslandsFolder: Scanning.")
 
@@ -75,16 +101,36 @@ func scanIslandsFolder() error {
 	}
 	doLog(true, true, "Islands found: %v", strings.Join(islandFolders, ", "))
 
+	var islandsAdded []string
 	for _, island := range islandFolders {
-		infoPath := dirPath + "/" + island + "/" + infoJsonFile
-		_, err := os.ReadFile(infoPath)
+		infoPath := dirPath + "/" + island + "/"
+		_, err := os.ReadFile(infoPath + infoJsonFile)
 		if err != nil {
 			doLog(true, false, "Island '%v' has no %v file.", island, infoJsonFile)
+			newInfo := islandInfoData{
+				Comment: "Once complete, rename this file to info.json",
+				Name:    island, Desc: "In-game description", Pos: 320}
+			writeInfoJson(infoPath+"info-example.json", newInfo)
+
 			return err
 		}
 		info, err := readInfoJson(island)
-
+		if err != nil {
+			doLog(true, false, "scanIslandsFolder: %v file for %v is invalid.", infoJsonFile, island)
+			return nil
+		}
+		islands = append(islands,
+			islandData{
+				name: info.Name,
+				desc: info.Desc,
+				pos:  info.Pos,
+			})
+		islandsAdded = append(islandsAdded, info.Name)
 	}
+
+	doLog(true, true, "Islands added: %v", strings.Join(islandsAdded, ", "))
+
+	return nil
 }
 
 // Load sprites
@@ -97,9 +143,9 @@ func loadImage(path string, unmanaged bool, doBlur bool) (*ebiten.Image, *ebiten
 	)
 
 	if wasmMode {
-		pngData, err = efs.Open(path)
+		pngData, err = efs.Open(path + ".png")
 	} else {
-		pngData, err = os.Open(path)
+		pngData, err = os.Open(path + ".png")
 	}
 	if err != nil {
 		doLog(true, false, "loadSprite: Open: %v", err)

@@ -84,8 +84,8 @@ func (g *Game) Update() error {
 			}
 			if key == ebiten.KeyE {
 				if g.canVisit != nil && !g.modeTransition {
-					visitIsland(g)
-					g.startFade(GAME_ISLAND, time.Second, true, COLOR_WHITE, FADE_CROSSFADE)
+					//visitIsland(g)
+					//g.startFade(GAME_ISLAND, time.Second, true, COLOR_WHITE, FADE_CROSSFADE)
 				}
 				return nil
 			}

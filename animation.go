@@ -18,12 +18,12 @@ func loadAnimationData(name string) (*animationData, error) {
 	var err error
 
 	if wasmMode {
-		data, err = efs.ReadFile(name)
+		data, err = efs.ReadFile(name + ".json")
 	} else {
-		data, err = os.ReadFile(name)
+		data, err = os.ReadFile(name + ".json")
 	}
 	if err != nil {
-		doLog(true, false, "loadAnimationData: %v: %v", name, err)
+		//doLog(true, false, "loadAnimationData: %v: %v", name, err)
 		return nil, err
 	}
 

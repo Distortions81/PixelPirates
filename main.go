@@ -108,7 +108,7 @@ func newGame() *Game {
 
 	initNoise(g)
 	initSprites(g)
-	initIslands(g)
+	//initIslands(g)
 	scanIslandsFolder()
 
 	/*
@@ -161,7 +161,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	//Operations that can only happen after game start
 	if g.frameNumber == 1 {
 		savePlayerCollisionList(g)
-		visitIsland(g)
+		//visitIsland(g)
 		return
 	}
 
@@ -171,7 +171,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	case GAME_PLAY:
 		g.drawGame(screen)
 	case GAME_ISLAND:
-		g.drawIsland(screen)
+		//g.drawIsland(screen)
 	default:
 		screen.Fill(COLOR_BLACK)
 		ebitenutil.DebugPrint(screen, "Inavlid Game Mode")
