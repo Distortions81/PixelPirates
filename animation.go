@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"sort"
 	"strconv"
+	"strings"
 )
 
 //go:embed data/sprites/boats data/sprites/characters  data/sprites/islands data/sprites/title data/sprites/world
@@ -45,6 +46,7 @@ func decodeAniJSON(data []byte) (animationData, error) {
 		return animationData{}, err
 	}
 
+	//Parse frame tags
 	root.animations = map[string]frameRange{}
 
 	var buf string
@@ -80,26 +82,23 @@ func decodeAniJSON(data []byte) (animationData, error) {
 		root.numFrames = int64(len(sorted))
 	}
 
-	/*
-		if *debugMode {
-			fmt.Println("Frames:")
-			for _, fKey := range root.sortedFrames {
-				frameData := root.Frames[fKey]
-				doLog(true, false, "Frame Name: %s", fKey)
-				doLog(true, false, "  Position: (%d, %d)", frameData.Frame.X, frameData.Frame.Y)
-				doLog(true, false, "  Size: %dx%d", frameData.Frame.W, frameData.Frame.H)
-				doLog(true, false, "  Rotated: %t", frameData.Rotated)
-				doLog(true, false, "  Trimmed: %t", frameData.Trimmed)
-				doLog(true, false, "  Sprite Source Size: (%d, %d, %dx%d)",
-					frameData.SpriteSourceSize.X, frameData.SpriteSourceSize.Y,
-					frameData.SpriteSourceSize.W, frameData.SpriteSourceSize.H)
-				doLog(true, false, "  Source Size: %dx%d",
-					frameData.SourceSize.W, frameData.SourceSize.H)
-				doLog(true, false, "  Duration: %dms", frameData.Duration)
-				fmt.Println()
+	re := regexp.MustCompile(`\(([^)]+)\)`)
+
+	root.layers = map[string]aniFrame{}
+
+	//Parse layers/frames
+	for _, layer := range root.Meta.Layers {
+		for fname, frame := range root.Frames {
+			matches := re.FindStringSubmatch(fname)
+			if len(matches) != 2 {
+				continue
+			}
+			if strings.EqualFold(matches[1], layer.Name) {
+				root.layers[strings.ToLower(matches[1])] = frame
+				doLog(true, true, "found layer: %v", matches[1])
 			}
 		}
-	*/
+	}
 
 	return root, nil
 }
@@ -155,6 +154,7 @@ type animationData struct {
 
 	//Local
 	sortedFrames []string              `json:"-"`
+	layers       map[string]aniFrame   `json:"-"`
 	numFrames    int64                 `json:"-"`
 	animations   map[string]frameRange `json:"-"`
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"image"
 	"math"
 	"os"
 	"strings"
@@ -254,6 +255,7 @@ func visitIsland(g *Game) {
 	if g.canVisit == nil {
 		return
 	}
+	doLog(true, true, "Visiting: %v", g.canVisit.name)
 	if g.canVisit.spriteSheet.image == nil {
 		loadSprite(g.canVisit.spriteSheet.Fullpath, g.canVisit.spriteSheet, true)
 	}
@@ -290,7 +292,8 @@ func (g *Game) drawIsland(screen *ebiten.Image) {
 	//Draw island ground
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(-g.playPos.X, -g.playPos.Y)
-	screen.DrawImage(g.visiting.spriteSheet.image, op)
+	ground := getLayer("ground", g.visiting.spriteSheet)
+	screen.DrawImage(ground, op)
 
 	//Draw player
 	op = &ebiten.DrawImageOptions{}
@@ -308,38 +311,46 @@ func (g *Game) drawIsland(screen *ebiten.Image) {
 	if faceDir == DIR_NONE {
 		dirName = "idle"
 		lface := g.playerFacing
-		playerImg = getAniFrame(int64(faceFix[lface]), g.defPlayerSP, 0)
+		playerImg = getFrameNumber(int64(faceFix[lface]), g.defPlayerSP, 0)
 	} else {
 		dirName = fmt.Sprintf("%v move", moveFix[faceDir])
 		playerImg = autoAnimate(g.defPlayerSP, 0, dirName)
 	}
 	screen.DrawImage(playerImg, op)
 
-	for _, obj := range g.visiting.objects {
+	for layerName, layer := range g.visiting.spriteSheet.animation.layers {
 		op := &ebiten.DrawImageOptions{}
-		name := obj.animation.sortedFrames[0]
-		frame := obj.animation.Frames[name]
+
+		if layerName == "ground" {
+			continue
+		}
 
 		//TODO: Replace with sprite values
 		offsety := 0.0
-		if strings.Contains(obj.Name, "shore") {
+		if layerName == "water" {
 			fraction := float64(time.Now().UnixMilli()%10000) / 10000.0
 			offsety = math.Sin(2*math.Pi*fraction)*25 + 50
 		}
 
-		op.GeoM.Translate(
-			float64(frame.SpriteSourceSize.X-int(g.playPos.X)),
-			float64(frame.SpriteSourceSize.Y-int(g.playPos.Y))+offsety)
+		xpos, ypos :=
+			float64(layer.SpriteSourceSize.X-int(g.playPos.X)),
+			float64(layer.SpriteSourceSize.Y-int(g.playPos.Y))+offsety
+		op.GeoM.Translate(xpos, ypos)
 
-		if strings.Contains(obj.Name, "collision") ||
-			strings.Contains(obj.Name, "spawn") {
+		if layerName == "edges" || layerName == "spawn" {
 			if *debugMode {
 				op.ColorScale.ScaleAlpha(0.15)
 			} else {
 				continue
 			}
 		}
-		screen.DrawImage(obj.image, op)
+
+		lrect := image.Rectangle{
+			Min: image.Point{X: layer.Frame.X, Y: layer.Frame.Y},
+			Max: image.Point{X: layer.Frame.X + layer.Frame.W, Y: layer.Frame.Y + layer.Frame.H}}
+		subImg := g.visiting.spriteSheet.image.SubImage(lrect).(*ebiten.Image)
+
+		screen.DrawImage(subImg, op)
 	}
 
 	buf := fmt.Sprintf("Test Island scene, E to Exit. %0.0f,%0.0f", g.playPos.X, g.playPos.Y)

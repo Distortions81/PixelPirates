@@ -2,7 +2,6 @@ package main
 
 import (
 	"math"
-	"strings"
 )
 
 func BresenhamLine(a, b iPoint) []iPoint {
@@ -73,25 +72,25 @@ func makeCollisionMaps(g *Game) {
 	if g.visiting == nil {
 		return
 	}
-	if len(g.visiting.collision) > 0 {
+	island := g.visiting
+
+	if len(island.collision) > 0 {
 		return
 	}
-	island := g.visiting
-	for _, item := range island.objects {
-		if strings.Contains(item.Name, "collision") {
-			g.visiting.collision = map[iPoint]bool{}
-			count := 0
-			for x := 0; x < item.image.Bounds().Dx(); x++ {
-				for y := 0; y < item.image.Bounds().Dy(); y++ {
-					pixel := item.image.At(x, y)
-					_, _, _, alpha := pixel.RGBA()
-					if alpha > 128 {
-						g.visiting.collision[iPoint{X: x, Y: y}] = true
-						count++
-					}
-				}
+
+	edges := getLayer("edges", island.spriteSheet)
+	island.collision = map[iPoint]bool{}
+	count := 0
+
+	for x := 0; x < edges.Bounds().Dx(); x++ {
+		for y := 0; y < edges.Bounds().Dy(); y++ {
+			pixel := edges.At(x, y)
+			_, _, _, alpha := pixel.RGBA()
+			if alpha > 128 {
+				g.visiting.collision[iPoint{X: x, Y: y}] = true
+				count++
 			}
-			doLog(true, false, "Parsed collision map for island: %v (%v points)", island.name, count)
 		}
 	}
+	doLog(true, false, "Parsed collision map for island: %v (%v points)", island.name, count)
 }

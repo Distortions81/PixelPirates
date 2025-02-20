@@ -3,6 +3,7 @@ package main
 import (
 	"image"
 	"math"
+	"strings"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -36,7 +37,7 @@ func initSprites(g *Game) {
 	g.defPlayerSP = spriteList["default-player"]
 
 	//Save player size
-	img := getAniFrame(0, g.defPlayerSP, 0)
+	img := getFrameNumber(0, g.defPlayerSP, 0)
 	pWidth = img.Bounds().Dx()
 	pHeight = img.Bounds().Dy()
 }
@@ -85,8 +86,8 @@ type spriteItem struct {
 	animation *animationData
 }
 
-func getAniFrame(frame int64, ani *spriteItem, offset int) *ebiten.Image {
-	numFrames := int64(len(ani.animation.Frames))
+func getFrameNumber(frame int64, ani *spriteItem, offset int) *ebiten.Image {
+	numFrames := ani.animation.numFrames
 	if frame < 0 || frame >= numFrames {
 		doLog(true, false, "%v: invalid frame number: %v", ani.Name, frame)
 		if frame >= numFrames {
@@ -108,6 +109,16 @@ func getAniFrame(frame int64, ani *spriteItem, offset int) *ebiten.Image {
 	return subFrame
 }
 
+func getLayer(layerName string, ani *spriteItem) *ebiten.Image {
+	layer := ani.animation.layers[strings.ToLower(layerName)]
+	layerRect := layer.Frame
+	rect := image.Rectangle{Min: image.Point{
+		X: layerRect.X, Y: layerRect.Y},
+		Max: image.Point{X: layerRect.X + layerRect.W, Y: layerRect.Y + layerRect.H}}
+	subFrame := ani.image.SubImage(rect).(*ebiten.Image)
+	return subFrame
+}
+
 func autoAnimate(ani *spriteItem, offset int, tag string) *ebiten.Image {
 	frameRange := ani.animation.animations[tag]
 	numFrames := int64(frameRange.end-frameRange.start) + 1
@@ -121,7 +132,7 @@ func autoAnimate(ani *spriteItem, offset int, tag string) *ebiten.Image {
 		return nil
 	}
 	frameNum := (time % numFrames) + int64(frameRange.start)
-	return getAniFrame(frameNum, ani, offset)
+	return getFrameNumber(frameNum, ani, offset)
 }
 
 func autoAnimatePingPong(ani *spriteItem, offset int, tag string) *ebiten.Image {
@@ -149,5 +160,5 @@ func autoAnimatePingPong(ani *spriteItem, offset int, tag string) *ebiten.Image 
 		frameNum = int64(period - framePosition)
 	}
 
-	return getAniFrame(frameNum+int64(frameRange.start), ani, offset)
+	return getFrameNumber(frameNum+int64(frameRange.start), ani, offset)
 }
