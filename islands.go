@@ -166,8 +166,6 @@ func scanIslandsFolder() error {
 		islandsAdded = append(islandsAdded, info.Name)
 	}
 
-	doLog(true, true, "Islands added: %v", strings.Join(islandsAdded, ", "))
-
 	return nil
 }
 
@@ -268,6 +266,8 @@ func visitIsland(g *Game) {
 	g.playPos = fixPos
 }
 
+const shoreMovement = 25
+
 func (g *Game) drawIsland(screen *ebiten.Image) {
 
 	if g.visiting == nil {
@@ -320,7 +320,7 @@ func (g *Game) drawIsland(screen *ebiten.Image) {
 		offsety := 0.0
 		if layerName == "water" {
 			fraction := float64(time.Now().UnixMilli()%10000) / 10000.0
-			offsety = math.Sin(2*math.Pi*fraction)*25 + 50
+			offsety = (math.Sin(2*math.Pi*fraction) * shoreMovement) + shoreMovement
 		}
 
 		xpos, ypos :=
