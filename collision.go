@@ -78,7 +78,7 @@ func makeCollisionMaps(g *Game) {
 		return
 	}
 
-	edges := getLayer("edges", island.spriteSheet)
+	edges := getLayerFromName("edges", island.spriteSheet)
 	island.collision = map[iPoint]bool{}
 	count := 0
 

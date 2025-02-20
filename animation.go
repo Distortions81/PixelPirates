@@ -84,7 +84,7 @@ func decodeAniJSON(data []byte) (animationData, error) {
 
 	re := regexp.MustCompile(`\(([^)]+)\)`)
 
-	root.layers = map[string]aniFrame{}
+	root.layers = map[string]*aniFrame{}
 
 	//Parse layers/frames
 	for _, layer := range root.Meta.Layers {
@@ -94,7 +94,7 @@ func decodeAniJSON(data []byte) (animationData, error) {
 				continue
 			}
 			if strings.EqualFold(matches[1], layer.Name) {
-				root.layers[strings.ToLower(matches[1])] = frame
+				root.layers[strings.ToLower(matches[1])] = &frame
 				doLog(true, true, "found layer: %v", matches[1])
 			}
 		}
@@ -154,7 +154,7 @@ type animationData struct {
 
 	//Local
 	sortedFrames []string              `json:"-"`
-	layers       map[string]aniFrame   `json:"-"`
+	layers       map[string]*aniFrame  `json:"-"`
 	numFrames    int64                 `json:"-"`
 	animations   map[string]frameRange `json:"-"`
 }

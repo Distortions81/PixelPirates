@@ -3,7 +3,6 @@ package main
 import (
 	"image"
 	"math"
-	"strings"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -109,8 +108,21 @@ func getFrameNumber(frame int64, ani *spriteItem, offset int) *ebiten.Image {
 	return subFrame
 }
 
-func getLayer(layerName string, ani *spriteItem) *ebiten.Image {
-	layer := ani.animation.layers[strings.ToLower(layerName)]
+func getLayerFromName(layerName string, ani *spriteItem) *ebiten.Image {
+	layer := ani.animation.layers[layerName]
+	if layer == nil {
+		doLog(true, false, "getLayerFromName: layer: %v not found.", layerName)
+		return nil
+	}
+	layerRect := layer.Frame
+	rect := image.Rectangle{Min: image.Point{
+		X: layerRect.X, Y: layerRect.Y},
+		Max: image.Point{X: layerRect.X + layerRect.W, Y: layerRect.Y + layerRect.H}}
+	subFrame := ani.image.SubImage(rect).(*ebiten.Image)
+	return subFrame
+}
+
+func getLayer(layer *aniFrame, ani *spriteItem) *ebiten.Image {
 	layerRect := layer.Frame
 	rect := image.Rectangle{Min: image.Point{
 		X: layerRect.X, Y: layerRect.Y},

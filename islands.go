@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"image"
 	"math"
 	"os"
 	"strings"
@@ -234,21 +233,19 @@ func getIslands(g *Game, pos int) []islandData {
 	return islandsFound
 }
 
-func findSpawns() fPoint {
-	for i, island := range islands {
-		for _, item := range island.objects {
-			if strings.Contains(item.Name, "spawn") {
-				name := item.animation.sortedFrames[0]
-				frame := item.animation.Frames[name]
-				newSpawn := fPoint{X: float64(frame.SpriteSourceSize.X), Y: float64(frame.SpriteSourceSize.Y)}
-				islands[i].spawn = newSpawn
-				doLog(true, false, "Found Spawn for: %v at %v,%v", island.name, newSpawn.X, newSpawn.Y)
-				return newSpawn
-			}
-		}
-	}
+func findSpawns(g *Game) fPoint {
 
-	return fPoint{}
+	if g.visiting == nil {
+		return fPoint{}
+	}
+	spawn := g.visiting.spriteSheet.animation.layers["spawn"]
+	if spawn == nil {
+		doLog(true, false, "Island has no spawn layer.")
+		return fPoint{}
+	}
+	newSpawn := fPoint{X: float64(spawn.SpriteSourceSize.X), Y: float64(spawn.SpriteSourceSize.Y)}
+	doLog(true, false, "Found Spawn for: %v at %v,%v", g.visiting.name, newSpawn.X, newSpawn.Y)
+	return newSpawn
 }
 
 func visitIsland(g *Game) {
@@ -263,7 +260,7 @@ func visitIsland(g *Game) {
 	g.visiting = g.canVisit
 
 	makeCollisionMaps(g)
-	fixPos := findSpawns()
+	fixPos := findSpawns(g)
 
 	frameRange := g.defPlayerSP.animation.animations["idle"]
 	name := g.defPlayerSP.animation.sortedFrames[frameRange.start]
@@ -292,7 +289,7 @@ func (g *Game) drawIsland(screen *ebiten.Image) {
 	//Draw island ground
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(-g.playPos.X, -g.playPos.Y)
-	ground := getLayer("ground", g.visiting.spriteSheet)
+	ground := getLayerFromName("ground", g.visiting.spriteSheet)
 	screen.DrawImage(ground, op)
 
 	//Draw player
@@ -345,11 +342,7 @@ func (g *Game) drawIsland(screen *ebiten.Image) {
 			}
 		}
 
-		lrect := image.Rectangle{
-			Min: image.Point{X: layer.Frame.X, Y: layer.Frame.Y},
-			Max: image.Point{X: layer.Frame.X + layer.Frame.W, Y: layer.Frame.Y + layer.Frame.H}}
-		subImg := g.visiting.spriteSheet.image.SubImage(lrect).(*ebiten.Image)
-
+		subImg := getLayer(layer, g.visiting.spriteSheet)
 		screen.DrawImage(subImg, op)
 	}
 
