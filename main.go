@@ -171,7 +171,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	case GAME_PLAY:
 		g.drawGame(screen)
 	case GAME_ISLAND:
-		//g.drawIsland(screen)
+		g.drawIsland(screen)
 	default:
 		screen.Fill(COLOR_BLACK)
 		ebitenutil.DebugPrint(screen, "Inavlid Game Mode")

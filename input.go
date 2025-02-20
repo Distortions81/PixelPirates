@@ -84,15 +84,15 @@ func (g *Game) Update() error {
 			}
 			if key == ebiten.KeyE {
 				if g.canVisit != nil && !g.modeTransition {
-					//visitIsland(g)
-					//g.startFade(GAME_ISLAND, time.Second, true, COLOR_WHITE, FADE_CROSSFADE)
+					visitIsland(g)
+					g.startFade(GAME_ISLAND, time.Second, true, COLOR_WHITE, FADE_CROSSFADE)
 				}
 				return nil
 			}
 		}
 	} else if g.gameMode == GAME_ISLAND {
 
-		if g.visiting == nil || g.visiting.visitSprite.image == nil {
+		if g.visiting == nil || g.visiting.spriteSheet.image == nil {
 			return nil
 		}
 
@@ -107,7 +107,7 @@ func (g *Game) Update() error {
 			}
 		}
 
-		sceneX, sceneY := float64(g.visiting.visitSprite.image.Bounds().Dx()), float64(g.visiting.visitSprite.image.Bounds().Dy())
+		sceneX, sceneY := float64(g.visiting.spriteSheet.image.Bounds().Dx()), float64(g.visiting.spriteSheet.image.Bounds().Dy())
 		sceneX, sceneY = sceneX-dWinWidth, sceneY-dWinHeight
 		oldPos := g.playPos
 		for _, key := range pressedKeys {

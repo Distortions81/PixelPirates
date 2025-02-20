@@ -2,8 +2,11 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
+	"math"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -17,8 +20,7 @@ const (
 
 	infoJsonFile    = "info"
 	oceanSpriteFile = "ocean"
-	spriteSheetName = "spritesheet"
-	spriteSheetJson = "spritesheet"
+	spriteSheetName = "sprite-sheet"
 )
 
 type islandData struct {
@@ -27,7 +29,8 @@ type islandData struct {
 	spawn      fPoint
 
 	oceanSprite *spriteItem
-	visitSprite *spriteItem
+	oceanSeen   time.Time
+	spriteSheet *spriteItem
 	objects     []*spriteItem
 
 	collision map[iPoint]bool
@@ -156,7 +159,10 @@ func scanIslandsFolder() error {
 				desc: info.Desc,
 				pos:  info.Pos,
 				oceanSprite: &spriteItem{doReflect: true, onDemand: true,
-					Fullpath: dataDir + spritesDir + islandsDir + island + "/" + oceanSpriteFile}})
+					Fullpath: dataDir + spritesDir + islandsDir + island + "/" + oceanSpriteFile},
+				spriteSheet: &spriteItem{onDemand: true,
+					Fullpath: dataDir + spritesDir + islandsDir + island + "/" + spriteSheetName},
+			})
 		islandsAdded = append(islandsAdded, info.Name)
 	}
 
@@ -242,4 +248,100 @@ func findSpawns() fPoint {
 	}
 
 	return fPoint{}
+}
+
+func visitIsland(g *Game) {
+	if g.canVisit == nil {
+		return
+	}
+	if g.canVisit.spriteSheet.image == nil {
+		loadSprite(g.canVisit.spriteSheet.Fullpath, g.canVisit.spriteSheet, true)
+	}
+
+	g.visiting = g.canVisit
+
+	makeCollisionMaps(g)
+	fixPos := findSpawns()
+
+	frameRange := g.defPlayerSP.animation.animations["idle"]
+	name := g.defPlayerSP.animation.sortedFrames[frameRange.start]
+	frame := g.defPlayerSP.animation.Frames[name]
+
+	fixPos.X -= (dWinWidth / 2)
+	fixPos.Y -= (dWinHeight / 2)
+
+	fixPos.X += float64(frame.SpriteSourceSize.W / 2)
+	fixPos.Y += float64(frame.SpriteSourceSize.H / 2)
+	g.playPos = fixPos
+}
+
+func (g *Game) drawIsland(screen *ebiten.Image) {
+
+	if g.visiting == nil {
+		screen.Clear()
+		ebitenutil.DebugPrint(screen, "Invalid g.visiting.")
+		return
+	}
+	if g.visiting.spriteSheet.image == nil {
+		screen.Clear()
+		ebitenutil.DebugPrint(screen, "Invalid visitSprite.")
+		return
+	}
+	//Draw island ground
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(-g.playPos.X, -g.playPos.Y)
+	screen.DrawImage(g.visiting.spriteSheet.image, op)
+
+	//Draw player
+	op = &ebiten.DrawImageOptions{}
+	ani := g.defPlayerSP
+	fKey := ani.animation.sortedFrames[0]
+	fRect := ani.animation.Frames[fKey].Frame
+
+	charX, charY := float64(fRect.W/2), float64(fRect.H/2)
+	op.GeoM.Translate(dWinWidthHalf-charX, dWinHeightHalf-charY)
+
+	faceDir := directionFromCoords(g.oldPlayPos.X-g.playPos.X, g.oldPlayPos.Y-g.playPos.Y)
+	var (
+		dirName string
+	)
+	if faceDir == DIR_NONE {
+		dirName = "idle"
+		lface := g.playerFacing
+		playerImg = getAniFrame(int64(faceFix[lface]), g.defPlayerSP, 0)
+	} else {
+		dirName = fmt.Sprintf("%v move", moveFix[faceDir])
+		playerImg = autoAnimate(g.defPlayerSP, 0, dirName)
+	}
+	screen.DrawImage(playerImg, op)
+
+	for _, obj := range g.visiting.objects {
+		op := &ebiten.DrawImageOptions{}
+		name := obj.animation.sortedFrames[0]
+		frame := obj.animation.Frames[name]
+
+		//TODO: Replace with sprite values
+		offsety := 0.0
+		if strings.Contains(obj.Name, "shore") {
+			fraction := float64(time.Now().UnixMilli()%10000) / 10000.0
+			offsety = math.Sin(2*math.Pi*fraction)*25 + 50
+		}
+
+		op.GeoM.Translate(
+			float64(frame.SpriteSourceSize.X-int(g.playPos.X)),
+			float64(frame.SpriteSourceSize.Y-int(g.playPos.Y))+offsety)
+
+		if strings.Contains(obj.Name, "collision") ||
+			strings.Contains(obj.Name, "spawn") {
+			if *debugMode {
+				op.ColorScale.ScaleAlpha(0.15)
+			} else {
+				continue
+			}
+		}
+		screen.DrawImage(obj.image, op)
+	}
+
+	buf := fmt.Sprintf("Test Island scene, E to Exit. %0.0f,%0.0f", g.playPos.X, g.playPos.Y)
+	ebitenutil.DebugPrint(screen, buf)
 }

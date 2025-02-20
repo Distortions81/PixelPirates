@@ -51,6 +51,11 @@ func loadSprite(name string, sprite *spriteItem, demanded bool) {
 	var image, blurImg *ebiten.Image
 	var err error
 
+	if sprite == nil {
+		doLog(true, false, "loadSprite: nil spriteItem: %v", name)
+		return
+	}
+
 	aniData, err := loadAnimationData(name)
 	sprite.animation = aniData
 
