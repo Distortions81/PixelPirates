@@ -93,9 +93,10 @@ func decodeAniJSON(data []byte) (animationData, error) {
 			if len(matches) != 2 {
 				continue
 			}
-			if strings.EqualFold(matches[1], layer.Name) {
-				root.layers[strings.ToLower(matches[1])] = &frame
-				doLog(true, true, "found layer: %v", matches[1])
+			lName := strings.ToLower(matches[1])
+			if strings.EqualFold(lName, layer.Name) {
+				root.layers[lName] = &frame
+				doLog(true, true, "found layer: %v", lName)
 			}
 		}
 	}

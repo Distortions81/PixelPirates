@@ -72,25 +72,35 @@ func makeCollisionMaps(g *Game) {
 	if g.visiting == nil {
 		return
 	}
-	island := g.visiting
 
-	if len(island.collision) > 0 {
+	if len(g.visiting.collision) > 0 {
 		return
 	}
 
-	edges := getLayerFromName("edges", island.spriteSheet)
-	island.collision = map[iPoint]bool{}
+	edges := g.visiting.spriteSheet.animation.layers["edges"]
+	g.visiting.collision = map[iPoint]bool{}
 	count := 0
 
-	for x := 0; x < edges.Bounds().Dx(); x++ {
-		for y := 0; y < edges.Bounds().Dy(); y++ {
-			pixel := edges.At(x, y)
+	for x := 0; x < edges.SourceSize.W; x++ {
+		for y := 0; y < edges.SourceSize.H; y++ {
+			sx, sy :=
+				x+edges.Frame.X-edges.SpriteSourceSize.X,
+				y+edges.Frame.Y-edges.SpriteSourceSize.Y
+			//Check for trimmed area
+			if sx < edges.Frame.X || sy < edges.Frame.Y {
+				continue
+			}
+			//Check for trimmed area
+			if sx > edges.Frame.X+edges.Frame.W || sy > edges.Frame.Y+edges.Frame.H {
+				continue
+			}
+			pixel := g.visiting.spriteSheet.image.At(sx, sy)
 			_, _, _, alpha := pixel.RGBA()
-			if alpha > 128 {
+			if alpha > 254 {
 				g.visiting.collision[iPoint{X: x, Y: y}] = true
 				count++
 			}
 		}
 	}
-	doLog(true, false, "Parsed collision map for island: %v (%v points)", island.name, count)
+	doLog(true, false, "Parsed collision map for island: %v (%v points)", g.visiting.name, count)
 }
