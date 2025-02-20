@@ -262,15 +262,9 @@ func visitIsland(g *Game) {
 	makeCollisionMaps(g)
 	fixPos := findSpawns(g)
 
-	frameRange := g.defPlayerSP.animation.animations["idle"]
-	name := g.defPlayerSP.animation.sortedFrames[frameRange.start]
-	frame := g.defPlayerSP.animation.Frames[name]
-
 	fixPos.X -= (dWinWidth / 2)
 	fixPos.Y -= (dWinHeight / 2)
 
-	fixPos.X += float64(frame.SpriteSourceSize.W / 2)
-	fixPos.Y += float64(frame.SpriteSourceSize.H / 2)
 	g.playPos = fixPos
 }
 
