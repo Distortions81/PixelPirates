@@ -152,10 +152,11 @@ func scanIslandsFolder() error {
 		}
 		islands = append(islands,
 			islandData{
-				name:        info.Name,
-				desc:        info.Desc,
-				pos:         info.Pos,
-				oceanSprite: &spriteItem{Fullpath: dataDir + spritesDir + islandsDir + island + "/" + oceanSpriteFile}})
+				name: info.Name,
+				desc: info.Desc,
+				pos:  info.Pos,
+				oceanSprite: &spriteItem{doReflect: true, onDemand: true,
+					Fullpath: dataDir + spritesDir + islandsDir + island + "/" + oceanSpriteFile}})
 		islandsAdded = append(islandsAdded, info.Name)
 	}
 
