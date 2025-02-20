@@ -15,8 +15,9 @@ import (
 var islands []islandData
 
 const (
-	islandChunkSize = dWinWidthHalf
-	checkChunks     = 4
+	chunksPerScreen = 4
+	islandChunkSize = dWinWidth / chunksPerScreen
+	checkChunks     = chunksPerScreen
 
 	infoJsonFile    = "info"
 	oceanSpriteFile = "ocean"
@@ -57,8 +58,29 @@ func initIslands(g *Game) {
 		}
 
 		doLog(true, true, "Storing island: #%v '%v' in block %v.", i+1, island.name, islandChunkPos)
-
 		g.islandChunks[islandChunkPos].islands = append(g.islandChunks[islandChunkPos].islands, islands[i])
+	}
+
+	go cleanIslands()
+}
+
+func cleanIslands() {
+	for {
+		time.Sleep(time.Second)
+
+		for i, island := range islands {
+			if island.oceanSprite.image != nil {
+				if !island.oceanSeen.IsZero() && time.Since(island.oceanSeen) > time.Second {
+					islands[i].oceanSeen = time.Time{}
+					islands[i].oceanSprite.image.Deallocate()
+					islands[i].oceanSprite.blurred.Deallocate()
+
+					islands[i].oceanSprite.image = nil
+					islands[i].oceanSprite.blurred = nil
+					doLog(true, true, "Deallocated island ocean sprite: %v", island.name)
+				}
+			}
+		}
 	}
 }
 
@@ -173,16 +195,21 @@ func drawIslands(g *Game, screen *ebiten.Image) {
 
 	paralaxPos := g.boatPos.X * (islandY * distParallax)
 
-	islands := getIslands(g, int(paralaxPos))
+	iList := getIslands(g, int(paralaxPos))
 	drewSign := false
 
-	for i, island := range islands {
-
+	for i, island := range iList {
 		if island.oceanSprite.image == nil {
 			loadSprite(island.oceanSprite.Fullpath, island.oceanSprite, true)
 		}
+		islands[i].oceanSeen = time.Now()
+
 		islandPosX := -(paralaxPos + float64(-island.pos))
 		islandPosY := dWinHeightHalf - float64(island.oceanSprite.image.Bounds().Dy()) + islandY
+
+		if paralaxPos < 0 || islandPosX > dWinWidth {
+			continue //prevent overdraw
+		}
 
 		//Island
 		op := &ebiten.DrawImageOptions{}
@@ -221,7 +248,7 @@ func getIslands(g *Game, pos int) []islandData {
 
 	cPos := pos / islandChunkSize
 
-	for x := cPos - checkChunks; x < cPos+checkChunks; x++ {
+	for x := cPos - 1; x < cPos+(checkChunks+1); x++ {
 		if g.islandChunks[x] == nil {
 			continue
 		}
