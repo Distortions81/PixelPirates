@@ -160,8 +160,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	//Operations that can only happen after game start
 	if g.frameNumber == 1 {
-		savePlayerCollisionList(g)
-		//visitIsland(g)
+		saveCollisionList(g)
+		visitIsland(g)
 		return
 	}
 
@@ -203,7 +203,7 @@ func (point fPoint) QuantizePoint() iPoint {
 	return iPoint{X: int(point.X), Y: int(point.Y)}
 }
 
-func savePlayerCollisionList(g *Game) {
+func saveCollisionList(g *Game) {
 	if len(g.defCollision.collision) > 0 {
 		return
 	}
