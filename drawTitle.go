@@ -12,7 +12,7 @@ func (g *Game) drawTitle(screen *ebiten.Image) {
 	drawSun(g, screen)
 	drawClouds(g, screen)
 	drawWaves(g, screen)
-	drawIslands(g, screen)
+	//drawIslands(g, screen)
 	drawAir(g, screen)
 	drawBoat(g, screen)
 

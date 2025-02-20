@@ -43,21 +43,19 @@ func initSprites(g *Game) {
 
 func loadSprites() {
 	for name, sprite := range spriteList {
-		loadSprite(name, sprite, false)
+		loadSprite(dataDir+spritesDir+sprite.Path+name, sprite, false)
 	}
 }
 
 func loadSprite(name string, sprite *spriteItem, demanded bool) {
 	var image, blurImg *ebiten.Image
 	var err error
-	fullpath := dataDir + spritesDir + sprite.Path + name
-	sprite.Fullpath = fullpath
 
-	aniData, err := loadAnimationData(fullpath)
+	aniData, err := loadAnimationData(name)
 	sprite.animation = aniData
 
 	if !sprite.onDemand || demanded {
-		image, blurImg, err = loadImage(fullpath, sprite.unmanged, sprite.doReflect)
+		image, blurImg, err = loadImage(name, sprite.unmanged, sprite.doReflect)
 		if err != nil {
 			doLog(true, false, "loadImage Failed: %v", err)
 			return

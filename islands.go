@@ -15,10 +15,10 @@ const (
 	islandChunkSize = dWinWidthHalf
 	checkChunks     = 4
 
-	infoJsonFile    = "info.json"
-	mainSpriteName  = "world.png"
-	spriteSheetName = "spritesheet.png"
-	spriteSheetJson = "spritesheet.json"
+	infoJsonFile    = "info"
+	oceanSpriteFile = "ocean"
+	spriteSheetName = "spritesheet"
+	spriteSheetJson = "spritesheet"
 )
 
 type islandData struct {
@@ -42,6 +42,21 @@ type islandInfoData struct {
 
 	Pos,
 	Level int
+}
+
+func initIslands(g *Game) {
+	g.islandChunks = map[int]*islandChunkData{}
+
+	for i, island := range islands {
+		islandChunkPos := island.pos / islandChunkSize
+		if g.islandChunks[islandChunkPos] == nil {
+			g.islandChunks[islandChunkPos] = &islandChunkData{}
+		}
+
+		doLog(true, true, "Storing island: #%v '%v' in block %v.", i+1, island.name, islandChunkPos)
+
+		g.islandChunks[islandChunkPos].islands = append(g.islandChunks[islandChunkPos].islands, islands[i])
+	}
 }
 
 func writeInfoJson(path string, island islandInfoData) error {
@@ -120,7 +135,7 @@ func scanIslandsFolder() error {
 	var islandsAdded []string
 	for _, island := range islandFolders {
 		infoPath := dirPath + "/" + island + "/"
-		_, err := os.ReadFile(infoPath + infoJsonFile)
+		_, err := os.ReadFile(infoPath + infoJsonFile + ".json")
 		if err != nil {
 			doLog(true, false, "Island '%v' has no %v file.", island, infoJsonFile)
 			newInfo := islandInfoData{
@@ -137,10 +152,10 @@ func scanIslandsFolder() error {
 		}
 		islands = append(islands,
 			islandData{
-				name: info.Name,
-				desc: info.Desc,
-				pos:  info.Pos,
-			})
+				name:        info.Name,
+				desc:        info.Desc,
+				pos:         info.Pos,
+				oceanSprite: &spriteItem{Fullpath: dataDir + spritesDir + islandsDir + island + "/" + oceanSpriteFile}})
 		islandsAdded = append(islandsAdded, info.Name)
 	}
 
@@ -158,6 +173,9 @@ func drawIslands(g *Game, screen *ebiten.Image) {
 
 	for i, island := range islands {
 
+		if island.oceanSprite.image == nil {
+			loadSprite(island.oceanSprite.Fullpath, island.oceanSprite, true)
+		}
 		islandPosX := -(paralaxPos + float64(-island.pos))
 		islandPosY := dWinHeightHalf - float64(island.oceanSprite.image.Bounds().Dy()) + islandY
 

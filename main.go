@@ -108,8 +108,8 @@ func newGame() *Game {
 
 	initNoise(g)
 	initSprites(g)
-	//initIslands(g)
 	scanIslandsFolder()
+	initIslands(g)
 
 	/*
 		if *qlive {
