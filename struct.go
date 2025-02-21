@@ -10,13 +10,17 @@ import (
 
 // Game mode
 const (
-	GAME_TITLE = iota
+	GAME_BOOT = iota
+	GAME_START
+	GAME_TITLE
 	GAME_PLAY
 	GAME_ISLAND
 	GAME_MAX //Don't use
 )
 
 var modeNames [GAME_MAX]string = [GAME_MAX]string{
+	"BOOT",
+	"START",
 	"TITLE",
 	"PLAY",
 	"ISLAND",
@@ -48,12 +52,12 @@ type Game struct {
 	wavesLines            [dWinHeightHalf]waveLine
 	airWaveLines          [dWinHeightHalf]waveLine
 	numWaves, numAirWaves int
-	collisions            int
 
 	//Visit-Island specific
 	islandChunks        map[int]*islandChunkData
 	playPos, oldPlayPos fPoint
-	playerFacing        int
+
+	playerFacing int
 
 	visiting, canVisit *islandData
 

@@ -12,11 +12,19 @@ func (g *Game) drawTitle(screen *ebiten.Image) {
 	drawSun(g, screen)
 	drawClouds(g, screen)
 	drawWaves(g, screen)
-	drawIslands(g, screen)
+	//drawIslands(g, screen)
 	drawAir(g, screen)
 	drawBoat(g, screen)
 
 	if !g.modeTransition {
+
+		/* Load if needed */
+		if g.titleSP.image == nil {
+			loadSprite(g.titleSP.Fullpath, g.titleSP, true)
+		}
+		if g.clickStartSP.image == nil {
+			loadSprite(g.clickStartSP.Fullpath, g.clickStartSP, true)
+		}
 		//Text
 		op := &ebiten.DrawImageOptions{}
 		op.GeoM.Translate(

@@ -4,105 +4,37 @@ import (
 	"embed"
 	"encoding/json"
 	"fmt"
-	"image"
-	"image/png"
-	"io"
-	"io/fs"
 	"os"
 	"regexp"
 	"sort"
 	"strconv"
-
-	"github.com/anthonynsimon/bild/blur"
-	"github.com/hajimehoshi/ebiten/v2"
+	"strings"
 )
 
 //go:embed data/sprites/boats data/sprites/characters  data/sprites/islands data/sprites/title data/sprites/world
 var efs embed.FS
 
-// Load sprites
-func loadImage(name string, unmanaged bool, doBlur bool) (*ebiten.Image, *ebiten.Image, error) {
-
-	//Open file
-	var (
-		err     error
-		pngData fs.File
-	)
-
-	if wasmMode {
-		pngData, err = efs.Open(name + ".png")
-	} else {
-		pngData, err = os.Open(name + ".png")
-	}
-	if err != nil {
-		doLog(true, false, "loadSprite: Open: %v", err)
-		return nil, nil, err
-	}
-
-	//Decode png
-	m, err := png.Decode(pngData)
-	if err != nil {
-		doLog(true, false, "loadSprite: Decode: %v", err)
-		return nil, nil, err
-	}
-
-	//Create image
-	var (
-		img, blurImg *ebiten.Image
-		newBlur      image.Image
-	)
-	if doBlur {
-		newBlur = blur.Box(m, islandReflectionBlur)
-	}
-
-	if unmanaged {
-		img = ebiten.NewImageFromImageWithOptions(m, &ebiten.NewImageFromImageOptions{Unmanaged: true})
-		if doBlur {
-			blurImg = ebiten.NewImageFromImageWithOptions(newBlur, &ebiten.NewImageFromImageOptions{Unmanaged: true})
-		}
-	} else {
-		img = ebiten.NewImageFromImage(m)
-		if doBlur {
-			blurImg = ebiten.NewImageFromImage(newBlur)
-		}
-	}
-
-	return img, blurImg, nil
-}
-
 func loadAnimationData(name string) (*animationData, error) {
+	var data []byte
+	var err error
+
 	if wasmMode {
-		jdata, err := efs.Open(name + ".json")
-		if err != nil {
-			return nil, err
-		}
-		buf, err := io.ReadAll(jdata)
-		if err != nil {
-			doLog(true, false, "loadAnimationData: Embedded: %v", err)
-			return nil, err
-		}
-
-		aniJSON, err := decodeAniJSON(buf)
-		if err != nil {
-			doLog(true, false, "loadAnimationData: Embedded: %v", err)
-			return nil, err
-		}
-
-		return &aniJSON, nil
+		data, err = efs.ReadFile(name + ".json")
 	} else {
-		buf, err := os.ReadFile(name + ".json")
-		if err != nil {
-			return nil, err
-		}
-
-		aniJSON, err := decodeAniJSON(buf)
-		if err != nil {
-			doLog(true, false, "loadAnimationData: Embedded: %v", err)
-			return nil, err
-		}
-
-		return &aniJSON, nil
+		data, err = os.ReadFile(name + ".json")
 	}
+	if err != nil {
+		//doLog(true, false, "loadAnimationData: %v: %v", name, err)
+		return nil, err
+	}
+
+	aniJSON, err := decodeAniJSON(data)
+	if err != nil {
+		doLog(true, false, "loadAnimationData: decodeAniJSON: %v: %v", name, err)
+		return nil, err
+	}
+
+	return &aniJSON, nil
 }
 
 func decodeAniJSON(data []byte) (animationData, error) {
@@ -114,6 +46,7 @@ func decodeAniJSON(data []byte) (animationData, error) {
 		return animationData{}, err
 	}
 
+	//Parse frame tags
 	root.animations = map[string]frameRange{}
 
 	var buf string
@@ -149,26 +82,24 @@ func decodeAniJSON(data []byte) (animationData, error) {
 		root.numFrames = int64(len(sorted))
 	}
 
-	/*
-		if *debugMode {
-			fmt.Println("Frames:")
-			for _, fKey := range root.sortedFrames {
-				frameData := root.Frames[fKey]
-				doLog(true, false, "Frame Name: %s", fKey)
-				doLog(true, false, "  Position: (%d, %d)", frameData.Frame.X, frameData.Frame.Y)
-				doLog(true, false, "  Size: %dx%d", frameData.Frame.W, frameData.Frame.H)
-				doLog(true, false, "  Rotated: %t", frameData.Rotated)
-				doLog(true, false, "  Trimmed: %t", frameData.Trimmed)
-				doLog(true, false, "  Sprite Source Size: (%d, %d, %dx%d)",
-					frameData.SpriteSourceSize.X, frameData.SpriteSourceSize.Y,
-					frameData.SpriteSourceSize.W, frameData.SpriteSourceSize.H)
-				doLog(true, false, "  Source Size: %dx%d",
-					frameData.SourceSize.W, frameData.SourceSize.H)
-				doLog(true, false, "  Duration: %dms", frameData.Duration)
-				fmt.Println()
+	re := regexp.MustCompile(`\(([^)]+)\)`)
+
+	root.layers = map[string]*aniFrame{}
+
+	//Parse layers/frames
+	for _, layer := range root.Meta.Layers {
+		for fname, frame := range root.Frames {
+			matches := re.FindStringSubmatch(fname)
+			if len(matches) != 2 {
+				continue
+			}
+			lName := strings.ToLower(matches[1])
+			if strings.EqualFold(lName, layer.Name) {
+				root.layers[lName] = &frame
+				doLog(true, true, "found layer: %v", lName)
 			}
 		}
-	*/
+	}
 
 	return root, nil
 }
@@ -224,6 +155,7 @@ type animationData struct {
 
 	//Local
 	sortedFrames []string              `json:"-"`
+	layers       map[string]*aniFrame  `json:"-"`
 	numFrames    int64                 `json:"-"`
 	animations   map[string]frameRange `json:"-"`
 }

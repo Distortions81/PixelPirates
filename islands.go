@@ -1,10 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"math"
 	"os"
-	"path"
 	"strings"
 	"time"
 
@@ -12,11 +12,16 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
-var playerImg *ebiten.Image
+var islands []islandData
 
 const (
-	islandChunkSize = dWinWidthHalf
-	checkChunks     = 4
+	chunksPerScreen = 4
+	islandChunkSize = dWinWidth / chunksPerScreen
+	checkChunks     = chunksPerScreen
+
+	infoJsonFile    = "info"
+	oceanSpriteFile = "ocean"
+	spriteSheetName = "sprite-sheet"
 )
 
 type islandData struct {
@@ -24,11 +29,9 @@ type islandData struct {
 	pos        int
 	spawn      fPoint
 
-	spriteName string
-	visitName  string
-
-	sprite      *spriteItem
-	visitSprite *spriteItem
+	oceanSprite *spriteItem
+	oceanSeen   time.Time
+	spriteSheet *spriteItem
 	objects     []*spriteItem
 
 	collision map[iPoint]bool
@@ -38,98 +41,184 @@ type islandChunkData struct {
 	islands []islandData
 }
 
-var islands []islandData = []islandData{
-	{name: "Welcome island", desc: "Learn the basics here!",
-		pos: dWinWidth, spriteName: "island1", visitName: "island-scene1"},
-}
+type islandInfoData struct {
+	Comment, Name, Desc string
 
-func visitIsland(g *Game) {
-	if g.canVisit == nil {
-		return
-	}
-	g.visiting = g.canVisit
-
-	loadSprite(islandsDir+g.visiting.visitName+"/"+g.visiting.visitName, g.visiting.visitSprite, true)
-
-	//Load objects
-	for _, obj := range g.visiting.objects {
-		obj.image, _, _ = loadImage(obj.Fullpath, true, false)
-		doLog(true, true, "loaded sprite: %v", obj.Fullpath)
-	}
-
-	makeCollisionMaps(g)
-	fixPos := findSpawns()
-
-	frameRange := g.defPlayerSP.animation.animations["idle"]
-	name := g.defPlayerSP.animation.sortedFrames[frameRange.start]
-	frame := g.defPlayerSP.animation.Frames[name]
-
-	fixPos.X -= (dWinWidth / 2)
-	fixPos.Y -= (dWinHeight / 2)
-
-	fixPos.X += float64(frame.SpriteSourceSize.W / 2)
-	fixPos.Y += float64(frame.SpriteSourceSize.H / 2)
-	g.playPos = fixPos
+	Pos,
+	Level int
 }
 
 func initIslands(g *Game) {
 	g.islandChunks = map[int]*islandChunkData{}
 
 	for i, island := range islands {
-		fPath := islandsDir + island.visitName
 		islandChunkPos := island.pos / islandChunkSize
 		if g.islandChunks[islandChunkPos] == nil {
 			g.islandChunks[islandChunkPos] = &islandChunkData{}
-			var islandDir []os.DirEntry
-			var err error
-			if !wasmMode {
-				islandDir, err = os.ReadDir(dataDir + spritesDir + fPath)
-			} else {
-				islandDir, err = efs.ReadDir(dataDir + spritesDir + fPath)
-			}
-			if err != nil {
-				doLog(true, false, "initIslands: readSprites: %v", err.Error())
-				return
-			}
-			islands[i].visitSprite = &spriteItem{onDemand: true, unmanged: true}
-			islands[i].sprite = &spriteItem{doReflect: true}
-			for _, item := range islandDir {
-
-				if strings.HasSuffix(item.Name(), ".png") {
-					fileName := path.Base(item.Name())
-					trimName := strings.TrimSuffix(fileName, ".png")
-
-					if strings.EqualFold(trimName, island.spriteName) {
-					} else if strings.EqualFold(trimName, island.visitName) {
-						loadSprite(fPath+"/"+trimName, islands[i].visitSprite, false)
-					} else {
-						newSprite := &spriteItem{Name: trimName, onDemand: true, unmanged: true, Fullpath: dataDir + spritesDir + fPath + "/" + trimName}
-						loadSprite(fPath+"/"+trimName, newSprite, false)
-						islands[i].objects = append(islands[i].objects, newSprite)
-					}
-				}
-			}
 		}
 
 		doLog(true, true, "Storing island: #%v '%v' in block %v.", i+1, island.name, islandChunkPos)
-
 		g.islandChunks[islandChunkPos].islands = append(g.islandChunks[islandChunkPos].islands, islands[i])
 	}
+
+	go cleanIslands()
+}
+
+func cleanIslands() {
+	for {
+		time.Sleep(time.Second)
+
+		for i, island := range islands {
+			if island.oceanSprite.image != nil {
+				if !island.oceanSeen.IsZero() && time.Since(island.oceanSeen) > time.Second {
+					islands[i].oceanSeen = time.Time{}
+					islands[i].oceanSprite.image.Deallocate()
+					islands[i].oceanSprite.blurred.Deallocate()
+
+					islands[i].oceanSprite.image = nil
+					islands[i].oceanSprite.blurred = nil
+					doLog(true, true, "Deallocated island ocean sprite: %v", island.name)
+				}
+			}
+		}
+	}
+}
+
+func writeInfoJson(path string, island islandInfoData) error {
+
+	if wasmMode {
+		return nil
+	}
+
+	data, err := json.MarshalIndent(island, "", "  ")
+	if err != nil {
+		doLog(true, false, "writeInfoJson: jsonMarshal: %v", err)
+		return err
+	}
+
+	err = os.WriteFile(path, data, 0755)
+	if err != nil {
+		doLog(true, false, "writeInfoJson: WriteFile: %v", err)
+		return err
+	}
+
+	return nil
+}
+
+func readInfoJson(path string) (islandInfoData, error) {
+	var fileData []byte
+	var err error
+
+	fpath := dataDir + spritesDir + islandsDir + path
+
+	if wasmMode {
+		fileData, err = efs.ReadFile(fpath + "/info.json")
+	} else {
+		fileData, err = os.ReadFile(fpath + "/info.json")
+	}
+	if err != nil {
+		doLog(true, false, "readInfoJson: readFile: %v", err)
+		return islandInfoData{}, err
+	}
+
+	var info islandInfoData
+	err = json.Unmarshal(fileData, &info)
+	if err != nil {
+		doLog(true, false, "decodeAniJSON: %v", err)
+		return islandInfoData{}, err
+	}
+
+	return info, nil
+}
+
+func scanIslandsFolder() error {
+	if len(islands) > 0 {
+		return nil
+	}
+	var dir []os.DirEntry
+	var err error
+	dirPath := dataDir + spritesDir + islandsDir
+	islands = []islandData{}
+
+	doLog(true, true, "scanIslandsFolder: Scanning.")
+
+	if wasmMode {
+		dir, err = efs.ReadDir(strings.TrimSuffix(dirPath, "/"))
+	} else {
+		dir, err = os.ReadDir(dirPath)
+	}
+	if err != nil {
+		doLog(true, false, "scanIslandsFolder: readDir: %v", err)
+		return err
+	}
+
+	var islandFolders []string
+	for _, item := range dir {
+		if item.IsDir() {
+			islandFolders = append(islandFolders, item.Name())
+		}
+	}
+	doLog(true, true, "Islands found: %v", strings.Join(islandFolders, ", "))
+
+	var islandsAdded []string
+	for _, island := range islandFolders {
+		infoPath := dirPath + island + "/"
+		fullPath := infoPath + infoJsonFile + ".json"
+		var err error
+		if wasmMode {
+			_, err = efs.ReadFile(fullPath)
+		} else {
+			_, err = os.ReadFile(fullPath)
+		}
+		if err != nil {
+			doLog(true, false, "Island '%v' has no %v file.", fullPath, infoJsonFile)
+			newInfo := islandInfoData{
+				Comment: "Once complete, rename this file to info.json",
+				Name:    island, Desc: "In-game description", Pos: 320}
+			writeInfoJson(infoPath+"info-example.json", newInfo)
+
+			return err
+		}
+		info, err := readInfoJson(island)
+		if err != nil {
+			doLog(true, false, "scanIslandsFolder: %v file for %v is invalid.", infoJsonFile, island)
+			return nil
+		}
+		islands = append(islands,
+			islandData{
+				name: info.Name,
+				desc: info.Desc,
+				pos:  info.Pos,
+				oceanSprite: &spriteItem{doReflect: true, onDemand: true,
+					Fullpath: dataDir + spritesDir + islandsDir + island + "/" + oceanSpriteFile},
+				spriteSheet: &spriteItem{onDemand: true,
+					Fullpath: dataDir + spritesDir + islandsDir + island + "/" + spriteSheetName},
+			})
+		islandsAdded = append(islandsAdded, info.Name)
+	}
+
+	return nil
 }
 
 func drawIslands(g *Game, screen *ebiten.Image) {
 
 	paralaxPos := g.boatPos.X * (islandY * distParallax)
 
-	islands := getIslands(g, int(paralaxPos))
+	iList := getIslands(g, int(paralaxPos))
 	drewSign := false
 
-	for i, island := range islands {
-		if island.sprite.image == nil {
-			loadSprite(islandsDir+island.visitName+"/"+island.spriteName, island.sprite, true)
+	for i, island := range iList {
+		if island.oceanSprite.image == nil {
+			loadSprite(island.oceanSprite.Fullpath, island.oceanSprite, true)
 		}
+		islands[i].oceanSeen = time.Now()
+
 		islandPosX := -(paralaxPos + float64(-island.pos))
-		islandPosY := dWinHeightHalf - float64(island.sprite.image.Bounds().Dy()) + islandY
+		islandPosY := dWinHeightHalf - float64(island.oceanSprite.image.Bounds().Dy()) + islandY
+
+		if paralaxPos < 0 || islandPosX > dWinWidth {
+			continue //prevent overdraw
+		}
 
 		//Island
 		op := &ebiten.DrawImageOptions{}
@@ -137,10 +226,10 @@ func drawIslands(g *Game, screen *ebiten.Image) {
 			islandPosX,
 			islandPosY,
 		)
-		screen.DrawImage(island.sprite.image, op)
+		screen.DrawImage(island.oceanSprite.image, op)
 
 		//Visit sign
-		spriteSize := float64(island.sprite.image.Bounds().Dx())
+		spriteSize := float64(island.oceanSprite.image.Bounds().Dx())
 		if !drewSign && islandPosX > 0 && islandPosX < spriteSize {
 			ebitenutil.DebugPrintAt(screen, island.name+"\nE: Visit", int(islandPosX)+10, int(islandPosY)-32)
 			drewSign = true
@@ -155,7 +244,7 @@ func drawIslands(g *Game, screen *ebiten.Image) {
 			islandPosX,
 			islandPosY*1.5,
 		)
-		screen.DrawImage(island.sprite.blurred, op)
+		screen.DrawImage(island.oceanSprite.blurred, op)
 	}
 	//Clear target
 	if !drewSign {
@@ -168,7 +257,7 @@ func getIslands(g *Game, pos int) []islandData {
 
 	cPos := pos / islandChunkSize
 
-	for x := cPos - checkChunks; x < cPos+checkChunks; x++ {
+	for x := cPos - 1; x < cPos+(checkChunks+1); x++ {
 		if g.islandChunks[x] == nil {
 			continue
 		}
@@ -178,6 +267,45 @@ func getIslands(g *Game, pos int) []islandData {
 	return islandsFound
 }
 
+func findSpawns(g *Game) fPoint {
+
+	if g.visiting == nil {
+		return fPoint{}
+	}
+	spawn := g.visiting.spriteSheet.animation.layers["spawn"]
+	if spawn == nil {
+		doLog(true, false, "Island has no spawn layer.")
+		return fPoint{}
+	}
+	newSpawn := fPoint{X: float64(spawn.SpriteSourceSize.X), Y: float64(spawn.SpriteSourceSize.Y)}
+	doLog(true, false, "Found Spawn for: %v at %v,%v", g.visiting.name, newSpawn.X, newSpawn.Y)
+	return newSpawn
+}
+
+func visitIsland(g *Game) {
+	if g.canVisit == nil {
+		return
+	}
+	doLog(true, true, "Visiting: %v", g.canVisit.name)
+	if g.canVisit.spriteSheet.image == nil {
+		loadSprite(g.canVisit.spriteSheet.Fullpath, g.canVisit.spriteSheet, true)
+	}
+
+	loadDefaultChar(g)
+
+	g.visiting = g.canVisit
+
+	makeCollisionMaps(g)
+	fixPos := findSpawns(g)
+
+	fixPos.X -= (dWinWidth / 2)
+	fixPos.Y -= (dWinHeight / 2)
+
+	g.playPos = fixPos
+}
+
+const shoreMovement = 25
+
 func (g *Game) drawIsland(screen *ebiten.Image) {
 
 	if g.visiting == nil {
@@ -185,7 +313,7 @@ func (g *Game) drawIsland(screen *ebiten.Image) {
 		ebitenutil.DebugPrint(screen, "Invalid g.visiting.")
 		return
 	}
-	if g.visiting.visitSprite.image == nil {
+	if g.visiting.spriteSheet.image == nil {
 		screen.Clear()
 		ebitenutil.DebugPrint(screen, "Invalid visitSprite.")
 		return
@@ -193,7 +321,8 @@ func (g *Game) drawIsland(screen *ebiten.Image) {
 	//Draw island ground
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(-g.playPos.X, -g.playPos.Y)
-	screen.DrawImage(g.visiting.visitSprite.image, op)
+	ground := getLayerFromName("ground", g.visiting.spriteSheet)
+	screen.DrawImage(ground, op)
 
 	//Draw player
 	op = &ebiten.DrawImageOptions{}
@@ -211,63 +340,44 @@ func (g *Game) drawIsland(screen *ebiten.Image) {
 	if faceDir == DIR_NONE {
 		dirName = "idle"
 		lface := g.playerFacing
-		playerImg = getAniFrame(int64(faceFix[lface]), g.defPlayerSP, 0)
+		playerImg = getFrameNumber(int64(faceFix[lface]), g.defPlayerSP, 0)
 	} else {
 		dirName = fmt.Sprintf("%v move", moveFix[faceDir])
 		playerImg = autoAnimate(g.defPlayerSP, 0, dirName)
 	}
 	screen.DrawImage(playerImg, op)
 
-	for _, obj := range g.visiting.objects {
+	for layerName, layer := range g.visiting.spriteSheet.animation.layers {
 		op := &ebiten.DrawImageOptions{}
-		name := obj.animation.sortedFrames[0]
-		frame := obj.animation.Frames[name]
+
+		if layerName == "ground" {
+			continue
+		}
 
 		//TODO: Replace with sprite values
 		offsety := 0.0
-		if strings.Contains(obj.Name, "shore") {
+		if layerName == "water" {
 			fraction := float64(time.Now().UnixMilli()%10000) / 10000.0
-			offsety = math.Sin(2*math.Pi*fraction)*25 + 50
+			offsety = (math.Sin(2*math.Pi*fraction) * shoreMovement) + shoreMovement
 		}
 
-		op.GeoM.Translate(
-			float64(frame.SpriteSourceSize.X-int(g.playPos.X)),
-			float64(frame.SpriteSourceSize.Y-int(g.playPos.Y))+offsety)
+		xpos, ypos :=
+			float64(layer.SpriteSourceSize.X-int(g.playPos.X)),
+			float64(layer.SpriteSourceSize.Y-int(g.playPos.Y))+offsety
+		op.GeoM.Translate(xpos, ypos)
 
-		if strings.Contains(obj.Name, "collision") ||
-			strings.Contains(obj.Name, "spawn") {
+		if layerName == "edges" || layerName == "spawn" {
 			if *debugMode {
 				op.ColorScale.ScaleAlpha(0.15)
 			} else {
 				continue
 			}
 		}
-		screen.DrawImage(obj.image, op)
+
+		subImg := getLayer(layer, g.visiting.spriteSheet)
+		screen.DrawImage(subImg, op)
 	}
 
 	buf := fmt.Sprintf("Test Island scene, E to Exit. %0.0f,%0.0f", g.playPos.X, g.playPos.Y)
 	ebitenutil.DebugPrint(screen, buf)
-}
-
-// TODO: Update sprite tags instead,
-var (
-	moveFix [9]int = [9]int{12, 12, 2, 3, 4, 6, 8, 9, 10}
-	faceFix [9]int = [9]int{0, 4, 3, 2, 1, 0, 7, 6, 5}
-)
-
-func findSpawns() fPoint {
-	for i, island := range islands {
-		for _, item := range island.objects {
-			if strings.Contains(item.Name, "spawn") {
-				name := item.animation.sortedFrames[0]
-				frame := item.animation.Frames[name]
-				newSpawn := fPoint{X: float64(frame.SpriteSourceSize.X), Y: float64(frame.SpriteSourceSize.Y)}
-				islands[i].spawn = newSpawn
-				doLog(true, false, "Found Spawn for: %v at %v,%v", island.name, newSpawn.X, newSpawn.Y)
-				return newSpawn
-			}
-		}
-	}
-
-	return fPoint{}
 }

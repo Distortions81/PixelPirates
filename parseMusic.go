@@ -25,6 +25,9 @@ func playMusicPlaylist(g *Game, gameMode int, songList []songData) {
 	if len(songList) == 0 {
 		return
 	}
+	if wasmMode && gameMode == GAME_TITLE {
+		return
+	}
 	for {
 		for _, song := range songList {
 			if g.gameMode != gameMode {
@@ -60,14 +63,20 @@ func playSong(g *Game, song *songData) {
 			g.stopMusic = false
 			break
 		}
+		if g.modeTransition {
+			time.Sleep(interval)
+			continue
+		}
 
 		if numNotes <= 1 {
 			break
 		}
 
-		time.Sleep(interval - time.Since(lastTime))
+		since := time.Since(lastTime)
+		time.Sleep(interval - since)
 		lastTime = time.Now()
 		deadCount := 0
+
 		for z := numNotes - 1; z > 0; z-- {
 			loops++
 

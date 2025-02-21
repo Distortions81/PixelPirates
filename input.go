@@ -92,7 +92,7 @@ func (g *Game) Update() error {
 		}
 	} else if g.gameMode == GAME_ISLAND {
 
-		if g.visiting == nil || g.visiting.visitSprite.image == nil {
+		if g.visiting == nil || g.visiting.spriteSheet.image == nil {
 			return nil
 		}
 
@@ -107,7 +107,7 @@ func (g *Game) Update() error {
 			}
 		}
 
-		sceneX, sceneY := float64(g.visiting.visitSprite.image.Bounds().Dx()), float64(g.visiting.visitSprite.image.Bounds().Dy())
+		sceneX, sceneY := float64(g.visiting.spriteSheet.image.Bounds().Dx()), float64(g.visiting.spriteSheet.image.Bounds().Dy())
 		sceneX, sceneY = sceneX-dWinWidth, sceneY-dWinHeight
 		oldPos := g.playPos
 		for _, key := range pressedKeys {
@@ -133,9 +133,8 @@ func (g *Game) Update() error {
 			}
 		}
 		blank := fPoint{}
-		if stopPos := checkPixelCollision(g); stopPos != blank {
+		if stopPos := checkPixelCollision(g.oldPlayPos, g.playPos, g); stopPos != blank {
 			g.playPos = stopPos
-			//doLog(true, false, "World collision: %v,%v", int(g.playPos.X), int(g.playPos.Y))
 		}
 		face := directionFromCoords(oldPos.X-g.playPos.X, oldPos.Y-g.playPos.Y)
 		if face >= 0 {

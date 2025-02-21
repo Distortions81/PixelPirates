@@ -14,50 +14,55 @@ var pWidth, pHeight int
 // Sprites with an animation json auto load as unmanged
 var spriteList map[string]*spriteItem = map[string]*spriteItem{
 	//Title
-	"title":      {Path: "title/"},
-	"clickstart": {Path: "title/"},
+	"title":      {Path: "title/", onDemand: true},
+	"clickstart": {Path: "title/", onDemand: true},
 
 	//Game & Title
 	"sun":     {Path: "world/"},
 	"island1": {Path: "world/", doReflect: true, onDemand: true},
 	"boat2":   {Path: "boats/"},
 
-	"default-player":           {Path: "characters/"},
-	"default-player-collision": {Path: "characters/"},
+	"default-player":           {Path: "characters/", onDemand: true},
+	"default-player-collision": {Path: "characters/", onDemand: true},
 }
 
 func initSprites(g *Game) {
 	g.titleSP = spriteList["title"]
 	g.clickStartSP = spriteList["clickstart"]
 
-	g.sunSP = spriteList["sun"]
-	g.boat2SP = spriteList["boat2"]
 	g.defCollision = spriteList["default-player-collision"]
 	g.defPlayerSP = spriteList["default-player"]
 
-	//Save player size
-	img := getAniFrame(0, g.defPlayerSP, 0)
-	pWidth = img.Bounds().Dx()
-	pHeight = img.Bounds().Dy()
+	g.sunSP = spriteList["sun"]
+	g.boat2SP = spriteList["boat2"]
+
 }
 
 func loadSprites() {
 	for name, sprite := range spriteList {
-		loadSprite(name, sprite, false)
+		path := dataDir + spritesDir + sprite.Path + name
+		loadSprite(path, sprite, false)
+		spriteList[name].Fullpath = path
 	}
 }
 
 func loadSprite(name string, sprite *spriteItem, demanded bool) {
 	var image, blurImg *ebiten.Image
 	var err error
-	fullpath := dataDir + spritesDir + sprite.Path + name
-	sprite.Fullpath = fullpath
 
-	aniData, err := loadAnimationData(fullpath)
-	sprite.animation = aniData
+	if sprite == nil {
+		doLog(true, false, "loadSprite: nil spriteItem: %v", name)
+		return
+	}
 
 	if !sprite.onDemand || demanded {
-		image, blurImg, err = loadImage(fullpath, sprite.unmanged, sprite.doReflect)
+		if sprite.image != nil {
+			return
+		}
+		aniData, err := loadAnimationData(name)
+		sprite.animation = aniData
+
+		image, blurImg, err = loadImage(name, sprite.unmanged, sprite.doReflect)
 		if err != nil {
 			doLog(true, false, "loadImage Failed: %v", err)
 			return
@@ -82,8 +87,8 @@ type spriteItem struct {
 	animation *animationData
 }
 
-func getAniFrame(frame int64, ani *spriteItem, offset int) *ebiten.Image {
-	numFrames := int64(len(ani.animation.Frames))
+func getFrameNumber(frame int64, ani *spriteItem, offset int) *ebiten.Image {
+	numFrames := ani.animation.numFrames
 	if frame < 0 || frame >= numFrames {
 		doLog(true, false, "%v: invalid frame number: %v", ani.Name, frame)
 		if frame >= numFrames {
@@ -105,6 +110,29 @@ func getAniFrame(frame int64, ani *spriteItem, offset int) *ebiten.Image {
 	return subFrame
 }
 
+func getLayerFromName(layerName string, ani *spriteItem) *ebiten.Image {
+	layer := ani.animation.layers[layerName]
+	if layer == nil {
+		doLog(true, false, "getLayerFromName: layer: %v not found.", layerName)
+		return nil
+	}
+	layerRect := layer.Frame
+	rect := image.Rectangle{Min: image.Point{
+		X: layerRect.X, Y: layerRect.Y},
+		Max: image.Point{X: layerRect.X + layerRect.W, Y: layerRect.Y + layerRect.H}}
+	subFrame := ani.image.SubImage(rect).(*ebiten.Image)
+	return subFrame
+}
+
+func getLayer(layer *aniFrame, ani *spriteItem) *ebiten.Image {
+	layerRect := layer.Frame
+	rect := image.Rectangle{Min: image.Point{
+		X: layerRect.X, Y: layerRect.Y},
+		Max: image.Point{X: layerRect.X + layerRect.W, Y: layerRect.Y + layerRect.H}}
+	subFrame := ani.image.SubImage(rect).(*ebiten.Image)
+	return subFrame
+}
+
 func autoAnimate(ani *spriteItem, offset int, tag string) *ebiten.Image {
 	frameRange := ani.animation.animations[tag]
 	numFrames := int64(frameRange.end-frameRange.start) + 1
@@ -118,7 +146,7 @@ func autoAnimate(ani *spriteItem, offset int, tag string) *ebiten.Image {
 		return nil
 	}
 	frameNum := (time % numFrames) + int64(frameRange.start)
-	return getAniFrame(frameNum, ani, offset)
+	return getFrameNumber(frameNum, ani, offset)
 }
 
 func autoAnimatePingPong(ani *spriteItem, offset int, tag string) *ebiten.Image {
@@ -146,5 +174,5 @@ func autoAnimatePingPong(ani *spriteItem, offset int, tag string) *ebiten.Image 
 		frameNum = int64(period - framePosition)
 	}
 
-	return getAniFrame(frameNum+int64(frameRange.start), ani, offset)
+	return getFrameNumber(frameNum+int64(frameRange.start), ani, offset)
 }

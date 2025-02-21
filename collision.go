@@ -2,7 +2,6 @@ package main
 
 import (
 	"math"
-	"strings"
 )
 
 func BresenhamLine(a, b iPoint) []iPoint {
@@ -50,12 +49,11 @@ func BresenhamLine(a, b iPoint) []iPoint {
 	return points
 }
 
-func checkPixelCollision(g *Game) fPoint {
+func checkPixelCollision(prev, new fPoint, g *Game) fPoint {
 
-	var prev iPoint = g.oldPlayPos.QuantizePoint()
 	//Check all pixels in source to destination
-	points := BresenhamLine(g.oldPlayPos.QuantizePoint(), g.playPos.QuantizePoint())
-	points = SortLinePoints(points, g.oldPlayPos.QuantizePoint(), g.playPos.QuantizePoint())
+	points := BresenhamLine(g.oldPlayPos.ToInt(), new.ToInt())
+	points = SortLinePoints(points, g.oldPlayPos.ToInt(), new.ToInt())
 
 	//Only search pixels around the feet that collide
 	for _, p := range points {
@@ -64,7 +62,7 @@ func checkPixelCollision(g *Game) fPoint {
 				return fPoint{X: float64(prev.X), Y: float64(prev.Y)}
 			}
 		}
-		prev = p
+		prev = p.ToFloat()
 	}
 	return fPoint{}
 }
@@ -73,25 +71,35 @@ func makeCollisionMaps(g *Game) {
 	if g.visiting == nil {
 		return
 	}
+
 	if len(g.visiting.collision) > 0 {
 		return
 	}
-	island := g.visiting
-	for _, item := range island.objects {
-		if strings.Contains(item.Name, "collision") {
-			g.visiting.collision = map[iPoint]bool{}
-			count := 0
-			for x := 0; x < item.image.Bounds().Dx(); x++ {
-				for y := 0; y < item.image.Bounds().Dy(); y++ {
-					pixel := item.image.At(x, y)
-					_, _, _, alpha := pixel.RGBA()
-					if alpha > 128 {
-						g.visiting.collision[iPoint{X: x, Y: y}] = true
-						count++
-					}
-				}
+
+	edges := g.visiting.spriteSheet.animation.layers["edges"]
+	g.visiting.collision = map[iPoint]bool{}
+	count := 0
+
+	for x := 0; x < edges.SourceSize.W; x++ {
+		for y := 0; y < edges.SourceSize.H; y++ {
+			sx, sy :=
+				x+edges.Frame.X-edges.SpriteSourceSize.X,
+				y+edges.Frame.Y-edges.SpriteSourceSize.Y
+			//Check for trimmed area
+			if sx < edges.Frame.X || sy < edges.Frame.Y {
+				continue
 			}
-			doLog(true, false, "Parsed collision map for island: %v (%v points)", island.name, count)
+			//Check for trimmed area
+			if sx > edges.Frame.X+edges.Frame.W || sy > edges.Frame.Y+edges.Frame.H {
+				continue
+			}
+			pixel := g.visiting.spriteSheet.image.At(sx, sy)
+			_, _, _, alpha := pixel.RGBA()
+			if alpha > 254 {
+				g.visiting.collision[iPoint{X: x, Y: y}] = true
+				count++
+			}
 		}
 	}
+	doLog(true, false, "Parsed collision map for island: %v (%v points)", g.visiting.name, count)
 }

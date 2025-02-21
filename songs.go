@@ -17,6 +17,8 @@ func init() {
 
 var (
 	gameModePlaylists = [GAME_MAX]playlistData{
+		GAME_BOOT:   nil,
+		GAME_START:  nil,
 		GAME_TITLE:  titleSongList,
 		GAME_PLAY:   gameSongList,
 		GAME_ISLAND: islandSongList,
