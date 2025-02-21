@@ -18,10 +18,12 @@ func loadDefaultChar(g *Game) {
 		loadSprite(g.defCollision.Fullpath, g.defCollision, true)
 	}
 
-	//Save player size
-	img := getFrameNumber(0, g.defPlayerSP, 0)
-	pWidth = img.Bounds().Dx()
-	pHeight = img.Bounds().Dy()
+	if len(g.defCollision.collision) == 0 {
+		//Save player size
+		img := getFrameNumber(0, g.defPlayerSP, 0)
+		pWidth = img.Bounds().Dx()
+		pHeight = img.Bounds().Dy()
 
-	saveCollisionList(g)
+		saveCollisionList(g)
+	}
 }

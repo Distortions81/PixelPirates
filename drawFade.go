@@ -30,6 +30,7 @@ type fadeData struct {
 func startGame(g *Game) {
 
 	initSprites(g)
+	loadSprites()
 
 	/*
 		if *qlive {
@@ -145,6 +146,8 @@ func modeChange(g *Game) {
 		initIslands(g)
 	} else if g.gameMode == GAME_ISLAND {
 		scanIslandsFolder()
+	} else if g.gameMode == GAME_TITLE {
+		initNoise(g)
 	}
 	if *debugMode {
 		doLog(true, true, "Mode: %v --> %v", modeNames[oldMode], modeNames[g.gameMode])

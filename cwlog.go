@@ -28,6 +28,10 @@ type logDataStruct struct {
 func doLog(withTrace, verbose bool, format string, args ...interface{}) {
 
 	if wasmMode {
+		if *debugMode {
+			short := fmt.Sprintf(format, args...)
+			fmt.Println(short)
+		}
 		return
 	}
 	if !*debugMode && verbose {

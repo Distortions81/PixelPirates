@@ -6,14 +6,14 @@ import (
 
 func (g *Game) drawTitle(screen *ebiten.Image) {
 	g.makeWave()
-	//g.makeAirWave()
+	g.makeAirWave()
 
 	drawWorldGrad(g, screen)
 	drawSun(g, screen)
-	//drawClouds(g, screen)
+	drawClouds(g, screen)
 	drawWaves(g, screen)
 	//drawIslands(g, screen)
-	//drawAir(g, screen)
+	drawAir(g, screen)
 	drawBoat(g, screen)
 
 	if !g.modeTransition {

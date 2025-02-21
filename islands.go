@@ -143,7 +143,7 @@ func scanIslandsFolder() error {
 	doLog(true, true, "scanIslandsFolder: Scanning.")
 
 	if wasmMode {
-		dir, err = efs.ReadDir(dirPath)
+		dir, err = efs.ReadDir(strings.TrimSuffix(dirPath, "/"))
 	} else {
 		dir, err = os.ReadDir(dirPath)
 	}
@@ -162,10 +162,16 @@ func scanIslandsFolder() error {
 
 	var islandsAdded []string
 	for _, island := range islandFolders {
-		infoPath := dirPath + "/" + island + "/"
-		_, err := os.ReadFile(infoPath + infoJsonFile + ".json")
+		infoPath := dirPath + island + "/"
+		fullPath := infoPath + infoJsonFile + ".json"
+		var err error
+		if wasmMode {
+			_, err = efs.ReadFile(fullPath)
+		} else {
+			_, err = os.ReadFile(fullPath)
+		}
 		if err != nil {
-			doLog(true, false, "Island '%v' has no %v file.", island, infoJsonFile)
+			doLog(true, false, "Island '%v' has no %v file.", fullPath, infoJsonFile)
 			newInfo := islandInfoData{
 				Comment: "Once complete, rename this file to info.json",
 				Name:    island, Desc: "In-game description", Pos: 320}

@@ -56,6 +56,9 @@ func loadSprite(name string, sprite *spriteItem, demanded bool) {
 	}
 
 	if !sprite.onDemand || demanded {
+		if sprite.image != nil {
+			return
+		}
 		aniData, err := loadAnimationData(name)
 		sprite.animation = aniData
 

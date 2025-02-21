@@ -55,7 +55,7 @@ func main() {
 		qtest = fptr
 		qisland = fptr
 		nomusic = tptr
-		debugMode = fptr
+		debugMode = tptr
 		fullscreen = fptr
 	}
 
@@ -80,8 +80,6 @@ func main() {
 	ebiten.SetFullscreen(*fullscreen)
 	ebiten.SetRunnableOnUnfocused(true)
 	ebiten.SetWindowTitle("Pixel Pirates")
-
-	loadSprites()
 
 	if err := ebiten.RunGameWithOptions(newGame(), &ebiten.RunGameOptions{GraphicsLibrary: ebiten.GraphicsLibraryOpenGL}); err != nil {
 		return
