@@ -25,6 +25,9 @@ func playMusicPlaylist(g *Game, gameMode int, songList []songData) {
 	if len(songList) == 0 {
 		return
 	}
+	if wasmMode && gameMode == GAME_TITLE {
+		return
+	}
 	for {
 		for _, song := range songList {
 			if g.gameMode != gameMode {
