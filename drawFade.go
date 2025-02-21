@@ -52,11 +52,6 @@ func startGame(g *Game) {
 		return
 	}
 
-	go func(g *Game) {
-		time.Sleep(time.Second)
-		g.audioContext = audio.NewContext(sampleRate)
-		playMusicPlaylist(g, g.gameMode, gameModePlaylists[g.gameMode])
-	}(g)
 }
 
 func (g *Game) startFade(toMode int, duration time.Duration, stopMusic bool, color color.NRGBA, fadeType int) {
@@ -154,7 +149,10 @@ func modeChange(g *Game) {
 	}
 
 	go func(g *Game) {
-		time.Sleep(g.fade.duration)
+		time.Sleep(time.Second)
+		if g.audioContext == nil {
+			g.audioContext = audio.NewContext(sampleRate)
+		}
 		playMusicPlaylist(g, g.gameMode, gameModePlaylists[g.gameMode])
 	}(g)
 }

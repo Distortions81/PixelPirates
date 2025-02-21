@@ -47,15 +47,15 @@ func main() {
 	if isWasm() {
 		wasmMode = true
 
-		tvalue := true
-		tptr := &tvalue
+		//tvalue := true
+		//tptr := &tvalue
 		fvalue := false
 		fptr := &fvalue
 
 		qtest = fptr
 		qisland = fptr
-		nomusic = tptr
-		debugMode = tptr
+		nomusic = fptr
+		debugMode = fptr
 		fullscreen = fptr
 	}
 
@@ -126,6 +126,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		g.drawIsland(screen)
 	case GAME_BOOT:
 		screen.Fill(color.White)
+		g.gameMode = GAME_START
 		startGame(g)
 
 		if *qisland {
@@ -137,11 +138,12 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			g.fade.fadeToMode = GAME_PLAY
 			modeChange(g)
 		} else {
-			g.gameMode = GAME_START
+			g.fade.fadeToMode = GAME_TITLE
 			modeChange(g)
-			g.startFade(GAME_TITLE, time.Second, false, COLOR_BLACK, FADE_IN)
 		}
+
 	case GAME_START:
+		return
 	default:
 		screen.Fill(COLOR_BLACK)
 		ebitenutil.DebugPrint(screen, "Inavlid Game Mode")
