@@ -111,7 +111,12 @@ func (g *Game) Update() error {
 		sceneX, sceneY := float64(g.inIsland.spriteSheet.image.Bounds().Dx()), float64(g.inIsland.spriteSheet.image.Bounds().Dy())
 		sceneX, sceneY = sceneX-dWinWidth, sceneY-dWinHeight
 		oldPos := g.playPos
-		foundDoor := findDoors(g)
+		var foundDoor bool
+		if g.gameMode == GAME_ISLAND {
+			foundDoor = findDoors(g)
+		} else {
+			g.availRoom = nil
+		}
 		for _, key := range pressedKeys {
 			if key == ebiten.KeyE {
 				if foundDoor {
@@ -120,6 +125,8 @@ func (g *Game) Update() error {
 					g.startFade(GAME_ROOM, time.Second, true, COLOR_WHITE, FADE_CROSSFADE)
 				} else if g.availRoom != nil {
 					g.startFade(GAME_PLAY, time.Second, true, COLOR_WHITE, FADE_CROSSFADE)
+				} else if g.gameMode == GAME_ROOM {
+					g.startFade(GAME_ISLAND, time.Second, true, COLOR_WHITE, FADE_CROSSFADE)
 				}
 				return nil
 			}
@@ -142,7 +149,7 @@ func (g *Game) Update() error {
 		}
 		blank := fPoint{}
 		//Clamp to island or room
-		if g.inRoom == nil {
+		if g.gameMode == GAME_ISLAND {
 			if stopPos := checkPixelCollision(g.oldPlayPos, g.playPos, g); stopPos != blank {
 				g.playPos = stopPos
 			}

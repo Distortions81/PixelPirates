@@ -30,6 +30,7 @@ var modeNames [GAME_MAX]string = [GAME_MAX]string{
 
 type roomData struct {
 	door, room string
+	oldPos     fPoint
 }
 
 type Game struct {

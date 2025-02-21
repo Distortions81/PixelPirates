@@ -16,7 +16,7 @@
     "duration": 250
    },
    "island-scene1 (Spawn).aseprite": {
-    "frame": { "x": 3065, "y": 1, "w": 11, "h": 19 },
+    "frame": { "x": 3061, "y": 1, "w": 11, "h": 19 },
     "rotated": false,
     "trimmed": true,
     "spriteSourceSize": { "x": 343, "y": 743, "w": 11, "h": 19 },
@@ -32,7 +32,7 @@
     "duration": 250
    },
    "island-scene1 (Door1).aseprite": {
-    "frame": { "x": 3043, "y": 1, "w": 20, "h": 27 },
+    "frame": { "x": 3039, "y": 1, "w": 20, "h": 27 },
     "rotated": false,
     "trimmed": true,
     "spriteSourceSize": { "x": 317, "y": 699, "w": 20, "h": 27 },
@@ -40,10 +40,10 @@
     "duration": 250
    },
    "island-scene1 (Building1).aseprite": {
-    "frame": { "x": 2881, "y": 1, "w": 160, "h": 90 },
+    "frame": { "x": 2881, "y": 1, "w": 156, "h": 90 },
     "rotated": false,
     "trimmed": true,
-    "spriteSourceSize": { "x": 160, "y": 630, "w": 160, "h": 90 },
+    "spriteSourceSize": { "x": 194, "y": 648, "w": 156, "h": 90 },
     "sourceSize": { "w": 1599, "h": 900 },
     "duration": 250
    }

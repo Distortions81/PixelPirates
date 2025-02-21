@@ -27,7 +27,7 @@ func (g *Game) drawIsland(screen *ebiten.Image) {
 
 	op := &ebiten.DrawImageOptions{}
 	var ground *ebiten.Image
-	if g.inRoom == nil {
+	if g.gameMode == GAME_ISLAND {
 		//Draw island ground
 		op.GeoM.Translate(-g.playPos.X, -g.playPos.Y)
 		ground = getLayerFromName("ground", g.inIsland.spriteSheet)

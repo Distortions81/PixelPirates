@@ -119,7 +119,9 @@ func modeChange(g *Game) {
 		g.inIsland.spriteSheet.image = nil
 		g.inIsland = nil
 		doLog(true, true, "Deallocated island spriteSheet.")
-
+	} else if oldMode == GAME_ROOM {
+		g.playPos = g.inRoom.oldPos
+		g.inRoom = nil
 	}
 
 	//Mode inits
@@ -131,6 +133,8 @@ func modeChange(g *Game) {
 		scanIslandsFolder()
 	} else if g.gameMode == GAME_TITLE {
 		initNoise(g)
+	} else if g.gameMode == GAME_ROOM {
+		g.inRoom.oldPos = g.playPos
 	}
 	if *debugMode {
 		doLog(true, true, "Mode: %v --> %v", modeNames[oldMode], modeNames[g.gameMode])
