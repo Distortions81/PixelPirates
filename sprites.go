@@ -14,8 +14,8 @@ var pWidth, pHeight int
 // Sprites with an animation json auto load as unmanged
 var spriteList map[string]*spriteItem = map[string]*spriteItem{
 	//Title
-	"title":      {Path: "title/"},
-	"clickstart": {Path: "title/"},
+	"title":      {Path: "title/", onDemand: true},
+	"clickstart": {Path: "title/", onDemand: true},
 
 	//Game & Title
 	"sun":     {Path: "world/"},
@@ -43,7 +43,9 @@ func initSprites(g *Game) {
 
 func loadSprites() {
 	for name, sprite := range spriteList {
-		loadSprite(dataDir+spritesDir+sprite.Path+name, sprite, false)
+		path := dataDir + spritesDir + sprite.Path + name
+		loadSprite(path, sprite, false)
+		spriteList[name].Fullpath = path
 	}
 }
 

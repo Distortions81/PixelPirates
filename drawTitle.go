@@ -17,6 +17,13 @@ func (g *Game) drawTitle(screen *ebiten.Image) {
 	drawBoat(g, screen)
 
 	if !g.modeTransition {
+
+		if g.titleSP.image == nil {
+			loadSprite(g.titleSP.Fullpath, g.titleSP, true)
+		}
+		if g.clickStartSP.image == nil {
+			loadSprite(g.clickStartSP.Fullpath, g.clickStartSP, true)
+		}
 		//Text
 		op := &ebiten.DrawImageOptions{}
 		op.GeoM.Translate(
