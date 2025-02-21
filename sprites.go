@@ -3,6 +3,7 @@ package main
 import (
 	"image"
 	"math"
+	"strings"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -111,7 +112,7 @@ func getFrameNumber(frame int64, ani *spriteItem, offset int) *ebiten.Image {
 }
 
 func getLayerFromName(layerName string, ani *spriteItem) *ebiten.Image {
-	layer := ani.animation.layers[layerName]
+	layer := ani.animation.layers[strings.ToLower(layerName)]
 	if layer == nil {
 		doLog(true, false, "getLayerFromName: layer: %v not found.", layerName)
 		return nil

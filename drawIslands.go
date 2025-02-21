@@ -34,7 +34,7 @@ func (g *Game) drawIsland(screen *ebiten.Image) {
 	} else {
 		//Draw room
 		screen.Clear()
-		ground = getLayerFromName(g.inRoom.layer, g.inIsland.spriteSheet)
+		ground = getLayerFromName(g.inRoom.room, g.inIsland.spriteSheet)
 	}
 	screen.DrawImage(ground, op)
 
@@ -61,11 +61,16 @@ func (g *Game) drawIsland(screen *ebiten.Image) {
 	}
 	screen.DrawImage(playerImg, op)
 
+	//Draw layers
 	for layerName, layer := range g.inIsland.spriteSheet.animation.layers {
 		op := &ebiten.DrawImageOptions{}
 
-		if layerName == "ground" || strings.HasPrefix(layerName, "building") {
+		if g.inRoom != nil && !strings.HasPrefix(layerName, "building") {
 			continue
+		} else {
+			if layerName == "ground" || strings.HasPrefix(layerName, "building") {
+				continue
+			}
 		}
 
 		//TODO: Replace with sprite values
@@ -80,7 +85,7 @@ func (g *Game) drawIsland(screen *ebiten.Image) {
 			float64(layer.SpriteSourceSize.Y-int(g.playPos.Y))+offsety
 
 		if strings.HasPrefix(layerName, "door") {
-			if g.availRoom == nil || g.availRoom.layer != layerName {
+			if g.availRoom == nil || g.availRoom.door != layerName {
 				continue
 			} else {
 				op.ColorScale.ScaleAlpha(0.5)

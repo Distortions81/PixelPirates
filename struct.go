@@ -29,7 +29,7 @@ var modeNames [GAME_MAX]string = [GAME_MAX]string{
 }
 
 type roomData struct {
-	layer string
+	door, room string
 }
 
 type Game struct {

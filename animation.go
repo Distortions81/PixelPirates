@@ -96,6 +96,7 @@ func decodeAniJSON(data []byte) (animationData, error) {
 			lName := strings.ToLower(matches[1])
 			if strings.EqualFold(lName, layer.Name) {
 				root.layers[lName] = &frame
+				root.layers[lName].Data = layer.Data
 				doLog(true, true, "found layer: %v", lName)
 			}
 		}
@@ -172,6 +173,8 @@ type aniFrame struct {
 	SpriteSourceSize aniRect `json:"spriteSourceSize"`
 	SourceSize       aniSize `json:"sourceSize"`
 	Duration         int     `json:"duration"`
+
+	Data string `json:"data"`
 }
 
 // aniRect represents a rectangle with position and size.
@@ -211,4 +214,5 @@ type aniLayer struct {
 	Name      string `json:"name"`
 	Opacity   int    `json:"opacity"`
 	BlendMode string `json:"blendMode"`
+	Data      string `json:"data"`
 }

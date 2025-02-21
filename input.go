@@ -115,8 +115,8 @@ func (g *Game) Update() error {
 		for _, key := range pressedKeys {
 			if key == ebiten.KeyE {
 				if foundDoor {
-					doLog(true, false, "Entering room: %v", g.availRoom.layer)
 					g.inRoom = g.availRoom
+					doLog(true, false, "Entering room: %v", g.inRoom.room)
 					g.startFade(GAME_ROOM, time.Second, true, COLOR_WHITE, FADE_CROSSFADE)
 				} else if g.availRoom != nil {
 					g.startFade(GAME_PLAY, time.Second, true, COLOR_WHITE, FADE_CROSSFADE)
@@ -163,7 +163,7 @@ func findDoors(g *Game) bool {
 				Y: layer.SpriteSourceSize.Y - dWinHeightHalf + layer.Frame.H/2}
 			//Todo check actual collision rects
 			if calculateDistance(g.playPos.ToInt(), doorPos) < float64(layer.Frame.W+layer.Frame.H/2)*2 {
-				g.availRoom = &roomData{layer: lname}
+				g.availRoom = &roomData{room: layer.Data, door: lname}
 				return true
 			}
 		}
