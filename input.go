@@ -119,16 +119,20 @@ func (g *Game) Update() error {
 		}
 		for _, key := range pressedKeys {
 			if key == ebiten.KeyE {
-				if foundDoor {
+				if foundDoor && g.inRoom == nil {
 					g.inRoom = g.availRoom
 					doLog(true, false, "Entering room: %v", g.inRoom.room)
 					g.startFade(GAME_ROOM, time.Second, true, COLOR_WHITE, FADE_CROSSFADE)
-				} else if g.availRoom != nil {
-					g.startFade(GAME_PLAY, time.Second, true, COLOR_WHITE, FADE_CROSSFADE)
-				} else if g.gameMode == GAME_ROOM {
-					g.startFade(GAME_ISLAND, time.Second, true, COLOR_WHITE, FADE_CROSSFADE)
 				}
 				return nil
+			}
+			if key == ebiten.KeyX {
+				if g.gameMode == GAME_ROOM {
+					g.startFade(GAME_ISLAND, time.Second, true, COLOR_WHITE, FADE_CROSSFADE)
+
+				} else {
+					g.startFade(GAME_PLAY, time.Second, true, COLOR_WHITE, FADE_CROSSFADE)
+				}
 			}
 			if key == ebiten.KeyW ||
 				key == ebiten.KeyArrowUp {
@@ -154,7 +158,7 @@ func (g *Game) Update() error {
 				g.playPos = stopPos
 			}
 			g.playPos = clampPos(fPoint{X: 0, Y: 0}, g.playPos, fPoint{X: sceneX, Y: sceneY})
-		} else {
+		} else if g.inRoom != nil && g.inIsland != nil {
 			cPos := g.inIsland.spriteSheet.animation.layers[g.inRoom.room].SpriteSourceSize
 			g.playPos = clampPos(
 				fPoint{

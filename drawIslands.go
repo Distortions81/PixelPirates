@@ -94,7 +94,6 @@ func (g *Game) drawIsland(screen *ebiten.Image) {
 				continue
 			} else {
 				op.ColorScale.ScaleAlpha(0.5)
-				ebitenutil.DebugPrintAt(screen, "E to enter", int(xpos-20), int(ypos-20))
 			}
 		}
 
@@ -112,7 +111,7 @@ func (g *Game) drawIsland(screen *ebiten.Image) {
 		screen.DrawImage(subImg, op)
 	}
 
-	buf := fmt.Sprintf("Test Island scene, E to Exit. %0.0f,%0.0f", g.playPos.X, g.playPos.Y)
+	buf := fmt.Sprintf("X to Exit. %0.0f,%0.0f", g.playPos.X, g.playPos.Y)
 	ebitenutil.DebugPrint(screen, buf)
 }
 
