@@ -22,23 +22,20 @@ var spriteList map[string]*spriteItem = map[string]*spriteItem{
 	"island1": {Path: "world/", doReflect: true, onDemand: true},
 	"boat2":   {Path: "boats/"},
 
-	"default-player":           {Path: "characters/"},
-	"default-player-collision": {Path: "characters/"},
+	"default-player":           {Path: "characters/", onDemand: true},
+	"default-player-collision": {Path: "characters/", onDemand: true},
 }
 
 func initSprites(g *Game) {
 	g.titleSP = spriteList["title"]
 	g.clickStartSP = spriteList["clickstart"]
 
-	g.sunSP = spriteList["sun"]
-	g.boat2SP = spriteList["boat2"]
 	g.defCollision = spriteList["default-player-collision"]
 	g.defPlayerSP = spriteList["default-player"]
 
-	//Save player size
-	img := getFrameNumber(0, g.defPlayerSP, 0)
-	pWidth = img.Bounds().Dx()
-	pHeight = img.Bounds().Dy()
+	g.sunSP = spriteList["sun"]
+	g.boat2SP = spriteList["boat2"]
+
 }
 
 func loadSprites() {
@@ -58,10 +55,10 @@ func loadSprite(name string, sprite *spriteItem, demanded bool) {
 		return
 	}
 
-	aniData, err := loadAnimationData(name)
-	sprite.animation = aniData
-
 	if !sprite.onDemand || demanded {
+		aniData, err := loadAnimationData(name)
+		sprite.animation = aniData
+
 		image, blurImg, err = loadImage(name, sprite.unmanged, sprite.doReflect)
 		if err != nil {
 			doLog(true, false, "loadImage Failed: %v", err)

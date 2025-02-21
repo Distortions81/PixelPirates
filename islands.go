@@ -282,6 +282,8 @@ func visitIsland(g *Game) {
 		loadSprite(g.canVisit.spriteSheet.Fullpath, g.canVisit.spriteSheet, true)
 	}
 
+	loadDefaultChar(g)
+
 	g.visiting = g.canVisit
 
 	makeCollisionMaps(g)

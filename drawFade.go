@@ -73,8 +73,9 @@ func (g *Game) drawFade(screen *ebiten.Image) {
 
 			oldMode := g.gameMode
 			g.gameMode = g.fade.fadeToMode
-			if oldMode == GAME_TITLE && g.gameMode == GAME_PLAY {
-				initNoise(g)
+
+			//Mode deinits
+			if oldMode == GAME_TITLE {
 				g.clickStartSP.image.Deallocate()
 				g.clickStartSP.image = nil
 				g.titleSP.image.Deallocate()
@@ -88,6 +89,14 @@ func (g *Game) drawFade(screen *ebiten.Image) {
 				doLog(true, true, "Deallocated island spriteSheet.")
 
 			}
+
+			//Mode inits
+			if g.gameMode == GAME_PLAY {
+				initNoise(g)
+				scanIslandsFolder()
+				initIslands(g)
+			}
+
 			if *debugMode {
 				doLog(true, true, "Mode: %v --> %v", modeNames[oldMode], modeNames[g.gameMode])
 			}

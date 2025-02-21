@@ -106,10 +106,7 @@ func newGame() *Game {
 		},
 	}
 
-	initNoise(g)
 	initSprites(g)
-	scanIslandsFolder()
-	initIslands(g)
 
 	/*
 		if *qlive {
@@ -160,7 +157,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	//Operations that can only happen after game start
 	if g.frameNumber == 1 {
-		saveCollisionList(g)
 		visitIsland(g)
 		return
 	}
