@@ -3,12 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
+	"image/color"
 	"runtime"
 	"sort"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/audio"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
@@ -18,7 +18,7 @@ const (
 	dWinWidthHalf         = dWinWidth / 2
 	magScale              = 4
 	maxScale              = 24
-	sampleRate            = 48000
+	sampleRate            = 44100
 
 	dataDir    = "data/"
 	spritesDir = "sprites/"
@@ -59,9 +59,11 @@ func main() {
 		fullscreen = fptr
 	}
 
-	startLog()
-	logDaemon()
-	doLog(true, true, "Game res: %v,%v (%vx) : (%v, %v)", dWinWidth, dWinHeight, magScale, dWinWidth*magScale, dWinHeight*magScale)
+	if *debugMode {
+		startLog()
+		logDaemon()
+		doLog(true, true, "Game res: %v,%v (%vx) : (%v, %v)", dWinWidth, dWinHeight, magScale, dWinWidth*magScale, dWinHeight*magScale)
+	}
 
 	/*
 		go func() {
@@ -88,10 +90,8 @@ func main() {
 
 func newGame() *Game {
 
-	gMode := GAME_TITLE
-
 	g := &Game{
-		gameMode: gMode,
+		gameMode: GAME_BOOT,
 		envColors: colorData{
 			day: colors{
 				water:   hexToRGB("00a0a7"),
@@ -106,42 +106,6 @@ func newGame() *Game {
 		},
 	}
 
-	initSprites(g)
-
-	/*
-		if *qlive {
-			go func() {
-				for {
-					loadSprite(islandsDir+"island-scene1/island-scene1", islands[0].visitSprite, true)
-					time.Sleep(time.Second * 1)
-					doLog(true, true, "Reloading textures.")
-				}
-			}()
-		}
-	*/
-
-	g.audioContext = audio.NewContext(sampleRate)
-	g.cloudChunks = map[int]*cloudData{}
-	g.worldGradImg = ebiten.NewImage(1, dWinHeight)
-	g.worldGradDirty = true
-
-	if *qisland {
-		g.canVisit = &islands[0]
-
-		g.gameMode = GAME_ISLAND
-	} else if *qtest {
-		g.gameMode = GAME_PLAY
-	}
-
-	if !wasmMode {
-		go func(g *Game) {
-			time.Sleep(time.Second)
-			playMusicPlaylist(g, g.gameMode, gameModePlaylists[g.gameMode])
-		}(g)
-	}
-
-	g.startFade(g.gameMode, time.Second*2, false, COLOR_BLACK, FADE_IN)
-
 	g.lastUpdate = time.Now()
 	return g
 
@@ -155,12 +119,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	g.frameNumber++
 	startTime := time.Now()
 
-	//Operations that can only happen after game start
-	if g.frameNumber == 1 {
-		visitIsland(g)
-		return
-	}
-
 	switch g.gameMode {
 	case GAME_TITLE:
 		g.drawTitle(screen)
@@ -168,10 +126,27 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		g.drawGame(screen)
 	case GAME_ISLAND:
 		g.drawIsland(screen)
+	case GAME_BOOT:
+		screen.Fill(color.White)
+		startGame(g)
+
+		if *qisland {
+			g.fade.fadeToMode = GAME_ISLAND
+			modeChange(g)
+			g.canVisit = &islands[0]
+			visitIsland(g)
+		} else if *qtest {
+			g.fade.fadeToMode = GAME_PLAY
+			modeChange(g)
+		} else {
+			g.gameMode = GAME_START
+			modeChange(g)
+			g.startFade(GAME_TITLE, time.Second, false, COLOR_BLACK, FADE_IN)
+		}
+	case GAME_START:
 	default:
 		screen.Fill(COLOR_BLACK)
 		ebitenutil.DebugPrint(screen, "Inavlid Game Mode")
-		return
 	}
 	if g.modeTransition {
 		g.drawFade(screen)

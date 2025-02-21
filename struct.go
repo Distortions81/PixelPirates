@@ -10,13 +10,17 @@ import (
 
 // Game mode
 const (
-	GAME_TITLE = iota
+	GAME_BOOT = iota
+	GAME_START
+	GAME_TITLE
 	GAME_PLAY
 	GAME_ISLAND
 	GAME_MAX //Don't use
 )
 
 var modeNames [GAME_MAX]string = [GAME_MAX]string{
+	"BOOT",
+	"START",
 	"TITLE",
 	"PLAY",
 	"ISLAND",

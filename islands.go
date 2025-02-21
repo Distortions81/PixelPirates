@@ -132,6 +132,9 @@ func readInfoJson(path string) (islandInfoData, error) {
 }
 
 func scanIslandsFolder() error {
+	if len(islands) > 0 {
+		return nil
+	}
 	var dir []os.DirEntry
 	var err error
 	dirPath := dataDir + spritesDir + islandsDir
