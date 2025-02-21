@@ -60,6 +60,7 @@ type Game struct {
 	playerFacing int
 
 	visiting, canVisit *islandData
+	nearDoor           iPoint
 
 	//Clouds
 	cloudChunks    map[int]*cloudData

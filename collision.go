@@ -4,6 +4,13 @@ import (
 	"math"
 )
 
+func calculateDistance(origin, target iPoint) float64 {
+	// Calculate differences as float64 to ensure accuracy
+	dx := float64(target.X - origin.X)
+	dy := float64(target.Y - origin.Y)
+	return math.Sqrt(dx*dx + dy*dy)
+}
+
 func BresenhamLine(a, b iPoint) []iPoint {
 	var points []iPoint
 

@@ -2,6 +2,7 @@ package main
 
 import (
 	"math"
+	"strings"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -134,8 +135,9 @@ func (g *Game) Update() error {
 		}
 		blank := fPoint{}
 		if stopPos := checkPixelCollision(g.oldPlayPos, g.playPos, g); stopPos != blank {
-			g.playPos = stopPos
+			//g.playPos = stopPos
 		}
+		findDoors(g)
 		face := directionFromCoords(oldPos.X-g.playPos.X, oldPos.Y-g.playPos.Y)
 		if face >= 0 {
 			g.playerFacing = face
@@ -144,6 +146,22 @@ func (g *Game) Update() error {
 	}
 
 	return nil
+}
+
+func findDoors(g *Game) {
+	g.nearDoor = iPoint{}
+	for lname, layer := range g.visiting.spriteSheet.animation.layers {
+		if strings.HasPrefix(lname, "door") {
+			doorPos := iPoint{
+				X: layer.SpriteSourceSize.X - dWinWidthHalf + layer.Frame.W/2,
+				Y: layer.SpriteSourceSize.Y - dWinHeightHalf + layer.Frame.H/2}
+			if calculateDistance(g.playPos.ToInt(), doorPos) < float64(layer.Frame.W+layer.Frame.H/2)*2 {
+				layer.highlight = true
+			} else {
+				layer.highlight = false
+			}
+		}
+	}
 }
 
 func clampPos(low, pos, max fPoint) fPoint {

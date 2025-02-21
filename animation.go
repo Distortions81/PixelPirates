@@ -172,6 +172,9 @@ type aniFrame struct {
 	SpriteSourceSize aniRect `json:"spriteSourceSize"`
 	SourceSize       aniSize `json:"sourceSize"`
 	Duration         int     `json:"duration"`
+
+	//Local
+	highlight bool
 }
 
 // aniRect represents a rectangle with position and size.
