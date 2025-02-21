@@ -1,6 +1,10 @@
 package main
 
-import "github.com/hajimehoshi/ebiten/v2"
+import (
+	"image"
+
+	"github.com/hajimehoshi/ebiten/v2"
+)
 
 // TODO: Update sprite tags instead,
 var (
@@ -8,6 +12,10 @@ var (
 	moveFix   [9]int = [9]int{12, 12, 2, 3, 4, 6, 8, 9, 10}
 	faceFix   [9]int = [9]int{0, 4, 3, 2, 1, 0, 7, 6, 5}
 )
+
+var charDims image.Rectangle = image.Rectangle{
+	Min: image.Point{X: 5, Y: -6},
+	Max: image.Point{X: -6, Y: -9}}
 
 func loadDefaultChar(g *Game) {
 

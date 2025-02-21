@@ -91,7 +91,7 @@ func (g *Game) Update() error {
 				return nil
 			}
 		}
-	} else if g.gameMode == GAME_ISLAND {
+	} else if g.gameMode == GAME_ISLAND || g.gameMode == GAME_ROOM {
 
 		if g.inIsland == nil || g.inIsland.spriteSheet.image == nil {
 			return nil
@@ -141,14 +141,29 @@ func (g *Game) Update() error {
 			}
 		}
 		blank := fPoint{}
-		if stopPos := checkPixelCollision(g.oldPlayPos, g.playPos, g); stopPos != blank {
-			g.playPos = stopPos
+		//Clamp to island or room
+		if g.inRoom == nil {
+			if stopPos := checkPixelCollision(g.oldPlayPos, g.playPos, g); stopPos != blank {
+				g.playPos = stopPos
+			}
+			g.playPos = clampPos(fPoint{X: 0, Y: 0}, g.playPos, fPoint{X: sceneX, Y: sceneY})
+		} else {
+			cPos := g.inIsland.spriteSheet.animation.layers[g.inRoom.room].SpriteSourceSize
+			g.playPos = clampPos(
+				fPoint{
+					X: float64(cPos.X - dWinWidthHalf + charDims.Min.X),
+					Y: float64(cPos.Y - dWinHeightHalf + charDims.Min.Y)},
+				g.playPos,
+				fPoint{
+					X: float64(cPos.X + cPos.W - dWinWidthHalf + charDims.Max.X),
+					Y: float64(cPos.Y + cPos.H - dWinHeightHalf + charDims.Max.Y)})
+
 		}
 		face := directionFromCoords(oldPos.X-g.playPos.X, oldPos.Y-g.playPos.Y)
 		if face >= 0 {
 			g.playerFacing = face
 		}
-		g.playPos = clampPos(fPoint{X: 0, Y: 0}, g.playPos, fPoint{X: sceneX, Y: sceneY})
+
 	}
 
 	return nil

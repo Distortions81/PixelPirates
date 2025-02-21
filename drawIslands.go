@@ -26,15 +26,20 @@ func (g *Game) drawIsland(screen *ebiten.Image) {
 	}
 
 	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(-g.playPos.X, -g.playPos.Y)
 	var ground *ebiten.Image
 	if g.inRoom == nil {
 		//Draw island ground
+		op.GeoM.Translate(-g.playPos.X, -g.playPos.Y)
 		ground = getLayerFromName("ground", g.inIsland.spriteSheet)
 	} else {
 		//Draw room
 		screen.Clear()
 		ground = getLayerFromName(g.inRoom.room, g.inIsland.spriteSheet)
+		room := g.inIsland.spriteSheet.animation.layers[g.inRoom.room]
+		xpos, ypos :=
+			float64(room.SpriteSourceSize.X-int(g.playPos.X)),
+			float64(room.SpriteSourceSize.Y-int(g.playPos.Y))
+		op.GeoM.Translate(xpos, ypos)
 	}
 	screen.DrawImage(ground, op)
 
