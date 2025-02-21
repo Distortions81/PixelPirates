@@ -32,18 +32,6 @@ func startGame(g *Game) {
 	initSprites(g)
 	loadSprites()
 
-	/*
-		if *qlive {
-			go func() {
-				for {
-					loadSprite(islandsDir+"island-scene1/island-scene1", islands[0].visitSprite, true)
-					time.Sleep(time.Second * 1)
-					doLog(true, true, "Reloading textures.")
-				}
-			}()
-		}
-	*/
-
 	g.cloudChunks = map[int]*cloudData{}
 	g.worldGradImg = ebiten.NewImage(1, dWinHeight)
 	g.worldGradDirty = true
@@ -126,10 +114,10 @@ func modeChange(g *Game) {
 		g.titleSP.image = nil
 		doLog(true, true, "Deallocated title screen assets.")
 
-	} else if oldMode == GAME_ISLAND {
-		g.visiting.spriteSheet.image.Deallocate()
-		g.visiting.spriteSheet.image = nil
-		g.visiting = nil
+	} else if oldMode == GAME_ISLAND && g.gameMode != GAME_ROOM {
+		g.inIsland.spriteSheet.image.Deallocate()
+		g.inIsland.spriteSheet.image = nil
+		g.inIsland = nil
 		doLog(true, true, "Deallocated island spriteSheet.")
 
 	}

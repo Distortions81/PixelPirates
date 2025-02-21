@@ -65,7 +65,7 @@ func checkPixelCollision(prev, new fPoint, g *Game) fPoint {
 	//Only search pixels around the feet that collide
 	for _, p := range points {
 		for _, pixel := range g.defCollision.collision {
-			if g.visiting.collision[iPoint{X: dWinWidthHalf - (pWidth / 2) + int(p.X) + pixel.X, Y: dWinHeightHalf - (pHeight / 2) + int(p.Y) + pixel.Y}] {
+			if g.inIsland.collision[iPoint{X: dWinWidthHalf - (pWidth / 2) + int(p.X) + pixel.X, Y: dWinHeightHalf - (pHeight / 2) + int(p.Y) + pixel.Y}] {
 				return fPoint{X: float64(prev.X), Y: float64(prev.Y)}
 			}
 		}
@@ -75,16 +75,16 @@ func checkPixelCollision(prev, new fPoint, g *Game) fPoint {
 }
 
 func makeCollisionMaps(g *Game) {
-	if g.visiting == nil {
+	if g.inIsland == nil {
 		return
 	}
 
-	if len(g.visiting.collision) > 0 {
+	if len(g.inIsland.collision) > 0 {
 		return
 	}
 
-	edges := g.visiting.spriteSheet.animation.layers["edges"]
-	g.visiting.collision = map[iPoint]bool{}
+	edges := g.inIsland.spriteSheet.animation.layers["edges"]
+	g.inIsland.collision = map[iPoint]bool{}
 	count := 0
 
 	for x := 0; x < edges.SourceSize.W; x++ {
@@ -100,13 +100,13 @@ func makeCollisionMaps(g *Game) {
 			if sx > edges.Frame.X+edges.Frame.W || sy > edges.Frame.Y+edges.Frame.H {
 				continue
 			}
-			pixel := g.visiting.spriteSheet.image.At(sx, sy)
+			pixel := g.inIsland.spriteSheet.image.At(sx, sy)
 			_, _, _, alpha := pixel.RGBA()
 			if alpha > 254 {
-				g.visiting.collision[iPoint{X: x, Y: y}] = true
+				g.inIsland.collision[iPoint{X: x, Y: y}] = true
 				count++
 			}
 		}
 	}
-	doLog(true, false, "Parsed collision map for island: %v (%v points)", g.visiting.name, count)
+	doLog(true, false, "Parsed collision map for island: %v (%v points)", g.inIsland.name, count)
 }

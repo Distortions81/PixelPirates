@@ -212,31 +212,31 @@ func getIslands(g *Game, pos int) []islandData {
 
 func findSpawns(g *Game) fPoint {
 
-	if g.visiting == nil {
+	if g.inIsland == nil {
 		return fPoint{}
 	}
-	spawn := g.visiting.spriteSheet.animation.layers["spawn"]
+	spawn := g.inIsland.spriteSheet.animation.layers["spawn"]
 	if spawn == nil {
 		doLog(true, false, "Island has no spawn layer.")
 		return fPoint{}
 	}
 	newSpawn := fPoint{X: float64(spawn.SpriteSourceSize.X), Y: float64(spawn.SpriteSourceSize.Y)}
-	doLog(true, false, "Found Spawn for: %v at %v,%v", g.visiting.name, newSpawn.X, newSpawn.Y)
+	doLog(true, false, "Found Spawn for: %v at %v,%v", g.inIsland.name, newSpawn.X, newSpawn.Y)
 	return newSpawn
 }
 
-func visitIsland(g *Game) {
-	if g.canVisit == nil {
+func gotoIsland(g *Game) {
+	if g.availIsland == nil {
 		return
 	}
-	doLog(true, true, "Visiting: %v", g.canVisit.name)
-	if g.canVisit.spriteSheet.image == nil {
-		loadSprite(g.canVisit.spriteSheet.Fullpath, g.canVisit.spriteSheet, true)
+	doLog(true, true, "Going to island: %v", g.availIsland.name)
+	if g.availIsland.spriteSheet.image == nil {
+		loadSprite(g.availIsland.spriteSheet.Fullpath, g.availIsland.spriteSheet, true)
 	}
 
 	loadDefaultChar(g)
 
-	g.visiting = g.canVisit
+	g.inIsland = g.availIsland
 
 	makeCollisionMaps(g)
 	fixPos := findSpawns(g)

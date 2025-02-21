@@ -84,8 +84,8 @@ func (g *Game) Update() error {
 				g.boatPos.X += xSpeed
 			}
 			if key == ebiten.KeyE {
-				if g.canVisit != nil && !g.modeTransition {
-					visitIsland(g)
+				if g.availIsland != nil && !g.modeTransition {
+					gotoIsland(g)
 					g.startFade(GAME_ISLAND, time.Second, true, COLOR_WHITE, FADE_CROSSFADE)
 				}
 				return nil
@@ -93,7 +93,7 @@ func (g *Game) Update() error {
 		}
 	} else if g.gameMode == GAME_ISLAND {
 
-		if g.visiting == nil || g.visiting.spriteSheet.image == nil {
+		if g.inIsland == nil || g.inIsland.spriteSheet.image == nil {
 			return nil
 		}
 
@@ -108,12 +108,19 @@ func (g *Game) Update() error {
 			}
 		}
 
-		sceneX, sceneY := float64(g.visiting.spriteSheet.image.Bounds().Dx()), float64(g.visiting.spriteSheet.image.Bounds().Dy())
+		sceneX, sceneY := float64(g.inIsland.spriteSheet.image.Bounds().Dx()), float64(g.inIsland.spriteSheet.image.Bounds().Dy())
 		sceneX, sceneY = sceneX-dWinWidth, sceneY-dWinHeight
 		oldPos := g.playPos
+		foundDoor := findDoors(g)
 		for _, key := range pressedKeys {
 			if key == ebiten.KeyE {
-				g.startFade(GAME_PLAY, time.Second, true, COLOR_WHITE, FADE_CROSSFADE)
+				if foundDoor {
+					doLog(true, false, "Entering room: %v", g.availRoom.layer)
+					g.inRoom = g.availRoom
+					g.startFade(GAME_ROOM, time.Second, true, COLOR_WHITE, FADE_CROSSFADE)
+				} else if g.availRoom != nil {
+					g.startFade(GAME_PLAY, time.Second, true, COLOR_WHITE, FADE_CROSSFADE)
+				}
 				return nil
 			}
 			if key == ebiten.KeyW ||
@@ -135,9 +142,8 @@ func (g *Game) Update() error {
 		}
 		blank := fPoint{}
 		if stopPos := checkPixelCollision(g.oldPlayPos, g.playPos, g); stopPos != blank {
-			//g.playPos = stopPos
+			g.playPos = stopPos
 		}
-		findDoors(g)
 		face := directionFromCoords(oldPos.X-g.playPos.X, oldPos.Y-g.playPos.Y)
 		if face >= 0 {
 			g.playerFacing = face
@@ -148,20 +154,21 @@ func (g *Game) Update() error {
 	return nil
 }
 
-func findDoors(g *Game) {
-	g.nearDoor = iPoint{}
-	for lname, layer := range g.visiting.spriteSheet.animation.layers {
+func findDoors(g *Game) bool {
+	g.availRoom = nil
+	for lname, layer := range g.inIsland.spriteSheet.animation.layers {
 		if strings.HasPrefix(lname, "door") {
 			doorPos := iPoint{
 				X: layer.SpriteSourceSize.X - dWinWidthHalf + layer.Frame.W/2,
 				Y: layer.SpriteSourceSize.Y - dWinHeightHalf + layer.Frame.H/2}
+			//Todo check actual collision rects
 			if calculateDistance(g.playPos.ToInt(), doorPos) < float64(layer.Frame.W+layer.Frame.H/2)*2 {
-				layer.highlight = true
-			} else {
-				layer.highlight = false
+				g.availRoom = &roomData{layer: lname}
+				return true
 			}
 		}
 	}
+	return false
 }
 
 func clampPos(low, pos, max fPoint) fPoint {

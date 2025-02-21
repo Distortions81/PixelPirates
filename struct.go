@@ -15,6 +15,7 @@ const (
 	GAME_TITLE
 	GAME_PLAY
 	GAME_ISLAND
+	GAME_ROOM
 	GAME_MAX //Don't use
 )
 
@@ -24,6 +25,11 @@ var modeNames [GAME_MAX]string = [GAME_MAX]string{
 	"TITLE",
 	"PLAY",
 	"ISLAND",
+	"ROOM",
+}
+
+type roomData struct {
+	layer string
 }
 
 type Game struct {
@@ -44,6 +50,7 @@ type Game struct {
 	audioContext *audio.Context
 	stopMusic    bool
 
+	//Mode crossfade
 	fade fadeData
 
 	//Ocean specific
@@ -59,8 +66,8 @@ type Game struct {
 
 	playerFacing int
 
-	visiting, canVisit *islandData
-	nearDoor           iPoint
+	inIsland, availIsland *islandData
+	inRoom, availRoom     *roomData
 
 	//Clouds
 	cloudChunks    map[int]*cloudData

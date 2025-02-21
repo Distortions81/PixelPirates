@@ -124,6 +124,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		g.drawGame(screen)
 	case GAME_ISLAND:
 		g.drawIsland(screen)
+	case GAME_ROOM:
+		g.drawIsland(screen)
 	case GAME_BOOT:
 		screen.Fill(color.White)
 		g.gameMode = GAME_START
@@ -132,8 +134,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		if *qisland {
 			g.fade.fadeToMode = GAME_ISLAND
 			modeChange(g)
-			g.canVisit = &islands[0]
-			visitIsland(g)
+			g.availIsland = &islands[0]
+			gotoIsland(g)
 		} else if *qtest {
 			g.fade.fadeToMode = GAME_PLAY
 			modeChange(g)

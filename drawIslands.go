@@ -14,20 +14,28 @@ const shoreMovement = 25
 
 func (g *Game) drawIsland(screen *ebiten.Image) {
 
-	if g.visiting == nil {
+	if g.inIsland == nil {
 		screen.Clear()
-		ebitenutil.DebugPrint(screen, "Invalid g.visiting.")
+		ebitenutil.DebugPrint(screen, "Invalid g.inIsland.")
 		return
 	}
-	if g.visiting.spriteSheet.image == nil {
+	if g.inIsland.spriteSheet.image == nil {
 		screen.Clear()
-		ebitenutil.DebugPrint(screen, "Invalid visitSprite.")
+		ebitenutil.DebugPrint(screen, "Invalid spriteSheet.")
 		return
 	}
-	//Draw island ground
+
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(-g.playPos.X, -g.playPos.Y)
-	ground := getLayerFromName("ground", g.visiting.spriteSheet)
+	var ground *ebiten.Image
+	if g.inRoom == nil {
+		//Draw island ground
+		ground = getLayerFromName("ground", g.inIsland.spriteSheet)
+	} else {
+		//Draw room
+		screen.Clear()
+		ground = getLayerFromName(g.inRoom.layer, g.inIsland.spriteSheet)
+	}
 	screen.DrawImage(ground, op)
 
 	//Draw player
@@ -53,13 +61,11 @@ func (g *Game) drawIsland(screen *ebiten.Image) {
 	}
 	screen.DrawImage(playerImg, op)
 
-	for layerName, layer := range g.visiting.spriteSheet.animation.layers {
+	for layerName, layer := range g.inIsland.spriteSheet.animation.layers {
 		op := &ebiten.DrawImageOptions{}
 
-		if layerName == "ground" || strings.HasPrefix(layerName, "door") || strings.HasPrefix(layerName, "building") {
-			if !layer.highlight {
-				continue
-			}
+		if layerName == "ground" || strings.HasPrefix(layerName, "building") {
+			continue
 		}
 
 		//TODO: Replace with sprite values
@@ -72,9 +78,14 @@ func (g *Game) drawIsland(screen *ebiten.Image) {
 		xpos, ypos :=
 			float64(layer.SpriteSourceSize.X-int(g.playPos.X)),
 			float64(layer.SpriteSourceSize.Y-int(g.playPos.Y))+offsety
-		if layer.highlight {
-			op.ColorScale.ScaleAlpha(0.5)
-			ebitenutil.DebugPrintAt(screen, "E to enter", int(xpos-20), int(ypos-20))
+
+		if strings.HasPrefix(layerName, "door") {
+			if g.availRoom == nil || g.availRoom.layer != layerName {
+				continue
+			} else {
+				op.ColorScale.ScaleAlpha(0.5)
+				ebitenutil.DebugPrintAt(screen, "E to enter", int(xpos-20), int(ypos-20))
+			}
 		}
 
 		op.GeoM.Translate(xpos, ypos)
@@ -87,7 +98,7 @@ func (g *Game) drawIsland(screen *ebiten.Image) {
 			}
 		}
 
-		subImg := getLayer(layer, g.visiting.spriteSheet)
+		subImg := getLayer(layer, g.inIsland.spriteSheet)
 		screen.DrawImage(subImg, op)
 	}
 
@@ -128,7 +139,7 @@ func drawIslands(g *Game, screen *ebiten.Image) {
 		if !drewSign && islandPosX > 0 && islandPosX < spriteSize {
 			ebitenutil.DebugPrintAt(screen, island.name+"\nE: Visit", int(islandPosX)+10, int(islandPosY)-32)
 			drewSign = true
-			g.canVisit = &islands[i]
+			g.availIsland = &islands[i]
 		}
 
 		//Island refection
@@ -143,6 +154,6 @@ func drawIslands(g *Game, screen *ebiten.Image) {
 	}
 	//Clear target
 	if !drewSign {
-		g.canVisit = nil
+		g.availIsland = nil
 	}
 }
