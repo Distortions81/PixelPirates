@@ -48,12 +48,12 @@ type Game struct {
 	wavesLines            [dWinHeightHalf]waveLine
 	airWaveLines          [dWinHeightHalf]waveLine
 	numWaves, numAirWaves int
-	collisions            int
 
 	//Visit-Island specific
 	islandChunks        map[int]*islandChunkData
 	playPos, oldPlayPos fPoint
-	playerFacing        int
+
+	playerFacing int
 
 	visiting, canVisit *islandData
 

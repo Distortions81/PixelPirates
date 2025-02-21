@@ -199,8 +199,12 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 }
 
-func (point fPoint) QuantizePoint() iPoint {
+func (point fPoint) ToInt() iPoint {
 	return iPoint{X: int(point.X), Y: int(point.Y)}
+}
+
+func (point iPoint) ToFloat() fPoint {
+	return fPoint{X: float64(point.X), Y: float64(point.Y)}
 }
 
 func saveCollisionList(g *Game) {

@@ -203,7 +203,7 @@ func (g *Game) makeWave() {
 		}
 	}
 	spawns := 0
-	for spawns < spawnPerFrame && g.numWaves < maxWaves && g.collisions < maxCollisions {
+	for spawns < spawnPerFrame && g.numWaves < maxWaves {
 		y := int(logDistWave(rand.Float64()) * dWinHeightHalf)
 		y = min(y, dWinHeightHalf-1)
 		y = max(y, 0)
@@ -236,7 +236,7 @@ func (g *Game) makeAirWave() {
 		}
 	}
 	spawns := 0
-	for spawns < spawnPerFrame && g.numAirWaves < maxAirWaves && g.collisions < maxCollisions {
+	for spawns < spawnPerFrame && g.numAirWaves < maxAirWaves {
 		y := int(logDistAirWave(rand.Float64()) * dWinHeightHalf)
 		y = min(y, dWinHeightHalf-1)
 		y = max(y, 0)
