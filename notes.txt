@@ -1,3 +1,11 @@
-rewrite sprite code to load sprite sheets, and automatically return correct animations and images.
-also make main sprites on demand.
-make scene asset lists for unloading and loading.
+"Pixel Pirates"
+Concept: A retro-style multiplayer game where players control pixelated pirate ships and sail across a procedurally generated ocean to find treasure and battle other pirates. The unique twist: players can design their own ships by adding blocks (like building a raft), but each block has different properties, and too much weight can sink your ship. The game becomes a balance of shipbuilding, resource gathering, and naval combat.
+Why it's novel: The ship-building mechanic adds a creative element to competitive combat, while the pixel aesthetic keeps it approachable and charming.
+Scope: Simple 2D pixel art, combined with procedurally generated maps and ship-building mechanics, makes this manageable for a solo developer.
+
+make boat slide into view at start. procedural other boats sailing. 
+fix clouds in negative position
+put music, base items and other hard-coded data into json?
+support no-tag auto animate
+make houses, huts, merchants, items to find (shells, scrap, wood, etc)
+the island, the oracle. npcs warn you. 
