@@ -83,6 +83,9 @@ func (g *Game) Update() error {
 				key == ebiten.KeyArrowRight {
 				g.boatPos.X += xSpeed
 			}
+			if g.boatPos.X < 0 {
+				g.boatPos.X = 0
+			}
 			if key == ebiten.KeyE {
 				if g.availIsland != nil && !g.modeTransition {
 					gotoIsland(g)
