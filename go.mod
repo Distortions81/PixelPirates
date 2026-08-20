@@ -1,10 +1,9 @@
 module PixelPirates
 
 go 1.26.6
-toolchain go1.26.6
 
 require (
-	github.com/anthonynsimon/bild v0.14.0
+	github.com/anthonynsimon/bild v0.17.0
 	github.com/aquilax/go-perlin v1.1.0
 	github.com/chewxy/math32 v1.11.1
 	github.com/go-audio/audio v1.0.0
