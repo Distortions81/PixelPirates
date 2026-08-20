@@ -5,7 +5,7 @@ go 1.23.4
 require (
 	github.com/anthonynsimon/bild v0.14.0
 	github.com/aquilax/go-perlin v1.1.0
-	github.com/chewxy/math32 v1.11.1
+	github.com/chewxy/math32 v1.11.2
 	github.com/go-audio/audio v1.0.0
 	github.com/go-audio/wav v1.1.0
 	github.com/hajimehoshi/ebiten/v2 v2.8.6
