@@ -1,10 +1,9 @@
 module PixelPirates
 
 go 1.26.6
-toolchain go1.26.6
 
 require (
-	github.com/anthonynsimon/bild v0.14.0
+	github.com/anthonynsimon/bild v0.17.1
 	github.com/aquilax/go-perlin v1.1.0
 	github.com/chewxy/math32 v1.11.1
 	github.com/go-audio/audio v1.0.0
@@ -20,5 +19,5 @@ require (
 	github.com/go-audio/riff v1.0.0 // indirect
 	github.com/jezek/xgb v1.1.1 // indirect
 	golang.org/x/sync v0.10.0 // indirect
-	golang.org/x/sys v0.29.0 // indirect
+	golang.org/x/sys v0.47.0 // indirect
 )
